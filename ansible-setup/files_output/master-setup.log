@@ -1,0 +1,85 @@
+
+###############################################
+Script name:	ansible-setup.sh
+Script user:	brians
+Running as:	root
+Running on:	head
+IP-Address:	192.168.1.141 
+###############################################
+
+
+apt-get update
+
+Get:1 http://security.ubuntu.com/ubuntu xenial-security InRelease [102 kB]
+Hit:2 http://us.archive.ubuntu.com/ubuntu xenial InRelease
+Get:3 http://us.archive.ubuntu.com/ubuntu xenial-updates InRelease [102 kB]
+Get:4 http://us.archive.ubuntu.com/ubuntu xenial-backports InRelease [102 kB]
+Fetched 306 kB in 0s (448 kB/s)
+Reading package lists...
+
+apt-get upgrade -y
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+apt-get autoremove -y
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+apt-get install -y ansible
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+ansible is already the newest version (2.1.1.0-1~ubuntu16.04.1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+adduser --quiet --disabled-password --shell /bin/bash --home /home/ansible --gecos 'User to run Ansible Playbooks' ansible
+
+ansible:ansible | chpasswd
+
+ansible ALL=(ALL:ALL) NOPASSWD: ALL > /etc/sudoers.d/ansible
+
+chmod 0440 /etc/sudoers.d/ansible
+
+mkdir -p /home/ansible/.ssh
+
+chmod 700 /home/ansible/.ssh
+
+ssh-keygen -v -b 2048 -t rsa -f /home/ansible/.ssh/id_rsa -N ''
+Generating public/private rsa key pair.
+Your identification has been saved in /home/ansible/.ssh/id_rsa.
+Your public key has been saved in /home/ansible/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:WJwyPiiM6v0MKHyU6v9CBqovsIwNir/0mZfsFaX8/Og root@head
+The key's randomart image is:
++---[RSA 2048]----+
+|                 |
+|       . .       |
+|      o + .      |
+| +  .o * o       |
+|o +o. + S        |
+|* ++   . +       |
+|XB+o . .. o      |
+|@o+ooo+.   o     |
+| *=+B*.  .E .    |
++----[SHA256]-----+
+
+sed -i s/root/ansible/g /home/ansible/.ssh/id_rsa.pub
+
+chmod 600 /home/ansible/.ssh/id_rsa
+
+cp /home/ansible/.ssh/id_rsa.pub /home/ansible/.ssh/authorized_keys
+
+chmod 640 /home/ansible/.ssh/authorized_keys
+
+ssh-keyscan 192.168.1.141  >> /home/ansible/.ssh/known_hosts
+ssh-keyscan head >> /home/ansible/.ssh/known_hosts
+
+chown -R ansible:ansible /home/ansible/.ssh
