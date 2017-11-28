@@ -1,0 +1,62 @@
+---
+# Purpose:
+# This playbook will set passwordless priviledges for the secondary namenode
+# on the namenode, so that the secondary namenode can merge the edits and fsimage
+# file regularly.
+
+# Assumptions:
+# 1) the variable startstop is passed at command line
+# eg.  ansible-playbook hadoop-1-set-2nn-ssh.yml --extra-vars "hadoop_version=1.2.1 hadoop_name_node=xyz hadoop_secondary_name_node=abc"
+
+# tasks to run on namenode
+########################################################################################
+- name: set ssh passwordless privileges for 2nn->nn to facilitate fsimage edit merges
+  hosts: secondary_nn
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: create {{ hadoop_home }}/.ssh
+    file:
+      path: "{{ hadoop_home }}/.ssh"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      state: directory
+      mode: 0700
+
+  - name: ssh-keygen -v -b 2048 -t rsa -f "{{ hadoop_home }}/.ssh/id_rsa" -N ''
+    shell: ssh-keygen -v -b 2048 -t rsa -f "{{ hadoop_home }}/.ssh/id_rsa" -N '' 
+
+  - name: chmod 0644 {{ hadoop_home }}/.ssh/id_rsa
+    file:
+      path: "{{ hadoop_home }}/.ssh/id_rsa"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0600
+
+  - name: apt-get install python-pexpect
+#    become_user: ansible
+#    become: true
+#    become_method: sudo
+    apt:
+      name: python-pexpect
+      state: present
+      update_cache: yes
+
+  - name: ssh-copy-id {{ hadoop_name_node }}
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    expect:
+      command: ssh-copy-id {{ hadoop_name_node }}
+      responses:
+        (?i)\(yes/no\)\?: "yes"
+        (?i)password: "{{ hadoop_user_pwd }}"

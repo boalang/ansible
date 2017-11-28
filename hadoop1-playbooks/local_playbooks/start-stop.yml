@@ -1,0 +1,231 @@
+---
+# Purpose:
+# This playbook will start and stop the cluster
+
+# Assumptions:
+# 1) the variable startstop is passed at command line
+# eg.  ansible-playbook hadoop-1-start-stop.yml --extra-vars "hadoop_version=1.2.1 start_stop_cluster=start"
+
+# the following sources was helpful:
+# https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_installing_manually_book/content/format_and_start_hdfs.html
+#
+# White's HTDG 4th pgs 290-291 for mentioning hadoop-daemon.sh
+# 
+# from the bottom of start-dfs.sh
+# start dfs daemons
+# start namenode after datanodes, to minimize time namenode is up w/o data
+# note: datanodes will log connection errors until namenode starts
+# "$bin"/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
+# "$bin"/hadoop-daemons.sh --config $HADOOP_CONF_DIR start datanode $dataStartOpt
+# "$bin"/hadoop-daemons.sh --config $HADOOP_CONF_DIR --hosts masters start secondarynamenode
+#
+# from bottom of start-mapred.sh
+# start mapred daemons
+# start jobtracker first to minimize connection errors at startup
+# "$bin"/hadoop-daemon.sh --config $HADOOP_CONF_DIR start jobtracker
+# "$bin"/hadoop-daemons.sh --config $HADOOP_CONF_DIR start tasktracker
+
+# NOTE:
+# using hadoop-daemon.sh, not hadoop-daemons.sh, because the daemons are being started
+# individually on each node.
+
+# the variable seconds_to_pause is passed in as a command line parameter and is set
+# to a default of 30 seconds in the calling script.
+
+########################################################################################
+# start cluster:  namenode -> secondary nn -> data nodes
+########################################################################################
+# start namenode
+########################################################################################
+
+- name: "{{ start_stop_cluster }} namenode"
+  hosts: name_node
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start namenode"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} namenode"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start jobtracker"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} jobtracker"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow jobtracker to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+########################################################################################
+# start secondary namenode
+########################################################################################
+- name: "{{ start_stop_cluster }} secondary namenode"
+  hosts: secondary_nn
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start secondarynamenode"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} secondarynamenode"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+########################################################################################
+# start data nodes
+########################################################################################
+- name: "{{ start_stop_cluster }} datanode"
+  hosts: data_nodes
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start datanode"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} datanode"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow datanode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start tasktracker"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} tasktracker"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow tasktracker to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+########################################################################################
+# stop cluster:  data nodes -> secondary nn -> name node
+########################################################################################
+# stop data nodes
+########################################################################################
+- name: "{{ start_stop_cluster }} datanode"
+  hosts: data_nodes
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop tasktracker"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} tasktracker"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow tasktracker to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop datanode"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} datanode"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow datanode to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+########################################################################################
+# stop secondary namenode
+########################################################################################
+- name: "{{ start_stop_cluster }} secondary namenode"
+  hosts: secondary_nn
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop secondarynamenode"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} secondarynamenode"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+########################################################################################
+# stop namenode
+########################################################################################
+- name: "{{ start_stop_cluster }} namenode"
+  hosts: name_node
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop jobtracker"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} jobtracker"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow jobtracker to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+  - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop namenode"
+    command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} namenode"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+

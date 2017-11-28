@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+<!-- setting guided by HTDG 3rd ch 9 -->
+<property>
+<name>mapred.job.tracker</name>
+<!-- <value>localhost:8021</value> -->
+<value>hadoop-nn02.bks.name:8021</value>
+</property>
+
+<property>
+<name>mapred.local.dir</name>
+<!-- <value>/home/brians/cs5850/hadoop-1/mapred/local</value> -->
+<value>/home/brians/cs5850/hadoop-1/mnt/hdfs/hdfs-001/mapred/local,/home/brians/cs5850/hadoop-1/mnt/hdfs/hdfs-002/mapred/local,/home/brians/cs5850/hadoop-1/mnt/hdfs/hdfs-003/mapred/local</value>
+<final>true</final>
+</property>
+
+<property>
+<name>mapred.system.dir</name>
+<!-- <value>/home/brians/cs5850/hadoop-1/mapred/system</value> -->
+<value>/home/brians/cs5850/hadoop-1/mnt/hdfs/hdfs-001/mapred/system,/home/brians/cs5850/hadoop-1/mnt/hdfs/hdfs-002/mapred/system,/home/brians/cs5850/hadoop-1/mnt/hdfs/hdfs-003/mapred/system</value>
+<final>true</final>
+</property>
+
+<property>
+<name>mapred.tasktracker.map.tasks.maximum</name>
+<value>7</value>
+</property>
+
+<property>
+<name>mapred.tasktracker.reduce.tasks.maximum</name>
+<value>7</value>
+</property>
+
+<property>
+<name>mapred.child.java.opts</name>
+<value>-Xmx400m</value>
+</property>
+
+
+</configuration>

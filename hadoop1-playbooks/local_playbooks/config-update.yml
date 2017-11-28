@@ -1,0 +1,46 @@
+---
+# Purpose:
+# This playbook will copy the config directory files on the master to all of the slaves
+# for a particular version of hadoop.
+# 
+# The current "in use" configuration files will be deleted on each node, then the
+# "master" configuration files will be copied to each node.
+
+# Assumptions:
+# 1) the variable hadoop_version is now passed in via the command line
+# eg.  ansible-playbook hadoop-1-config-update.yml --extra-vars "hadoop_version=1.2.1"
+
+
+########################################################################################
+# start playbook
+########################################################################################
+
+- name: Update Hadoop {{ hadoop_version }} configuration files for all nodes.
+  hosts: all
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
+
+  vars_files:
+    - ./local_variable_files/hadoop-vars.yml
+
+########################################################################################
+# start tasks
+########################################################################################
+
+
+  tasks:
+  - name: rm -rf {{ hadoop_conf_dir }}/* on all nodes
+    command: rm -rf {{ hadoop_conf_dir }}/*
+
+  - name: copy {{ hadoop_conf_master_dir }} on {{ hadoop_name_node }} to {{ hadoop_conf_dir }} on all nodes
+    copy:
+      src: "{{ hadoop_conf_master_dir }}"
+      dest: "{{ hadoop_conf_dir }}"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
