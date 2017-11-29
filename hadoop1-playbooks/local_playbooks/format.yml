@@ -35,6 +35,7 @@
 - name: Format HDFS {{ hadoop_version }}
   hosts: name_node
   remote_user: ansible
+#  become_user: root
   become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
@@ -43,7 +44,7 @@
 # note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
-    - ./local_variable_files/hadoop-vars.yml
+    - ../local_variable_files/hadoop-vars.yml
 
 ########################################################################################
 # start tasks
@@ -84,10 +85,18 @@
 #      msg: "{{ data_directories_dict.hadoop_data2_dfs_name_dir }} exists already."
 #    when: p.stat.isdir is defined and p.stat.isdir
 
+# format the namenode
+#  - name: execute hadoop namenode -format for Hadoop {{ hadoop_version }}
+#    shell: export JAVA_HOME={{java_home}}; export HADOOP_INSTALL={{hadoop_install}}; export HADOOP_CONF_DIR={{hadoop_conf_dir}}; export HADOOP_LOG_DIR={{hadoop_HADOOP_LOG_DIR}}; export HADOOP_PID_DIR={{hadoop_HADOOP_PID_DIR}}; export PATH={{path}}; hadoop namenode -format
+
+
   tasks:
 # format the namenode
   - name: execute hadoop namenode -format for Hadoop {{ hadoop_version }}
-    shell: export JAVA_HOME={{java_home}}; export HADOOP_INSTALL={{hadoop_install}}; export HADOOP_CONF_DIR={{hadoop_conf_dir}}; export HADOOP_LOG_DIR={{hadoop_HADOOP_LOG_DIR}}; export HADOOP_PID_DIR={{hadoop_HADOOP_PID_DIR}}; export PATH={{path}}; hadoop namenode -format
+#    become_user: "{{ hadoop_user_name }}"
+#    become: true
+#    become_method: sudo
+    shell: cd {{ hadoop_install }}/bin; export JAVA_HOME={{ java_home }}; export HADOOP_INSTALL={{ hadoop_install }}; export HADOOP_CONF_DIR={{ hadoop_conf_dir }}; export HADOOP_LOG_DIR={{ hadoop_HADOOP_LOG_DIR }}; export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }}; ./hadoop namenode -format
 
 # ensure that /data1/version/name and /data2/version/name are of the permission 0755
   - name: Ensure that namenode name directories are 0755

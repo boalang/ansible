@@ -12,23 +12,27 @@
   gather_facts: no
 
   vars_files:
-    - ./local_variable_files/hadoop-vars.yml
+    - ../local_variable_files/hadoop-vars.yml
 
 #  vars:
 #    redis_instances: 5
 
   tasks:
-  - name: name
-    with_sequence: start=1 end={{ cluster_num_drives_per_node }}
+  - name: name1
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
     debug: msg="{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/name"
-    register: dfs_name_dir_seq
+    register: dfs_name_dir_seq1
 
+  - name: name2
+    debug: msg="{{ hadoop_data_base_dir }}1/{{ hadoop_version }}/name"
+    register: dfs_name_dir_seq2
 
   - set_fact:
-      dfs_name_dir_list1: "{{ dfs_name_dir_seq.results | map(attribute='msg') | join(',') }}"
-      dfs_name_dir_list2: "{{ dfs_name_dir_seq.results | map(attribute='msg') }}"
+      dfs_name_dir_list1: "{{ dfs_name_dir_seq1.results | map(attribute='msg') | join(',') }}"
+      dfs_name_dir_list2: "{{ dfs_name_dir_seq1.results | map(attribute='msg') }}"
 
-  - debug: var=dfs_name_dir_seq
+  - debug: var=dfs_name_dir_seq1
+  - debug: var=dfs_name_dir_seq2
   - debug: var=dfs_name_dir_list1
   - debug: var=dfs_name_dir_list2
 

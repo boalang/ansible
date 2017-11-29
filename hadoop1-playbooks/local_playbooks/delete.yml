@@ -21,7 +21,7 @@
 # note: using an ssh port other than 22 is set in the inventory/hosts file under ~/hadoop1-playbooks/local_hosts/hosts
 
   vars_files:
-    - ./local_variable_files/hadoop-vars.yml
+    - ../local_variable_files/hadoop-vars.yml
 
   tasks:
   - name: rm -rf {{ hadoop_install }}

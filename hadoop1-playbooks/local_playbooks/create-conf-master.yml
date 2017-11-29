@@ -32,7 +32,7 @@
 # note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
-    - ./local_variable_files/hadoop-vars.yml
+    - ../local_variable_files/hadoop-vars.yml
 
 ########################################################################################
 # start tasks
@@ -59,6 +59,13 @@
   - name: cp -r {{ hadoop_conf_dir }}/* {{ hadoop_conf_master_dir }}
     shell: cp -r {{ hadoop_conf_dir }}/* {{ hadoop_conf_master_dir }}
     register: result_val   
+
+  - name: ensure all files are owned by {{ hadoop_user_name }}
+    file:
+      path:  "{{ hadoop_conf_master_dir }}"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
     
   - name: remove "{{ hadoop_conf_master_dir }}" when copy fails
     file:
