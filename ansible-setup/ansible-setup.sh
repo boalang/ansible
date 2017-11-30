@@ -5,9 +5,8 @@
 # 2)  When prompted, the user supplies their password for the slaves, so that the script may proceed without 
 #     user intervention.
 # 3)  It is assumed that the user password for all slaves is the same.
-# 4)  ** It is assumed that the user does not already have passwordless login to the nodes in the cluster.
-#     ** If so, let me know and I'll alter the expect.sh code to account for this configuration.
-#     ** Presently, the file assumes the remote system will prompt the expect.sh code for the program
+# 4)  It is assumed that the user does not already have passwordless login to the nodes in the cluster.
+#     Presently, the file assumes the remote system will prompt the expect.sh code for the program
 #     ** user's password.
 #     ** Worse case scenario, this script can be executed on the slave manually with the following paramaters:
 #	 ANSIBLE_UN="$1" 		= ansible
@@ -101,14 +100,6 @@ func_install_ansible_software(){
 	echo "apt-get install -y ansible"
 	echo ""
 	apt-get install -y ansible
-
-	# the following is from Ansible's website and can be used instead of an Ubuntu repo, if desired
-	# http://docs.ansible.com/ansible/latest/intro_installation.html
-	# apt-get update
-	# apt-get install software-properties-common
-	# apt-add-repository ppa:ansible/ansible
-	# apt-get update
-	# apt-get install ansible
 }
 #===================================================================================================================
 func_create_ansible_user(){

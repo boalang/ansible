@@ -3,7 +3,7 @@
 ####################################################################################################################
 # Assumptions
 # 1)  This script is run as sudo on the master node.  
-# 2)  The script assumes that slave ip addresses are in a file named slaves.txt
+# 2)  The script assumes that slave host names are in a file named slaves.txt and are resolveable
 # 3)  ** Please see additional notes and assumptions at the top of ansible-setup.sh
 
 # Purpose

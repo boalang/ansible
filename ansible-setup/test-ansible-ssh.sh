@@ -13,20 +13,6 @@ HOST_IP=`hostname -I`
 HOST_NAME=`hostname`
 
 
-# echo ""
-# echo "###############################################"
-# echo "Script name:	$PROG_BASE_NAME"
-# echo "Script user:	$PROG_USER"
-# echo "Running as:	$USER"
-# echo "Running on:	`hostname -f`"
-# echo "IP-Address:	$HOST_IP"	
-# echo "RUN_ON:		$RUN_ON"
-# echo "###############################################"
-# echo ""
-
-# difficulties getting 
-
-
 # call the expect script
 if (( $RUN_ON == 0 )); then
 	# run on the master
