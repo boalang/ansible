@@ -1,0 +1,65 @@
+---
+# This playbook installs and sets-up libraries for boa.
+
+
+########################################################################################
+# start playbook
+########################################################################################
+
+- name: Install Boa Dependencies for Hadoop {{ hadoop_version }}
+  hosts: head
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+
+########################################################################################
+# start tasks
+########################################################################################
+
+  tasks:
+** this needs to be version 2.5.0, which i think is in prior version of ubuntu
+** findout how to add
+  - name: Install libprotobuf-java
+    apt:
+      name: libprotobuf-java
+      update_cache: yes
+      state: present
+
+  - name: Install libsnappy-dev
+    apt:
+      name: libsnappy-dev
+      update_cache: no
+      state: present
+
+  - name: Install libmysql-java
+    apt:
+      name: libmysql-java
+      update_cache: no
+      state: present
+
+  - name: cp /usr/share/java/protobuf-2.5.0.jar {{ hadoop_install }}/lib/
+     copy:
+      src: /usr/share/java/protobuf-2.5.0.jar
+      dest: "{{ hadoop_install }}/lib"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: cp /usr/lib/x86_64-linux-gnu/libsnappy.* {{ hadoop_install }}/lib/native/Linux-amd64-64
+     copy:
+      src: /usr/lib/x86_64-linux-gnu/libsnappy.*
+      dest: "{{ hadoop_install }}/lib/native/Linux_amd64-64"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: ln -s /usr/share/java/mysql-connector-java.jar {{ hadoop_install }}/lib/mysql-connector-java.jar
+     command: ln -s /usr/share/java/mysql-connector-java.jar {{ hadoop_install }}/lib/mysql-connector-java.jar
+

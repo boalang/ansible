@@ -5,17 +5,10 @@
 
 # If the directory does not already exist, this playbook will create a directory and
 # copy the files from the configuration directory created while deploying Hadoop for
-# this version.  These file can serve as a starting point for further refining
-# of configuration parameters, then the master files can be deployed to all nodes
-# when they're ready to be tested / implemented.
-
+# this version.
+ 
 # If the master configuration files directory already exists, the program will exit
 # to avoid an accidental over write of the master files.
-
-# Assumptions:
-# 1) the variable hadoop_version is now passed in via the command line
-# eg.  ansible-playbook hadoop-1-create-conf-master.yml --extra-vars "hadoop_version=1.2.1"
-
 
 ########################################################################################
 # start playbook
@@ -29,7 +22,6 @@
   become_method: sudo
   connection: ssh
   gather_facts: no
-# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
     - ../local_variable_files/hadoop-vars.yml
@@ -37,7 +29,6 @@
 ########################################################################################
 # start tasks
 ########################################################################################
-
 
   tasks:
   - name: Gather facts about {{ hadoop_conf_master_dir }} and exit if {{ hadoop_conf_master_dir }} already exists
@@ -75,8 +66,4 @@
       group: "{{ hadoop_user_group }}"
       mode: 0755
     when: result_val.rc != 0
-
-
-      
-
-  
+ 

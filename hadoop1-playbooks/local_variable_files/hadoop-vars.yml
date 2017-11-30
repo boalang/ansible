@@ -1,11 +1,5 @@
 # Purpose:
-# This file contains variables needed to deploy Hadoop.
-
-# pass version via CLI as:
-# ansible-playbook release.yml --extra-vars "version=1.23.45 other_variable=foo"
-# then you just use version as another variable, eg.  {{ version }}
-# hadoop_version: 1.2.1
-# http://docs.ansible.com/ansible/latest/playbooks_variables.html#passing-variables-on-the-command-line
+# This file contains variables needed to deploy and run Hadoop.
 
 hadoop_base: /opt/hadoop
 hadoop_install: "{{ hadoop_base }}/{{ hadoop_version }}"
@@ -31,8 +25,6 @@ hadoop_name_node: head
 hadoop_secondary_name_node: head
 hadoop_data_node_base_name: boa-
 hadoop_num_data_node: 15
-# interate in a loop from 1 to node_num_drives to dynamically create path to storage
-# from i in 1 to node_num_drives => {{ hadoop_data_base }}i => /data1 /data2 ... /dataN
 hadoop_num_drives_per_node: 2
 
 path: "{{ hadoop_install }}/bin:{{ hadoop_install }}/sbin:{{ java_home }}/bin:{{ java_home }}/bin"
@@ -47,77 +39,10 @@ hadoop_fs_checkpoint_dir: name-secondary
 hadoop_mapred_local_dir: "mapred/local"
 hadoop_mapred_system_dir: "mapred/system"
 
-########################################################################################
-# create dictionaries
-########################################################################################
-    # dictionary to setup /data1 /data2 ... /dataN subdirectories
-#data_directories_dict:
-    # /data1
-# ** this may need to be implemented in a different way, to allow 
-# perhaps in a script/template file that is executed on each node.
-# yes.  a template file will have access to the variable, but can still contain script
-#  hadoop_data_dfs_name_dir: "{{ hadoop_data1 }}/{{ hadoop_version }}/name"
-#  hadoop_data_fs_checkpoint_dir:  "{{ hadoop_data1 }}/{{ hadoop_version }}/name-secondary"
-#  hadoop_data_mapred_local_dir: "{{ hadoop_data1 }}/{{ hadoop_version }}/mapred/local"
-#  hadoop_data_mapred_system_dir: "{{ hadoop_data1 }}/{{ hadoop_version }}/mapred/system"
-#  hadoop_data_dfs_data_dir: "{{ hadoop_data1 }}/{{ hadoop_version }}/hdfs-data"
 
-#hadoop_log_pid_dir_dict:
-#  hadoop_data1_HADOOP_LOG_DIR: "{{ hadoop_data1 }}/{{ hadoop_version }}/logs"
-#  hadoop_data1_HADOOP_PID_DIR: "{{ hadoop_data1 }}/{{ hadoop_version }}/pids"
-
-
-# NOTE
-# I don't have the skill or the time to make the following dictionaries, designed to facilitate
-# appending common hadoop export statements to the end of files like hadoop-env.sh, so I'm just
-# creating two dictionaries:  one for hadoop-env.sh and one for /home/hadoop1/.bashrc
-
-####################################################################################################
-# the Ansible code to put this to work will look like:
-
-# set JAVA_HOME
-#  - name:  Set JAVA_HOME in {{ hadoop_home }}/.bashrc
-#    shell:   "{{ java_home_dict.new_line }} {{ java_home_dict.comment }} {{ java_home_dict.export }}"
-
-# set HADOOP_INSTALL
-#  - name:  Set HADOOP_INSTALL in {{ hadoop_home }}/.bashrc
-#    shell:   "{{ hadoop_install_dict.new_line }} {{ hadoop_install_dict.comment }} {{ hadoop_install_dict.export }}"
-
-# set HADOOP_CONF_DIR
-#  - name:  Set HADOOP_CONF_DIR in {{ hadoop_home }}/.bashrc
-#    shell:   "{{ hadoop_conf_dir_dict.new_line }} {{ hadoop_conf_dir_dict.comment }} {{ hadoop_conf_dir_dict.export }}"
-
-# set HADOOP_LOG_DIR
-#  - name:  Set HADOOP_LOG_DIR in {{ hadoop_home }}/.bashrc
-#    shell:   "{{ hadoop_log_dir_dict.new_line }} {{ hadoop_log_dir_dict.comment }} {{ hadoop_log_dir_dict.export }}"
-
-# set HADOOP_PID_DIR
-#  - name:  Set HADOOP_PID_DIR in {{ hadoop_home }}/.bashrc
-#    shell:   "{{ hadoop_pid_dir_dict.new_line }} {{ hadoop_pid_dir_dict.comment }} {{ hadoop_pid_dir_dict.export }}"
-
-
-# the output will look as follows, less the # in front of the export statements, at the bottom of some file
-
-# Setting JAVA_HOME via Ansible playbook
-# export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
-
-# Setting HADOOP_INSTALL via Ansible playbook
-# export HADOOP_INSTALL=/opt/hadoop/1.2.1
-
-# Setting HADOOP_CONF_DIR via Ansible playbook
-# export HADOOP_CONF_DIR=/opt/hadoop/config_1.2.1
-
-# Setting HADOOP_LOG_DIR via Ansible playbook
-# export HADOOP_LOG_DIR=/data1/1.2.1/logs
-
-# Setting HADOOP_PID_DIR via Ansible playbook
-# export HADOOP_PID_DIR=/data1/1.2.1/pids
-
-######################################################################################################################
-
-# dictionary to facilitate adding relevant export statements at the bottom of hadoop-env.sh
-# when using a with_dict attribute with the file module, the module will automatically iterate over all of the elements
-# in the dictionary.  This 
+# This dictionary will facilitate adding relevant export statements at the bottom of hadoop-env.sh
+# When using the with_dict attribute with the file module, the module will automatically iterate over 
+# all of the elements in the dictionary.
 
 hadoop_env_dict:
 # java home
@@ -141,11 +66,4 @@ hadoop_env_dict:
   pids_comment:  echo \# Setting HADOOP_PID_DIR via Ansible playbook >> {{ hadoop_env_file }};
   pids_export:  echo export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }} >> {{ hadoop_env_file }}
 
-
-# PATH
-# this may not be needed anymore
-#hadoop_path_dict:
-#  new_line:  echo  >> {{ hadoop_bashrc }};
-#  comment:  echo \# Setting PATH via Ansible playbook >> {{ hadoop_bashrc }};
-#  export:  echo export PATH={{ path }} >> {{ hadoop_bashrc }}
 

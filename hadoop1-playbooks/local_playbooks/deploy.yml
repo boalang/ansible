@@ -1,17 +1,10 @@
 ---
-# This playbook will install Hadoop and user hadooop on every node in the cluster.
-# It will only do an initial installation, so it can be run at anytime, such as when adding a new node.
-# Activities like Hadoop updates, configuration updates, stop/start cluster, etc... 
-#	 will be handled by other playbooks.
-
-# Assumptions:
-# 1) user hadoop does not exist
-# 2) /opt/hadoop/version does not exist
-# 3) The necessary hadoop tar file already exist in /opt/compressed on the master node.
-# 4) After installation the configuration files will be updated to appropriate values, then
-#	they can be deployed to the managed nodes
-# 5) default ssh port is 22, but alternate values can be set in inventory/hosts:  ../local_hosts/hosts
-# 6) It is preferred to execute the playbook from the appropriate script
+# This playbook will install Hadoop and user hadoop on every node in the cluster.
+# If a node already has the particular version of Hadoop installed, the playbook will fail 
+# for that node, but not the whole playbook.
+# 
+# Since, the playbook will only do an initial installation, it can be run at anytime, 
+# such as when adding a new node.
 
 
 ########################################################################################
@@ -86,32 +79,6 @@
     become: true
     become_method: sudo 
 
-# set export staements for /home/hadoop_user_name/.bashrc
-# set JAVA_HOME
-#  - name:  Set JAVA_HOME in {{ hadoop_bashrc }}
-#    shell:   "{{ java_home_dict2.new_line }} {{ java_home_dict2.comment }} {{ java_home_dict2.export }}"
-
-# set HADOOP_INSTALL
-#  - name:  Set HADOOP_INSTALL in {{ hadoop_bashrc }}
-#    shell:   "{{ hadoop_install_dict2.new_line }} {{ hadoop_install_dict2.comment }} {{ hadoop_install_dict2.export }}"
-
-# set HADOOP_CONF_DIR
-#  - name:  Set HADOOP_CONF_DIR in {{ hadoop_bashrc }}
-#    shell:   "{{ hadoop_conf_dir_dict2.new_line }} {{ hadoop_conf_dir_dict2.comment }} {{ hadoop_conf_dir_dict2.export }}"
-
-# set HADOOP_LOG_DIR
-#  - name:  Set HADOOP_LOG_DIR in {{ hadoop_bashrc }}
-#    shell:   "{{ hadoop_log_dir_dict2.new_line }} {{ hadoop_log_dir_dict2.comment }} {{ hadoop_log_dir_dict2.export }}"
-
-# set HADOOP_PID_DIR
-#  - name:  Set HADOOP_PID_DIR in {{ hadoop_bashrc }}
-#    shell:   "{{ hadoop_pid_dir_dict2.new_line }} {{ hadoop_pid_dir_dict2.comment }} {{ hadoop_pid_dir_dict2.export }}"
-
-# set PATH
-#  - name:  Set PATH in {{ hadoop_bashrc }}
-#    shell:   "{{ hadoop_path_dict2.new_line }} {{ hadoop_path_dict2.comment }} {{ hadoop_path_dict2.export }}"
-
-
   - name: create {{ hadoop_base }}
     file:
       path: "{{ hadoop_base }}"
@@ -175,17 +142,9 @@
 # eg.  /data1/1.2.1/name ... /data(cluster_num_data_node)/1.2.1/name
 #	/data1/1.2.1/name-secondary and so on
 # 
-# We'll make use of with_sequence to create the subdirectories.
-# We'll also create a sequence variable that is a list of strings representing the paths for 
-# the appropriate parameters in the xml configuration files.
-# eg.  When the next task below is completed dfs_name_dir_seq will be as follows:
-# dfs_name_dir_seq="/data1/1.2.1/name,/data2/1.2.1/name
-# dfs_name_dir_seq will be turned into a list (below) called dfs_name_dir_seq_list, which will
-# be a variable that is referenced in the Jinja2 file called hdfs-site-version.j2, which is
-# a template that will be turned into hdfs-site.xml
-
 # do not create the name directory, or else the format script will prompt to overwrite
 # during the format playbook.  Let the format script create the name directory
+#
 # This will be handled with another sequence below.
 
 #  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/name"
@@ -208,10 +167,6 @@
       group: "{{ hadoop_user_group }}"
       recurse: yes
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
-#    become_user: root
-#    become: true
-#    become_method: sudo
-#    register: fs_checkpoint_dir_seq
 
 # eg. /data1/1.2.1/hdfs-data ... /data(hadoop_num_data_node)/1.2.1/hdfs-data
   - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_data_dir }}"
@@ -223,10 +178,6 @@
       group: "{{ hadoop_user_group }}"
       recurse: yes
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
-#    become_user: root
-#    become: true
-#    become_method: sudo
-#    register: dfs_data_dir_seq
 
 # eg. /data1/1.2.1/mapred/local ... /data(hadoop_num_data_node)/1.2.1/mapred/local
   - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_mapred_local_dir }}"
@@ -238,10 +189,6 @@
       group: "{{ hadoop_user_group }}"
       recurse: yes
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
-#    become_user: root
-#    become: true
-#    become_method: sudo
-#    register: mapred_local_dir_seq
 
 # the mapred/system dir is for storing the distribution of jar files and only needs to exist once
 # assume it exists on /data1, as this should always exist
@@ -253,11 +200,6 @@
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       recurse: yes
-#    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
-#    become_user: root
-#    become: true
-#    become_method: sudo
-#    register: mapred_system_dir_seq
 
 # the directories for HADOOP_LOG_DIR AND HADOOP_PID_DIR only need to be
 # created once in the /data1 dir, which should always exist
@@ -270,9 +212,6 @@
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       recurse: yes
-#    become_user: root
-#    become: true
-#    become_method: sudo
 
 # /data1/1.2.1/logs
   - name: create "{{ hadoop_HADOOP_PID_DIR }}"
@@ -283,10 +222,6 @@
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       recurse: yes
-#    become_user: root
-#    become: true
-#    become_method: sudo
-
 
 # now, using debug and with_sequence create a sequence variable that will store the
 # result of each debug statement for each iteration of with_sequence.
@@ -315,12 +250,8 @@
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
     register: mapred_local_dir_seq
 
-# since, mapred/system is a single directory, its path has been created as a variable
-# as mentioned above, only one mapred/system dir needs to be created
-#  - name: create sequence variable mapred_system_dir_seq
-#    debug: msg={{ hadoop_data_base_dir }}1/{{ hadoop_version }}/{{ hadoop_mapred_system_dir }}
-#    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-#    register: mapred_system_dir_seq
+# since, mapred/system is a single directory, its path has been created as a variable in the
+# set_fact: section below.
 
 # create lists of strings that will be assigned to variables that will be used in the
 # xml configuration files
@@ -329,94 +260,21 @@
       dfs_data_dir_list: "{{ dfs_data_dir_seq.results | map(attribute='msg') | join(',') }}"
       fs_checkpoint_dir_list: "{{ fs_checkpoint_dir_seq.results | map(attribute='msg') | join(',') }}"
       mapred_local_dir_list: "{{ mapred_local_dir_seq.results | map(attribute='msg') | join(',') }}"
-# mapred/system is just a single file
-#      mapred_system_dir_list: "{{ hadoop_data_base_dir }}1/{{ hadoop_version }}/{{ hadoop_mapred_system_dir }}"
-#      mapred_system_dir_list: "{{ mapred_system_dir_seq.results | map(attribute='msg') }}"
 
-# i think this should work, but not tested yes
-# from: http://docs.ansible.com/ansible/latest/playbooks_loops.html#standard-loops
-#  - name: Create {{ item.value }}, if it does not exist
-#    file:
-#      path: "{{ item.value }}"
-#      state: directory
-#      mode: 0755
-#    with_dict:
-      # with_dict seems to only allow one dictionary
-      # there are probably otherways to do it, but this will work for now
-#      "{{ data_directories_dict }}"
+# Note:
+# although, openjdk-8-jdk is being referenced explicitly, it is possible to use statements such as
+# sudo apt-get install packagename=version 
+# to install the exact version of Java (7 or 8 for now), and the following will hold the version
+# apt-mark hold <package-name>
 
-# remove the directories /data1/version/name and /data2/version/name to allow the format
-# playbook to format the namenode without user interaction
-
-#  - name: rm -rf {{data_directories_dict.hadoop_data1_dfs_name_dir}} to allow namenode format without intervention
-#    file:
-#      path: "{{ data_directories_dict.hadoop_data1_dfs_name_dir }}"
-#      state: absent
-
-#  - name: rm -rf {{data_directories_dict.hadoop_data2_dfs_name_dir}} to allow namenode format without intervention
-#    file:
-#      path: "{{ data_directories_dict.hadoop_data2_dfs_name_dir }}"
-#      state: absent
-
-# now change the ownership of the subdirectories of /data1 & /data2 to hadoop
-# make into a loop
-#  - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_data1 }}/{{ hadoop_version }} and all contents
-#    file:
-#      path: "{{ hadoop_data1 }}/{{ hadoop_version }}"
-#      owner: "{{ hadoop_user_name }}"
-#      group: "{{ hadoop_user_name }}"
-#      recurse: yes 
-#  - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_data2 }}/{{ hadoop_version }} and all contents
-#    file:
-#      path: "{{ hadoop_data2 }}/{{ hadoop_version }}"
-#      owner: "{{ hadoop_user_name }}"
-#      group: "{{ hadoop_user_name }}"
-#      recurse: yes 
-
-########################################################################################
-# now, the /data1 and /data2 subdirectories have both been created, hadoop is the owner
-########################################################################################
-
-
-# now ensure that the latest java is installed from repo
-# search for a module, but use a script if necessary, to determine the proper java directory
-# in which to append JAVA_HOME to /opt/hadoop/conf_version/hadoop-env.sh
-
-# if i could register a variable in the following, i might be able to determine the path to jdk dynamically
-# not sure how at he moment, I'll review it for next iteration of playbook
-# future versions of java may have a different path.
-# ubuntu 16.04 = /usr/lib/jvm/default-java/bin
   - name: Update repositories cache and install the openjdk-8-jdk package to remain on Java 8
     apt:
       name: openjdk-8-jdk
       update_cache: yes
       state: present
 
-
-# append the export statements for the following variable to the hadoop-env.sh file
-# JAVA_HOME, HADOOP_INSTALL, HADOOP_CONF_DIR, HADOOP_LOG_DIR, HADOOP_PID_DIR
-
-# set JAVA_HOME
-#  - name:  Set JAVA_HOME in {{ hadoop_env_vars }}
-#    shell:   "{{ java_home_dict.new_line }} {{ java_home_dict.comment }} {{ java_home_dict.export }}"
-
-# set HADOOP_INSTALL
-#  - name:  Set HADOOP_INSTALL in {{ hadoop_env_vars }}
-#    shell:   "{{ hadoop_install_dict.new_line }} {{ hadoop_install_dict.comment }} {{ hadoop_install_dict.export }}"
-
-# set HADOOP_CONF_DIR
-#  - name:  Set HADOOP_CONF_DIR in {{ hadoop_env_vars }}
-#    shell:   "{{ hadoop_conf_dir_dict.new_line }} {{ hadoop_conf_dir_dict.comment }} {{ hadoop_conf_dir_dict.export }}"
-
-# set HADOOP_LOG_DIR
-#  - name:  Set HADOOP_LOG_DIR in {{ hadoop_env_vars }}
-#    shell:   "{{ hadoop_log_dir_dict.new_line }} {{ hadoop_log_dir_dict.comment }} {{ hadoop_log_dir_dict.export }}"
-
-# set HADOOP_PID_DIR
-#  - name:  Set HADOOP_PID_DIR in {{ hadoop_env_vars }}
-#    shell:   "{{ hadoop_pid_dir_dict.new_line }} {{ hadoop_pid_dir_dict.comment }} {{ hadoop_pid_dir_dict.export }}"
-
 # iterate over the dictionary hadoop_env_dict and execute each element on the command line using the shell
+# for the dictionary details, see ../local_variable_files/hadoop-vars.yml
   - name:  Append export statements for JAVA_HOME, HADOOP_INSTALL, HADOOP_CONF_DIR, HADOOP_LOG_DIR, HADOOP_PID_DIR in {{ hadoop_env_vars }}
     shell:  "{{ item.value }}" 
     with_dict: "{{ hadoop_env_dict }}"
@@ -445,7 +303,5 @@
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_name }}"
       mode:  0644
-
-
 
 

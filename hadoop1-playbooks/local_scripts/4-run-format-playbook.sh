@@ -2,22 +2,7 @@
 
 # Purpose
 # bash script to initiate the Ansible playbook to format the namenode for Hadoop
-# this script makes running the playbook a little easier by preparing the command line 
-# 	arguments to pass to the playbook, which are read from other files
-
-# *NOTES*
-# The simplest way to describe what seems to work when using scripts to pass playbooks arguments 
-# is to not try to escape thing. It doesn't seem to work as expected.  It appears that Ansible will
-# replace " with ' and ' with " so \"a=" "b\" becomes 'a=" "b' etc...  This may not be the best example,
-# but the point is that the escaping in Ansible doesn't seem to work as you would expect with escapes.
-# 
-# ** whatever you pass to Ansible should be similar to "$myvar=5 $myvar2=bbb ..." or 'var1=5 var2=boy ...'
-# ** else, ecpect problems.
-
-
-########################################################################################################
 # run as:  ./run-hadoop-1-format-playbook.sh 1.2.1
-########################################################################################################
 
 
 #########################################################################################################

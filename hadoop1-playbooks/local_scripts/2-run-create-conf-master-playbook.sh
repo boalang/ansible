@@ -3,11 +3,7 @@
 # Purpose:
 # This scrip will initiate a playbook that will create the master directory for the cluster configuration
 # scripts, if the directory does not already exist
-
-
-#########################################################################################################
 # run as:  ./run-hadoop-1-create-conf-master-playbook.sh 1.2.1
-########################################################################################################
 
 
 #########################################################################################################

@@ -1,9 +1,8 @@
 #!/bin/bash
 
 # Purpose:
-# This script will initiate a playbook that will set passwordless priviledges for the secondary namenode
-# on the namenode, so that the secondary namenode can merge the edits and fsimage file regularly.
-# run as:  ./run-hadoop-1-set-2nn-ssh-playbook.sh 1.2.1
+# This script invokes the boa setup playbook to install and setup dependencies for boa.
+# run as:  ./run-boa-setup-playbook.sh 1.2.1
 
 
 #########################################################################################################
@@ -43,7 +42,7 @@ c=$(echo -n $1 | cut -c5)
 #########################################################################################################
 
 hadoop_ver="$a.$b.$c"
-playbook_name=set-2nn-ssh.yml
+playbook_name=boa-setup.yml
 extra_vars="hadoop_version=$hadoop_ver"
 
 #########################################################################################################

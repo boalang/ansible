@@ -2,36 +2,6 @@
 # Purpose:
 # This playbook will start and stop the cluster
 
-# Assumptions:
-# 1) the variable startstop is passed at command line
-# eg.  ansible-playbook hadoop-1-start-stop.yml --extra-vars "hadoop_version=1.2.1 start_stop_cluster=start"
-
-# the following sources was helpful:
-# https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_installing_manually_book/content/format_and_start_hdfs.html
-#
-# White's HTDG 4th pgs 290-291 for mentioning hadoop-daemon.sh
-# 
-# from the bottom of start-dfs.sh
-# start dfs daemons
-# start namenode after datanodes, to minimize time namenode is up w/o data
-# note: datanodes will log connection errors until namenode starts
-# "$bin"/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
-# "$bin"/hadoop-daemons.sh --config $HADOOP_CONF_DIR start datanode $dataStartOpt
-# "$bin"/hadoop-daemons.sh --config $HADOOP_CONF_DIR --hosts masters start secondarynamenode
-#
-# from bottom of start-mapred.sh
-# start mapred daemons
-# start jobtracker first to minimize connection errors at startup
-# "$bin"/hadoop-daemon.sh --config $HADOOP_CONF_DIR start jobtracker
-# "$bin"/hadoop-daemons.sh --config $HADOOP_CONF_DIR start tasktracker
-
-# NOTE:
-# using hadoop-daemon.sh, not hadoop-daemons.sh, because the daemons are being started
-# individually on each node.
-
-# the variable seconds_to_pause is passed in as a command line parameter and is set
-# to a default of 30 seconds in the calling script.
-
 ########################################################################################
 # start cluster:  namenode -> secondary nn -> data nodes
 ########################################################################################
@@ -46,7 +16,6 @@
   become_method: sudo
   connection: ssh
   gather_facts: no
-# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
     - ../local_variable_files/hadoop-vars.yml
@@ -91,6 +60,7 @@
       seconds: "{{ seconds_to_pause }}"
     when: start_stop_cluster == "start"
 
+
 ########################################################################################
 # start secondary namenode
 ########################################################################################
@@ -102,7 +72,6 @@
   become_method: sudo
   connection: ssh
   gather_facts: no
-# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
     - ../local_variable_files/hadoop-vars.yml
@@ -121,6 +90,7 @@
       seconds: "{{ seconds_to_pause }}"
     when: start_stop_cluster == "start"
 
+
 ########################################################################################
 # start data nodes
 ########################################################################################
@@ -132,7 +102,6 @@
   become_method: sudo
   connection: ssh
   gather_facts: no
-# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
     - ../local_variable_files/hadoop-vars.yml
@@ -162,6 +131,7 @@
       seconds: "{{ seconds_to_pause }}"
     when: start_stop_cluster == "start"
 
+
 ########################################################################################
 # stop cluster:  data nodes -> secondary nn -> name node
 ########################################################################################
@@ -175,7 +145,6 @@
   become_method: sudo
   connection: ssh
   gather_facts: no
-# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
     - ../local_variable_files/hadoop-vars.yml
@@ -216,7 +185,6 @@
   become_method: sudo
   connection: ssh
   gather_facts: no
-# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
     - ../local_variable_files/hadoop-vars.yml
@@ -245,7 +213,6 @@
   become_method: sudo
   connection: ssh
   gather_facts: no
-# note: using an ssh port other than 22 is set in the inventory/hosts file under ~/ansible_playbooks/local_hosts/hosts
 
   vars_files:
     - ../local_variable_files/hadoop-vars.yml

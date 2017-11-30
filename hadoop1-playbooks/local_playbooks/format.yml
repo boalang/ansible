@@ -2,32 +2,6 @@
 # Purpose:
 # This playbook will format an HDFS filesystem
 
-# Assumptions:
-# 1) the variable hadoop_version is now passed in via the command line
-# eg.  ansible-playbook hadoop-1-format.yml --extra-vars "hadoop_version=1.2.1"
-
-# Notes
-# To minimize problems using multiple versions of Hadooop on one cluster, env vars have 
-# not been set in a system wide manner such as by sourcing a file in /etc/profile.d 
-# at startup, but they are needed to be present to format the file system.
-
-# Each individual Ansible task runs in its own subshell, so the env vars needs to be 
-# set and the format executed at the same time, which precludes using a sequence of 
-# simple tasks to setup and execute the format
-
-# i tried to use the expect module, because I kept getting prompted if I wanted to 
-# reformat, although I thought I had deleted all the directories, and therefore
-# shouldn't have been prompted to reformat.
-#
-# Anyway, expect requires the use of the shell module, but
-# the command module is required to source a file (i was going to source hadoop-env.sh
-# since it already has most of the env vars already defined), and expect can't use
-# command.
-
-# it ended up being easier to just make use of the variable already defined in the
-# hadoop-1-var.yml file and try to make sure it is a fresh install, so there shouldn't
-# be any prompt to reformat.
-
 ########################################################################################
 # start playbook
 ########################################################################################
@@ -49,46 +23,6 @@
 ########################################################################################
 # start tasks
 ########################################################################################
-
-# the following env vars were being set in /etc/profile.d in my initial hadoop cluster
-# export HADOOP_INSTALL=/home/brians/cs5850/hadoop-1/hadoop-1.2.1
-# export PATH=$HADOOP_INSTALL/bin:$HADOOP_INSTALL/sbin:$JAVA_HOME/bin:$PATH
-# export HADOOP_CONF_DIR=$HADOOP_INSTALL/conf
-# export JAVA_HOME=/home/brians/cs5850/java-libs/j8/java
-
-# here are the values for env vars appended to hadoop-env.sh during the deploy playbook
-# I think that only the above vars are needed, but I'll include the union of both sets
-# 	just to be sure everthing is available for formatting
-# export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
-# export HADOOP_INSTALL=/opt/hadoop/1.2.1
-# export HADOOP_CONF_DIR=/opt/hadoop/config_1.2.1
-# export HADOOP_LOG_DIR=/data1/1.2.1/logs
-# export HADOOP_PID_DIR=/data1/1.2.1/pids
-
-# use the following to test "hadoop namenode -format"
-# export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64; export HADOOP_INSTALL=/opt/hadoop/1.2.1; export HADOOP_CONF_DIR=/opt/hadoop/config_1.2.1; export HADOOP_LOG_DIR=/data1/1.2.1/logs; export HADOOP_PID_DIR=/data1/1.2.1/pids; export PATH=$HADOOP_INSTALL/bin:$HADOOP_INSTALL/sbin:$JAVA_HOME/bin:$PATH
-
-#  tasks:
-#  - name: Gather facts about "{{ data_directories_dict.hadoop_data1_dfs_name_dir }}" and exit if "{{ data_directories_dict.hadoop_data1_dfs_name_dir }}" already exits
-#    stat:
-#      path: "{{ data_directories_dict.hadoop_data1_dfs_name_dir }}"
-#    register: p
-#  - fail:
-#      msg: "{{ data_directories_dict.hadoop_data1_dfs_name_dir }} exists already."
-#    when: p.stat.isdir is defined and p.stat.isdir
-
-#  - name: Gather facts about "{{ data_directories_dict.hadoop_data2_dfs_name_dir }}" and exit if "{{ data_directories_dict.hadoop_data2_dfs_name_dir }}" already exits
-#    stat:
-#      path: "{{ data_directories_dict.hadoop_data2_dfs_name_dir }}"
-#    register: p
-#  - fail:
-#      msg: "{{ data_directories_dict.hadoop_data2_dfs_name_dir }} exists already."
-#    when: p.stat.isdir is defined and p.stat.isdir
-
-# format the namenode
-#  - name: execute hadoop namenode -format for Hadoop {{ hadoop_version }}
-#    shell: export JAVA_HOME={{java_home}}; export HADOOP_INSTALL={{hadoop_install}}; export HADOOP_CONF_DIR={{hadoop_conf_dir}}; export HADOOP_LOG_DIR={{hadoop_HADOOP_LOG_DIR}}; export HADOOP_PID_DIR={{hadoop_HADOOP_PID_DIR}}; export PATH={{path}}; hadoop namenode -format
-
 
   tasks:
 # format the namenode

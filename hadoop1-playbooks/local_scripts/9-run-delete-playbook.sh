@@ -1,15 +1,9 @@
 #!/bin/bash
 
 # Purpose
-# bash script to initiate the Ansible playbook to delete Hadoop
-# The playbook will delete hadoop from all nodes.
+# Bash script to initiate the Ansible playbook to delete Hadoop
 # Basically, it is a convenience playbook for iterative testing.
-# It saves me from having to delete all the directories by hand.
-
-
-########################################################################################################
 # run as:  ./run-hadoop-1-delete-playbook.sh 1.2.1
-########################################################################################################
 
 
 #########################################################################################################

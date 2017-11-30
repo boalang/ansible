@@ -2,15 +2,7 @@
 
 # Purpose
 # bash script to initiate the Ansible playbook to start or stop the cluster
-
-# Assumptions:
-# script is parameters for hadoop version and start/stop value.
-# eg. run-hadoop-1-start-stop-playbook.sh 1.2.1 start
-
-
-#########################################################################################################
 # run as:  ./run-hadoop-1-start-stop-playbook.sh 1.2.1 start/stop
-########################################################################################################
 
 
 #########################################################################################################

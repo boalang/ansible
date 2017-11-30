@@ -2,24 +2,7 @@
 
 # Purpose
 # bash script to initiate the Ansible playbook to deploy Hadoop
-# this script makes running the playbook a little easier by preparing the command line 
-# 	arguments to pass to the playbook, which are read from other files
-
-# ansible is REALLY picky about quotes, so I must have tried 18 different iterations, before getting some
-#	intuition about what to do in the following post:
-# https://github.com/ansible/ansible/issues/9320
-
-# *NOTES*
-# The simplest way to describe what seems to work when using scripts to pass playbooks arguments 
-# is to not try to escape thing. It doesn't seem to work as expected.  It appears that Ansible will
-# replace " with ' and ' with " so "a=" "b" becomes 'a=" "b' etc...
-# 
-# Try to have whatever you pass to Ansible to be like "$myvar=5 $myvar2=bbb ..." or 'var1=5 var2=boy ...'
-
-
-########################################################################################################
 # run as:  ./run-hadoop-1-deploy-playbook.sh 1.2.1
-########################################################################################################
 
 
 #########################################################################################################
