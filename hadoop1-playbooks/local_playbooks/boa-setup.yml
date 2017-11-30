@@ -24,7 +24,7 @@
 ########################################################################################
 
   tasks:
-** this needs to be version 2.5.0, which i think is in prior version of ubuntu
+** libprotobuf-java needs to be version 2.5.0, which is in 14.04 repo
 ** findout how to add
   - name: Install libprotobuf-java
     apt:
