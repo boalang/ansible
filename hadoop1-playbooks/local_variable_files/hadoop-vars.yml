@@ -39,7 +39,6 @@ hadoop_fs_checkpoint_dir: name-secondary
 hadoop_mapred_local_dir: "mapred/local"
 hadoop_mapred_system_dir: "mapred/system"
 
-
 # This dictionary will facilitate adding relevant export statements at the bottom of hadoop-env.sh
 # When using the with_dict attribute with the file module, the module will automatically iterate over 
 # all of the elements in the dictionary.
@@ -67,3 +66,7 @@ hadoop_env_dict:
   pids_export:  echo export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }} >> {{ hadoop_env_file }}
 
 
+protobuf_java_250_md5_name: protobuf-java-2.5.0.jar.md5
+protobuf_java_250_md5_path: http://central.maven.org/maven2/com/google/protobuf/protobuf-java/2.5.0/
+protobuf_java_250_md5_url: http://central.maven.org/maven2/com/google/protobuf/protobuf-java/2.5.0/{{ protobuf_java_250_md5_name }}
+protobuf_java_250_jar_url: http://central.maven.org/maven2/com/google/protobuf/protobuf-java/2.5.0/protobuf-java-2.5.0.jar
