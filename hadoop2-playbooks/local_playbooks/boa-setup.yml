@@ -1,0 +1,79 @@
+---
+# This playbook installs and sets-up libraries for boa.
+
+
+########################################################################################
+# start playbook
+########################################################################################
+
+- name: Install Boa Dependencies for Hadoop {{ hadoop_version }}
+  hosts: head
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+
+########################################################################################
+# start tasks
+########################################################################################
+
+  tasks:
+# download the protobuf jar file and its checksum
+  - name: "{{ protobuf_java_250_md5_url }}"
+    get_url:
+      url: "{{ protobuf_java_250_md5_url }}"
+      dest: "{{ hadoop_install }}/lib/"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: get md5 checksum value for protobuf file
+    command: cat "{{ hadoop_install }}/lib/{{ protobuf_java_250_md5_name }}"
+    register: checksum_md5
+
+#  - debug: var=checksum_md5
+#  - debug: var=checksum_md5.stdout
+
+  - name: "{{ protobuf_java_250_jar_url }}"
+    get_url:
+      url: "{{ protobuf_java_250_jar_url }}"
+      dest: "{{ hadoop_install }}/lib/"
+      checksum: md5:{{ checksum_md5.stdout }}
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: Install libsnappy-dev
+    apt:
+      name: libsnappy-dev
+      update_cache: no
+      state: present
+
+  - name: Install libmysql-java
+    apt:
+      name: libmysql-java
+      update_cache: no
+      state: present
+
+  - name: cp /usr/lib/x86_64-linux-gnu/libsnappy.* {{ hadoop_install }}/lib/native/Linux-amd64-64
+    copy:
+      src: "{{ item }}"
+      dest: "{{ hadoop_install }}/lib/native/Linux-amd64-64"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+    with_fileglob:
+      - /usr/lib/x86_64-linux-gnu/libsnappy.*
+
+  - name: ln -s /usr/share/java/mysql-connector-java.jar {{ hadoop_install }}/lib/mysql-connector-java.jar
+    file:
+      src: /usr/share/java/mysql-connector-java.jar
+      dest: "{{ hadoop_install }}/lib/mysql-connector-java.jar"
+      state: link
+     

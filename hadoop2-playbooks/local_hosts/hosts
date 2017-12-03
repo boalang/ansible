@@ -1,0 +1,14 @@
+[name_node]
+head ansible_port=22
+
+[secondary_nn]
+head ansible_port=22
+
+[data_nodes]
+boa-1 ansible_port=22
+boa-2 ansible_port=22
+boa-3 ansible_port=22
+boa-4 ansible_port=22
+
+
+

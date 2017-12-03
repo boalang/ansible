@@ -1,0 +1,244 @@
+---
+# Purpose:
+# This playbook will start and stop the cluster
+
+########################################################################################
+# start cluster:  namenode -> secondary nn -> data nodes
+########################################################################################
+# start namenode
+########################################################################################
+
+- name: "{{ start_stop_cluster }} namenode"
+  hosts: name_node
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: create {{ hadoop_env_vars_profile_d_file }}
+    template: 
+      src: ../local_templates/hadoop-{{ hadoop_version }}-env.j2
+      dest: "{{ hadoop_env_vars_profile_d_file }}"
+      owner: root
+      group: root
+      mode:  0644
+    when: start_stop_cluster == "start"
+
+  - name: remove {{ hadoop_env_vars_profile_d_file }}
+    file:
+      path:  "{{ hadoop_env_vars_profile_d_file }}"
+      state: absent
+    when: start_stop_cluster == "stop"
+
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start namenode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} namenode"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start jobtracker"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} jobtracker"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow jobtracker to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+
+########################################################################################
+# start secondary namenode
+########################################################################################
+- name: "{{ start_stop_cluster }} secondary namenode"
+  hosts: secondary_nn
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start secondarynamenode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} secondarynamenode"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+
+########################################################################################
+# start data nodes
+########################################################################################
+- name: "{{ start_stop_cluster }} datanode"
+  hosts: data_nodes
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start datanode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} datanode"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow datanode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} start tasktracker"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} tasktracker"
+    when: start_stop_cluster == "start"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow tasktracker to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "start"
+
+
+########################################################################################
+# stop cluster:  data nodes -> secondary nn -> name node
+########################################################################################
+# stop data nodes
+########################################################################################
+- name: "{{ start_stop_cluster }} datanode"
+  hosts: data_nodes
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop tasktracker"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} tasktracker"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow tasktracker to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop datanode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} datanode"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow datanode to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+########################################################################################
+# stop secondary namenode
+########################################################################################
+- name: "{{ start_stop_cluster }} secondary namenode"
+  hosts: secondary_nn
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop secondarynamenode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} secondarynamenode"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+########################################################################################
+# stop namenode
+########################################################################################
+- name: "{{ start_stop_cluster }} namenode"
+  hosts: name_node
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop jobtracker"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} jobtracker"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow jobtracker to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+
+  - name: "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} stop namenode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_install }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} namenode"
+    when: start_stop_cluster == "stop"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to stop
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+    when: start_stop_cluster == "stop"
+

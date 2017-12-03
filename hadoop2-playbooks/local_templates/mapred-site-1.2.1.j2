@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>mapred.job.tracker</name>
+    <value>{{ hadoop_name_node }}:8021</value>
+  </property>
+
+  <property>
+    <name>mapred.local.dir</name>
+    <value>{{ mapred_local_dir_list }}</value>
+  </property>
+
+  <property>
+    <name>mapred.system.dir</name>
+    <value>{{ mapred_system_dir }}</value>
+  </property>
+
+  <property>
+    <name>mapred.tasktracker.map.tasks.maximum</name>
+    <value>4</value>
+  </property>
+
+  <property>
+    <name>mapred.tasktracker.reduce.tasks.maximum</name>
+    <value>4</value>
+  </property>
+
+  <property>
+    <name>mapred.map.child.java.opts</name>
+    <value>-Xmx2048m</value>
+  </property>
+
+  <property>
+    <name>mapred.reduce.child.java.opts</name>
+    <value>-Xmx2048m</value>
+  </property>
+</configuration>

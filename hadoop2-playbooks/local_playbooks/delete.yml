@@ -1,0 +1,51 @@
+---
+# Purpose:
+# This playbook will delete hadoop from all nodes.
+# Basically, it is a convenience playbook for iterative testing.
+# It saves me from having to delete all the directories by hand.
+
+########################################################################################
+# start playbook
+########################################################################################
+- name: Delete Hadoop {{ hadoop_version }}
+  hosts: all
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+########################################################################################
+# start tasks
+########################################################################################
+
+  tasks:
+  - name: rm -rf {{ hadoop_install }}
+    file:
+      path: "{{ hadoop_install }}"
+      state: absent
+
+  - name: rm -rf {{ hadoop_conf_dir }}
+    file:
+      path: "{{ hadoop_conf_dir }}"
+      state: absent
+
+  - name: rm -rf {{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}
+    file:
+      path: "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}"
+      state: absent
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
+
+
+  - name: rm -rf {{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}
+    file:
+      path: "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}"
+      state: absent
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
+
+
+
