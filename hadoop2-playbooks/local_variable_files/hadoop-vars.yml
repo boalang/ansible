@@ -23,6 +23,7 @@ mapred_system_dir: /data1/{{ hadoop_version }}/mapred/system
 
 hadoop_name_node: head
 hadoop_secondary_name_node: head
+hadoop_resourcemanager_node: head
 hadoop_data_node_base_name: boa-
 hadoop_num_data_node: 15
 hadoop_num_drives_per_node: 2
@@ -33,11 +34,15 @@ path: "{{ hadoop_install }}/bin:{{ hadoop_install }}/sbin:{{ java_home }}/bin:{{
 # to ensure the default-jdk doesn't inadvertenly update to java 9
 java_home: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
-hadoop_dfs_name_dir: name
-hadoop_dfs_data_dir: hdfs-data
-hadoop_fs_checkpoint_dir: name-secondary
-hadoop_mapred_local_dir: "mapred/local"
-hadoop_mapred_system_dir: "mapred/system"
+hadoop_dfs_namenode_name_dir: name
+hadoop_dfs_namenode_data_dir: hdfs-data
+hadoop_dfs_namenode_checkpoint_dir: name-secondary
+yarn_nodemanager_local_dirs: yarn-nodemanager-local-dir
+# mapred_local_dir: "mapred/local"
+mapreduce_cluster_local_dir: "mapred/local"
+# mapred_system_dir: "mapred/system"
+mapreduce_jobtracker_system_dir: "mapred/system"
+
 
 # This dictionary will facilitate adding relevant export statements at the bottom of hadoop-env.sh
 # When using the with_dict attribute with the file module, the module will automatically iterate over 

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+	<!-- White, HTDG 4th pg. 688 -->
+	<name>mapreduce.framework.name</name>
+	<value>yarn</value>
+  </property>
+
+<!-- updated mapred-site-1.2.1.xml items below-->
+<!--
+  <property>
+    <name>mapred.job.tracker</name>
+    <value>{{ hadoop_name_node }}:8021</value>
+  </property>
+-->
+
+<!-- name change -->
+  <property>
+    <name>mapred.cluster.local.dir</name>
+    <value>{{ mapreduce_cluster_local_dir_list }}</value>
+  </property>
+
+<!-- name change -->
+  <property>
+    <name>mapred.jobtracker.system.dir</name>
+    <value>{{ mapreduce_jobtracker_system_dir }}</value>
+  </property>
+
+<!-- name change -->
+  <property>
+    <name>mapreduce.tasktracker.map.tasks.maximum</name>
+    <value>4</value>
+  </property>
+
+<!-- name change -->
+  <property>
+    <name>mapreduce.tasktracker.reduce.tasks.maximum</name>
+    <value>4</value>
+  </property>
+
+  <property>
+    <name>mapred.child.java.opts</name>
+    <value>-Xmx2048m</value>
+  </property>
+
+<!-- added -->
+<!-- 
+HTDG 4th pg 302, The JVM options used for the child process that runs map tasks 
+See also: https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/ClusterSetup.html 
+  (Larger heap-size for child jvms of maps.)
+-->
+  <property>
+    <name>mapreduce.map.java.opts</name>
+    <value>-Xmx2048m</value>
+  </property>
+
+<!-- added -->
+<!-- 
+HTDG 4th pg 302, The JVM options used for the child process that runs reduce tasks 
+See also: https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/ClusterSetup.html
+  Larger heap-size for child jvms of reduces.
+-->
+  <property>
+    <name>mapreduce.reduce.java.opts</name>
+    <value>-Xmx2048m</value>
+  </property>
+
+</configuration>
