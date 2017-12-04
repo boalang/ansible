@@ -29,13 +29,13 @@
 ########################################################################################
 
   tasks:
-  - name: Gather facts about "{{ hadoop_install }}" and exit if "{{ hadoop_install }}" already exits
+  - name: Gather facts about "{{ hadoop_prefix }}" and exit if "{{ hadoop_prefix }}" already exits
     stat:
-      path: "{{ hadoop_install }}"
+      path: "{{ hadoop_prefix }}"
     register: p
 
   - fail:
-      msg: "{{ hadoop_install }} already exists."
+      msg: "{{ hadoop_prefix }} already exists."
     when: p.stat.isdir is defined and p.stat.isdir
 
   - name: Test for user {{ hadoop_user_name }} and create if not present
@@ -72,7 +72,7 @@
       password: "{{ hadoop_user_pwd | password_hash('sha512') }}"
       comment: User to run {{ hadoop_version }}
       shell: /bin/bash
-      home: "{{ hadoop_home }}"
+      home: "{{ hadoop_user_home }}"
       update_password: on_create
     when: getent_passwd[ "{{ hadoop_user_name }}" ][4] is not defined
     become_user: root
@@ -93,8 +93,8 @@
       src: "{{ hadoop_compressed }}/{{ hadoop_file }}"
       dest: "{{ hadoop_base }}"
 
-  - name: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} to {{ hadoop_install }}
-    command: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} {{ hadoop_install }}
+  - name: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} to {{ hadoop_prefix }}
+    command: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} {{ hadoop_prefix }}
 
   - name: Ensure {{ hadoop_base }} directories are 0755
     command: find {{ hadoop_base }} -type d -exec chmod 0755 {} \;
@@ -102,8 +102,8 @@
   - name: Ensure {{ hadoop_base }} files are 0644
     command: find {{ hadoop_base }} -type f -exec chmod 0644 {} \;
 
-  - name: Ensure {{ hadoop_install }}/bin files are 0744
-    command: find {{ hadoop_install }}/bin -type f -exec chmod 0744 {} \;
+  - name: Ensure {{ hadoop_prefix }}/bin files are 0744
+    command: find {{ hadoop_prefix }}/bin -type f -exec chmod 0744 {} \;
 
   - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_base }} and all contents
     file:
@@ -121,14 +121,14 @@
       group: "{{ hadoop_user_group }}"
       recurse: yes
 
-  - name: mv {{ hadoop_install }}/{{ hadoop_default_conf_dir }}/* to {{ hadoop_conf_dir }}
-    shell: mv {{ hadoop_install }}/{{ hadoop_default_conf_dir }}/* {{ hadoop_conf_dir }}
+  - name: mv {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }}/* to {{ hadoop_conf_dir }}
+    shell: mv {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }}/* {{ hadoop_conf_dir }}
 
   - name: Ensure directories are 0755
-    command: find {{ hadoop_install }}/{{ hadoop_default_conf_dir }} -type d -exec chmod 0755 {} \;
+    command: find {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }} -type d -exec chmod 0755 {} \;
 
   - name: Ensure files are 0644
-    command: find {{ hadoop_install }}/{{ hadoop_default_conf_dir }} -type f -exec chmod 0644 {} \;
+    command: find {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }} -type f -exec chmod 0644 {} \;
 
   - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_conf_dir }} and all contents
     file:
@@ -158,9 +158,9 @@
 #    with_sequence: start=1 end={{ cluster_num_drives_per_node }} stride=1
 
 # eg. /data1/1.2.1/name-secondary ... /data(cluster_num_data_node)/1.2.1/name-secondary
-  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_fs_checkpoint_dir }}"
+  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_checkpoint_dir }}"
     file:
-      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_fs_checkpoint_dir }}"
+      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_checkpoint_dir }}"
       state: directory
       mode: 0755
       owner: "{{ hadoop_user_name }}"
@@ -169,9 +169,9 @@
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
 
 # eg. /data1/1.2.1/hdfs-data ... /data(hadoop_num_data_node)/1.2.1/hdfs-data
-  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_data_dir }}"
+  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_datanode_data_dir }}"
     file:
-      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_data_dir }}"
+      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_datanode_data_dir }}"
       state: directory
       mode: 0755
       owner: "{{ hadoop_user_name }}"
@@ -180,9 +180,9 @@
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
 
 # eg. /data1/1.2.1/mapred/local ... /data(hadoop_num_data_node)/1.2.1/mapred/local
-  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_mapred_local_dir }}"
+  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapreduce_cluster_local_dir }}"
     file:
-      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_mapred_local_dir }}"
+      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapreduce_cluster_local_dir }}"
       state: directory
       mode: 0755
       owner: "{{ hadoop_user_name }}"
@@ -236,9 +236,9 @@
     register: dfs_namenode_name_dir_seq
 
   - name: create sequence variable dfs_namenode_data_dir_seq
-    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_data_dir }}
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_datanode_data_dir }}
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-    register: dfs_namenode_data_dir_seq
+    register: dfs_datanode_data_dir_seq
 
   - name: create sequence variable dfs_namenode_checkpoint_dir_seq
     debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_checkpoint_dir }}
@@ -251,9 +251,9 @@
     register: yarn_nodemanager_local_dirs_seq
 
   - name: create sequence variable mapred_cluster_local_dir_seq
-    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapred_cluster_local_dir }}
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapreduce_cluster_local_dir }}
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-    register: mapred_cluster_local_dir_seq
+    register: mapreduce_cluster_local_dir_seq
 
 
 
@@ -264,10 +264,10 @@
 # xml configuration files
   - set_fact:
       dfs_namenode_name_dir_list: "{{ dfs_namenode_name_dir_seq.results | map(attribute='msg') | join(',') }}"
-      dfs_namenode_data_dir_list: "{{ dfs_namenode_data_dir_seq.results | map(attribute='msg') | join(',') }}"
+      dfs_datanode_data_dir_list: "{{ dfs_datanode_data_dir_seq.results | map(attribute='msg') | join(',') }}"
       dfs_namenode_checkpoint_dir_list: "{{ dfs_namenode_checkpoint_dir_seq.results | map(attribute='msg') | join(',') }}"
       yarn_nodemanager_local_dirs_list: "{{ yarn_nodemanager_local_dirs_seq.results | map(attribute='msg') | join(',') }}"
-      mapred_cluster_local_dir_list: "{{ mapred_cluster_local_dir_seq.results | map(attribute='msg') | join(',') }}"
+      mapreduce_cluster_local_dir_list: "{{ mapreduce_cluster_local_dir_seq.results | map(attribute='msg') | join(',') }}"
 
 # Note:
 # although, openjdk-8-jdk is being referenced explicitly, it is possible to use statements such as
@@ -312,4 +312,10 @@
       group: "{{ hadoop_user_name }}"
       mode:  0644
 
-
+  - name:  Create {{ hadoop_conf_dir }}/yarn-site-{{ hadoop_version }}.xml
+    template: 
+      src: ../local_templates/yarn-site-{{ hadoop_version }}.j2
+      dest: "{{ hadoop_conf_dir }}/yarn-site.xml"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      mode:  0644

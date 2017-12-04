@@ -4,6 +4,12 @@ head ansible_port=22
 [secondary_nn]
 head ansible_port=22
 
+[resourcemanager]
+head ansible_port=22
+
+[jobhistory]
+head ansible_port=22
+
 [data_nodes]
 boa-1 ansible_port=22
 boa-2 ansible_port=22

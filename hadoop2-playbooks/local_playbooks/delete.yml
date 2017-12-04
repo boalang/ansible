@@ -24,9 +24,9 @@
 ########################################################################################
 
   tasks:
-  - name: rm -rf {{ hadoop_install }}
+  - name: rm -rf {{ hadoop_prefix }}
     file:
-      path: "{{ hadoop_install }}"
+      path: "{{ hadoop_prefix }}"
       state: absent
 
   - name: rm -rf {{ hadoop_conf_dir }}

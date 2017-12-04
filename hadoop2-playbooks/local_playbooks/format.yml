@@ -24,12 +24,12 @@
 
   tasks:
 # format the namenode
-  - name: execute hadoop namenode -format for Hadoop {{ hadoop_version }}
-    shell: cd {{ hadoop_install }}/bin; export JAVA_HOME={{ java_home }}; export HADOOP_HOME={{ hadoop_install }}; export HADOOP_CONF_DIR={{ hadoop_conf_dir }}; export HADOOP_LOG_DIR={{ hadoop_HADOOP_LOG_DIR }}; export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }}; ./hadoop namenode -format
+  - name: execute hdfs namenode -format for Hadoop {{ hadoop_version }}
+    shell: cd {{ hadoop_prefix }}/bin; export JAVA_HOME={{ java_home }}; export HADOOP_HOME={{ hadoop_prefix }}; export HADOOP_CONF_DIR={{ hadoop_conf_dir }}; export HADOOP_LOG_DIR={{ hadoop_HADOOP_LOG_DIR }}; export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }}; ./hdfs namenode -format
 
 # ensure that /data1/version/name and /data2/version/name are of the permission 0755
   - name: Ensure that namenode name directories are 0755
-    command: find {{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_name_dir }} -type d -exec chmod 0755 {} \;
+    command: find {{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_name_dir }} -type d -exec chmod 0755 {} \;
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
 
 

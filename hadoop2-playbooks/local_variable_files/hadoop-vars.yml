@@ -2,18 +2,19 @@
 # This file contains variables needed to deploy and run Hadoop.
 
 hadoop_base: /opt/hadoop
-hadoop_install: "{{ hadoop_base }}/{{ hadoop_version }}"
+hadoop_prefix: "{{ hadoop_base }}/{{ hadoop_version }}"
+hadoop_yarn_home: "{{ hadoop_prefix }}"
 hadoop_file: hadoop-{{ hadoop_version }}.tar.gz
 hadoop_compressed: /opt/compressed
 hadoop_user_name:  hadoop
 hadoop_user_group: "{{ hadoop_user_name }}"
 hadoop_user_pwd:  "{{ hadoop_user_name }}"
+hadoop_user_home: /home/{{ hadoop_user_name }}
 hadoop_conf_dir: "{{ hadoop_base }}/{{ hadoop_version }}_conf_in_use"
 hadoop_conf_master_dir: "{{ hadoop_base }}/{{ hadoop_version }}_conf_master"
-hadoop_default_conf_dir:  conf
+hadoop_default_conf_dir:  etc/hadoop
 hadoop_data_base_dir: /data
 hadoop_env_file: "{{ hadoop_conf_dir }}/hadoop-env.sh"
-hadoop_home: /home/{{ hadoop_user_name }}
 hadoop_env_vars_profile_d_file:  /etc/profile.d/hadoop-{{ hadoop_version }}-env.sh
 
 # these two directories only need to be on one drive, so they'll be coded to /data1, as it should always exist
@@ -28,19 +29,17 @@ hadoop_data_node_base_name: boa-
 hadoop_num_data_node: 15
 hadoop_num_drives_per_node: 2
 
-path: "{{ hadoop_install }}/bin:{{ hadoop_install }}/sbin:{{ java_home }}/bin:{{ java_home }}/bin"
+path: "{{ hadoop_prefix }}/bin:{{ hadoop_prefix }}/sbin:{{ java_home }}/bin:{{ java_home }}/bin"
 
 # hard-code java_home to the symlink java-1.8.0-openjdk-adm46
 # to ensure the default-jdk doesn't inadvertenly update to java 9
 java_home: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
 hadoop_dfs_namenode_name_dir: name
-hadoop_dfs_namenode_data_dir: hdfs-data
+hadoop_dfs_datanode_data_dir: hdfs-data
 hadoop_dfs_namenode_checkpoint_dir: name-secondary
 yarn_nodemanager_local_dirs: yarn-nodemanager-local-dir
-# mapred_local_dir: "mapred/local"
 mapreduce_cluster_local_dir: "mapred/local"
-# mapred_system_dir: "mapred/system"
 mapreduce_jobtracker_system_dir: "mapred/system"
 
 
@@ -56,7 +55,7 @@ hadoop_env_dict:
 # HADOOP_INSTALL=/opt/hadoop/version
   install_new_line:  echo  >> {{ hadoop_env_file }};
   install_comment:  echo \# Setting HADOOP_INSTALL via Ansible playbook >> {{ hadoop_env_file }};
-  install_export:  echo export HADOOP_INSTALL={{ hadoop_install }} >> {{ hadoop_env_file }}
+  install_export:  echo export HADOOP_INSTALL={{ hadoop_prefix }} >> {{ hadoop_env_file }}
 # HADOOP_CONF_DIR=/opt/hadoop/conf_version
   conf_new_line:  echo  >> {{ hadoop_env_file }};
   conf_comment:  echo \# Setting HADOOP_CONF_DIR via Ansible playbook >> {{ hadoop_env_file }};

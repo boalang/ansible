@@ -28,13 +28,13 @@
   - name: "{{ protobuf_java_250_md5_url }}"
     get_url:
       url: "{{ protobuf_java_250_md5_url }}"
-      dest: "{{ hadoop_install }}/lib/"
+      dest: "{{ hadoop_prefix }}/lib/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
   - name: get md5 checksum value for protobuf file
-    command: cat "{{ hadoop_install }}/lib/{{ protobuf_java_250_md5_name }}"
+    command: cat "{{ hadoop_prefix }}/lib/{{ protobuf_java_250_md5_name }}"
     register: checksum_md5
 
 #  - debug: var=checksum_md5
@@ -43,7 +43,7 @@
   - name: "{{ protobuf_java_250_jar_url }}"
     get_url:
       url: "{{ protobuf_java_250_jar_url }}"
-      dest: "{{ hadoop_install }}/lib/"
+      dest: "{{ hadoop_prefix }}/lib/"
       checksum: md5:{{ checksum_md5.stdout }}
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
@@ -61,19 +61,19 @@
       update_cache: no
       state: present
 
-  - name: cp /usr/lib/x86_64-linux-gnu/libsnappy.* {{ hadoop_install }}/lib/native/Linux-amd64-64
+  - name: cp /usr/lib/x86_64-linux-gnu/libsnappy.* {{ hadoop_prefix }}/lib/native/Linux-amd64-64
     copy:
       src: "{{ item }}"
-      dest: "{{ hadoop_install }}/lib/native/Linux-amd64-64"
+      dest: "{{ hadoop_prefix }}/lib/native/Linux-amd64-64"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
     with_fileglob:
       - /usr/lib/x86_64-linux-gnu/libsnappy.*
 
-  - name: ln -s /usr/share/java/mysql-connector-java.jar {{ hadoop_install }}/lib/mysql-connector-java.jar
+  - name: ln -s /usr/share/java/mysql-connector-java.jar {{ hadoop_prefix }}/lib/mysql-connector-java.jar
     file:
       src: /usr/share/java/mysql-connector-java.jar
-      dest: "{{ hadoop_install }}/lib/mysql-connector-java.jar"
+      dest: "{{ hadoop_prefix }}/lib/mysql-connector-java.jar"
       state: link
      
