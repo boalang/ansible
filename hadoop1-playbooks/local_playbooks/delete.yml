@@ -40,12 +40,3 @@
       state: absent
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
 
-
-  - name: rm -rf {{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}
-    file:
-      path: "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}"
-      state: absent
-    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
-
-
-

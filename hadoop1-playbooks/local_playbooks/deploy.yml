@@ -105,6 +105,9 @@
   - name: Ensure {{ hadoop_install }}/bin files are 0744
     command: find {{ hadoop_install }}/bin -type f -exec chmod 0744 {} \;
 
+  - name: Ensure {{ hadoop_prefix }}/sbin files are 0744
+    command: find {{ hadoop_prefix }}/sbin -type f -exec chmod 0744 {} \;
+
   - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_base }} and all contents
     file:
       path: "{{ hadoop_base }}"

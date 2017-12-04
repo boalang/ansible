@@ -43,7 +43,7 @@
 - name: "{{ start_stop_cluster }} namenode"
   hosts: name_node
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh
@@ -53,7 +53,7 @@
     - ../local_variable_files/hadoop-vars.yml
 
   tasks:
-  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ hadoop_conf_dir }} namenode"
+  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} namenode"
     become_user: "{{ hadoop_user_name }}"
     become: true
     become_method: sudo
@@ -69,7 +69,7 @@
 - name: "{{ start_stop_cluster }} secondarynamenode"
   hosts: secondary_nn
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh
@@ -79,7 +79,7 @@
     - ../local_variable_files/hadoop-vars.yml
 
   tasks:
-  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ hadoop_conf_dir }} secondarynamenode"
+  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} secondarynamenode"
     become_user: "{{ hadoop_user_name }}"
     become: true
     become_method: sudo
@@ -95,7 +95,7 @@
 - name: "{{ start_stop_cluster }} resourcemanager"
   hosts: resourcemanager
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh
@@ -122,7 +122,7 @@
 - name: "{{ start_stop_cluster }} datanode"
   hosts: data_nodes
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh
@@ -132,7 +132,7 @@
     - ../local_variable_files/hadoop-vars.yml
 
   tasks:
-  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ hadoop_conf_dir }} datanode"
+  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} datanode"
     become_user: "{{ hadoop_user_name }}"
     become: true
     become_method: sudo
@@ -142,11 +142,11 @@
     pause:
       seconds: "{{ seconds_to_pause }}"
 
-  - name: "{{ hadoop_yarn_home }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ hadoop_conf_dir }} nodemanager"
+  - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
     become_user: "{{ hadoop_user_name }}"
     become: true
     become_method: sudo
-    command:  "{{ hadoop_hadoop_yarn }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
+    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
     pause:
@@ -155,10 +155,10 @@
 ########################################################################################
 # jobhistory
 ########################################################################################
-- name: "{{ start_stop_cluster }} datanode"
+- name: "{{ start_stop_cluster }} history server"
   hosts: head
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh
@@ -168,7 +168,7 @@
     - ../local_variable_files/hadoop-vars.yml
 
   tasks:
-  - name: "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ hadoop_conf_dir }} historyserver"
+  - name: "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} historyserver"
     become_user: "{{ hadoop_user_name }}"
     become: true
     become_method: sudo
