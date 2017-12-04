@@ -1,0 +1,49 @@
+---
+# Purpose:
+# This playbook will delete hadoop from all nodes.
+# Basically, it is a convenience playbook for iterative testing.
+# It saves me from having to delete all the directories by hand.
+
+########################################################################################
+# start playbook
+########################################################################################
+- name: Delete Hadoop {{ hadoop_version }}
+  hosts: head
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+########################################################################################
+# start tasks
+########################################################################################
+  tasks:
+  - name: Gather facts about "{{ hadoop_user_home }}/.ssh"
+    stat:
+      path: "{{ hadoop_user_home }}/.ssh"
+    register: ssh
+
+  - name: Gather facts about "{{ hadoop_user_home }}/.ssh/id_rsa"
+    stat:
+      path: "{{ hadoop_user_home }}/.ssh/id_rsa"
+    register: id_rsa
+
+  - name: Gather facts about "{{ hadoop_user_home }}"
+    stat:
+      path: "{{ hadoop_user_home }}"
+    register: hh
+
+
+  - debug: var=ssh
+  - debug: var=id_rsa
+  - debug: var=hh
+
+  - debug: msg="id_rsa.stat.mode != 1234"
+    when: id_rsa.stat.mode != "1234"
+  - debug: msg="id_rsa.stat.mode == 0600"
+    when: id_rsa.stat.mode == "0600"

@@ -72,7 +72,7 @@
       password: "{{ hadoop_user_pwd | password_hash('sha512') }}"
       comment: User to run {{ hadoop_version }}
       shell: /bin/bash
-      home: "{{ hadoop_home }}"
+      home: "{{ hadoop_user_home }}"
       update_password: on_create
     when: getent_passwd[ "{{ hadoop_user_name }}" ][4] is not defined
     become_user: root
@@ -105,8 +105,8 @@
   - name: Ensure {{ hadoop_install }}/bin files are 0744
     command: find {{ hadoop_install }}/bin -type f -exec chmod 0744 {} \;
 
-  - name: Ensure {{ hadoop_prefix }}/sbin files are 0744
-    command: find {{ hadoop_prefix }}/sbin -type f -exec chmod 0744 {} \;
+  - name: Ensure {{ hadoop_install }}/sbin files are 0744
+    command: find {{ hadoop_install }}/sbin -type f -exec chmod 0744 {} \;
 
   - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_base }} and all contents
     file:

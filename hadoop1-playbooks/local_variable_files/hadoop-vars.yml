@@ -13,7 +13,7 @@ hadoop_conf_master_dir: "{{ hadoop_base }}/{{ hadoop_version }}_conf_master"
 hadoop_default_conf_dir:  conf
 hadoop_data_base_dir: /data
 hadoop_env_file: "{{ hadoop_conf_dir }}/hadoop-env.sh"
-hadoop_home: /home/{{ hadoop_user_name }}
+hadoop_user_home: /home/{{ hadoop_user_name }}
 hadoop_env_vars_profile_d_file:  /etc/profile.d/hadoop-{{ hadoop_version }}-env.sh
 
 # these two directories only need to be on one drive, so they'll be coded to /data1, as it should always exist

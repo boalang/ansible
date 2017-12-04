@@ -25,51 +25,71 @@
 # start tasks
 ########################################################################################
   tasks:
-  - name: Gather facts about "{{ hadoop_home }}/.ssh"
+  - name: Gather facts about "{{ hadoop_user_home }}/.ssh"
     stat:
-      path: "{{ hadoop_home }}/.ssh"
+      path: "{{ hadoop_user_home }}/.ssh"
     register: ssh
 
-  - name: Gather facts about "{{ hadoop_home }}/.ssh/id_rsa"
-    stat:
-      path: "{{ hadoop_home }}/.ssh/id_rsa"
-    register: id_rsa
-
-  - name: Gather facts about "{{ hadoop_home }}/.ssh/id_rsa.pub"
-    stat:
-      path: "{{ hadoop_home }}/.ssh/id_rsa.pub"
-    register: id_rsa_pub
-
-##############
-
-  - name: create {{ hadoop_home }}/.ssh if does not exist
+  - name: create {{ hadoop_user_home }}/.ssh if does not exist
     file:
-      path: "{{ hadoop_home }}/.ssh"
+      path: "{{ hadoop_user_home }}/.ssh"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       state: directory
       mode: 0700
-    when: ssh.stat.exists == "false"
+    when: ssh.stat.exists == False
 
-  - name: ssh-keygen -v -b 2048 -t rsa -f "{{ hadoop_home }}/.ssh/id_rsa" -N '' if does not exist
-    shell: ssh-keygen -v -b 2048 -t rsa -f "{{ hadoop_home }}/.ssh/id_rsa" -N '' 
-    when: id_rsa.stat.exists == "false"
+##############
 
-  - name: ensure {{ hadoop_user_name }} owns {{ hadoop_home }}/.ssh/id_rsa.pub with mode 0644
+  - name: Gather facts about "{{ hadoop_user_home }}/.ssh/id_rsa"
+    stat:
+      path: "{{ hadoop_user_home }}/.ssh/id_rsa"
+    register: id_rsa
+
+  - name: ssh-keygen -v -b 2048 -t rsa -f "{{ hadoop_user_home }}/.ssh/id_rsa" -N '' if does not exist
+    shell: ssh-keygen -v -b 2048 -t rsa -f "{{ hadoop_user_home }}/.ssh/id_rsa" -N '' 
+    when: id_rsa.stat.exists == False
+    
+# this seems redundant, but id_rsa needs to be read again, because if it already existed then ssh-keygen 
+# task would be skipped and that would update the contents of id_rsa with meaningless information causing 
+# the tasks below to fail (no mode value present), and if id_rsa did not exist then the initial registering of the
+# variable is basically empty (not updated when ssh-keygen is run) and failure again below.
+  - name: Gather facts about "{{ hadoop_user_home }}/.ssh/id_rsa"
+    stat:
+      path: "{{ hadoop_user_home }}/.ssh/id_rsa"
+    register: id_rsa
+
+##############
+
+  - name: Test that {{ hadoop_user_home }}/.ssh/id_rsa.pub exists
+    stat:
+      path: "{{ hadoop_user_home }}/.ssh/id_rsa.pub"
+    register: id_rsa_pub
+  - fail:
+      msg: "Error:  {{ hadoop_user_home }}/.ssh/id_rsa_pub does not exist"
+    when: id_rsa_pub.stat.exists == False
+
+#  - debug: var=ssh
+#  - debug: var=id_rsa
+#  - debug: var=id_rsa_pub
+
+##############
+
+  - name: ensure {{ hadoop_user_name }} owns {{ hadoop_user_home }}/.ssh/id_rsa.pub with mode 0644
     file:
-      path: "{{ hadoop_home }}/.ssh/id_rsa.pub"
+      path: "{{ hadoop_user_home }}/.ssh/id_rsa.pub"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
-    when: id_rsa_pub.stat.mode != "0644" or id_rsa_pub.stat.pw_name != "{{ hadoop_user_name }}" or id_rsa_pub.stat.pw_name != "{{ hadoop_user_group }}"
+    when: id_rsa_pub.stat.mode != "0644" or id_rsa_pub.stat.pw_name != "{{ hadoop_user_name }}" or id_rsa_pub.stat.gr_name != "{{ hadoop_user_group }}"
 
-  - name:  ensure {{ hadoop_user_name }} owns {{ hadoop_home }}/.ssh/id_rsa with mode 0600
+  - name:  ensure {{ hadoop_user_name }} owns {{ hadoop_user_home }}/.ssh/id_rsa with mode 0600
     file:
-      path: "{{ hadoop_home }}/.ssh/id_rsa"
+      path: "{{ hadoop_user_home }}/.ssh/id_rsa"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0600
-    when: id_rsa_pub.stat.mode != "0600" or id_rsa_pub.stat.pw_name != "{{ hadoop_user_name }}" or id_rsa_pub.stat.pw_name != "{{ hadoop_user_group }}"
+    when: id_rsa.stat.mode != "0600" or id_rsa.stat.pw_name != "{{ hadoop_user_name }}" or id_rsa.stat.gr_name != "{{ hadoop_user_group }}"
 
 ##############
 
