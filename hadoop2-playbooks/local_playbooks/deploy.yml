@@ -286,7 +286,7 @@
 
 # iterate over the dictionary hadoop_env_dict and execute each element on the command line using the shell
 # for the dictionary details, see ../local_variable_files/hadoop-vars.yml
-  - name:  Append export statements for JAVA_HOME, HADOOP_INSTALL, HADOOP_CONF_DIR, HADOOP_LOG_DIR, HADOOP_PID_DIR in {{ hadoop_env_vars }}
+  - name:  Append export statements for JAVA_HOME, HADOOP_INSTALL, HADOOP_CONF_DIR, HADOOP_LOG_DIR, HADOOP_PID_DIR in {{ hadoop_env_file }}
     shell:  "{{ item.value }}" 
     with_dict: "{{ hadoop_env_dict }}"
 
