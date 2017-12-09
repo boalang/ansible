@@ -7,7 +7,7 @@
 ########################################################################################
 
 - name: Install Boa Dependencies for Hadoop {{ hadoop_version }}
-  hosts: head
+  hosts: all
   remote_user: ansible
   become_user: root
   become: true
