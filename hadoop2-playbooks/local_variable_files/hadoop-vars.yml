@@ -4,16 +4,21 @@
 hadoop_base: /opt/hadoop
 hadoop_prefix: "{{ hadoop_base }}/{{ hadoop_version }}"
 hadoop_yarn_home: "{{ hadoop_prefix }}"
+
 hadoop_file: hadoop-{{ hadoop_version }}.tar.gz
+hadoop_file_checksum_mds: hadoop-{{ hadoop_version }}.tar.gz.mds
 hadoop_compressed: /opt/compressed
+
 hadoop_user_name:  hadoop
 hadoop_user_group: "{{ hadoop_user_name }}"
 hadoop_user_pwd:  "{{ hadoop_user_name }}"
 hadoop_user_home: /home/{{ hadoop_user_name }}
+
 hadoop_conf_dir: "{{ hadoop_base }}/{{ hadoop_version }}_conf_in_use"
 hadoop_conf_master_dir: "{{ hadoop_base }}/{{ hadoop_version }}_conf_master"
 hadoop_default_conf_dir:  etc/hadoop
 hadoop_data_base_dir: /data
+
 hadoop_env_file: "{{ hadoop_conf_dir }}/hadoop-env.sh"
 hadoop_env_vars_profile_d_file:  /etc/profile.d/hadoop-{{ hadoop_version }}-env.sh
 

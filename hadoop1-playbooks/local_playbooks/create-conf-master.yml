@@ -31,10 +31,12 @@
 ########################################################################################
 
   tasks:
+# to ensure you don't delete master configs by accident
   - name: Gather facts about {{ hadoop_conf_master_dir }} and exit if {{ hadoop_conf_master_dir }} already exists
     stat:
       path: "{{ hadoop_conf_master_dir }}"
     register: p
+
   - fail:
       msg: "{{ hadoop_conf_master_dir }} already exists."
     when: p.stat.isdir is defined and p.stat.isdir
@@ -47,23 +49,15 @@
       group: "{{ hadoop_user_group }}"
       mode: 0755
 
-  - name: cp -r {{ hadoop_conf_dir }}/* {{ hadoop_conf_master_dir }}
-    shell: cp -r {{ hadoop_conf_dir }}/* {{ hadoop_conf_master_dir }}
-    register: result_val   
-
-  - name: ensure all files are owned by {{ hadoop_user_name }}
-    file:
-      path:  "{{ hadoop_conf_master_dir }}"
+# thanks to the following link i was finally able to figure out how to just copy the files
+# , ensure their permissions were set to 0644, but not change the permissions on the directory
+# http://www.mydailytutorials.com/how-to-copy-files-and-directories-in-ansible-using-copy-and-fetch-modules/
+  - name: copy {{ hadoop_conf_dir }}/* to {{ hadoop_conf_master_dir }}
+    copy:
+      src:  "{{ hadoop_conf_dir }}/"
+      dest: "{{ hadoop_conf_master_dir }}"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
-    
-  - name: remove "{{ hadoop_conf_master_dir }}" when copy fails
-    file:
-      path: "{{ hadoop_conf_master_dir }}"
-      state: absent
-      owner: "{{ hadoop_user_name }}"
-      group: "{{ hadoop_user_group }}"
-      mode: 0755
-    when: result_val.rc != 0
+
  

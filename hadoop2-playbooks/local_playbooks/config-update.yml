@@ -25,12 +25,25 @@
 
 
   tasks:
-  - name: rm -rf {{ hadoop_conf_dir }}/* on all nodes
-    command: rm -rf {{ hadoop_conf_dir }}/*
+  - name: remove {{ hadoop_conf_dir }} on each node
+    file:
+      path: "{{ hadoop_conf_dir }}"
+      state: absent
 
-  - name: copy {{ hadoop_conf_master_dir }} on {{ hadoop_name_node }} to {{ hadoop_conf_dir }} on all nodes
+  - name: create {{ hadoop_conf_dir }} on each node
+    file:
+      path: "{{ hadoop_conf_dir }}"
+      state: directory
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0755
+
+# thanks again to the following link.  it helped correct the error that kept stopping this playbook from working
+# http://www.mydailytutorials.com/how-to-copy-files-and-directories-in-ansible-using-copy-and-fetch-modules/
+  - name: copy {{ hadoop_conf_master_dir }} files on {{ hadoop_name_node }} to {{ hadoop_conf_dir }} on all nodes
     copy:
-      src: "{{ hadoop_conf_master_dir }}"
+      src: "{{ hadoop_conf_master_dir }}/"
+      remote_src: false
       dest: "{{ hadoop_conf_dir }}"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"

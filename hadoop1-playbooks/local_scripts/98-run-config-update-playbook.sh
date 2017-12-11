@@ -17,7 +17,8 @@
 # just basic sanity test to catch likely errors by say a tired user
 # test for null
 if [ -z "$1" ]; then
-	echo "hadoop_ver=NULL"
+	echo "command line execution is mising hadoop version number"
+	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
 	exit 1
 fi
 

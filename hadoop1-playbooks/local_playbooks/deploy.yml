@@ -32,10 +32,10 @@
   - name: Gather facts about "{{ hadoop_install }}" and exit if "{{ hadoop_install }}" already exits
     stat:
       path: "{{ hadoop_install }}"
-
     register: p
+
   - fail:
-      msg: "{{ hadoop_install }} already exists."
+      msg: "{{ hadoop_install }} Already exists.  Run the delete script to remove Hadoop {{ hadoop_version }}, then rerun the deploy scipt."
     when: p.stat.isdir is defined and p.stat.isdir
 
   - name: Test for user {{ hadoop_user_name }} and create if not present
@@ -79,7 +79,7 @@
     become: true
     become_method: sudo 
 
-  - name: create {{ hadoop_base }}
+  - name: create {{ hadoop_base }}, if it does not exist
     file:
       path: "{{ hadoop_base }}"
       state: directory

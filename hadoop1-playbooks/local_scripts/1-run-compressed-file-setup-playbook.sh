@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Purpose:
-# This scrip will initiate a playbook that will create the master directory for the cluster configuration
-# scripts, if the directory does not already exist
-# run as:  ./run-hadoop-1-create-conf-master-playbook.sh 1.2.1
+# Purpose
+# bash script to initiate the Ansible playbook to deploy Hadoop
+# run as:  ./run-hadoop-1-deploy-playbook.sh 1.2.1
 
 
 #########################################################################################################
@@ -17,7 +16,8 @@
 # just basic sanity test to catch likely errors by say a tired user
 # test for null
 if [ -z "$1" ]; then
-	echo "hadoop_ver=NULL"
+	echo "command line execution is mising hadoop version number"
+	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
 	exit 1
 fi
 
@@ -43,12 +43,10 @@ c=$(echo -n $1 | cut -c5)
 #########################################################################################################
 
 hadoop_ver="$a.$b.$c"
-playbook_name=create-conf-master.yml
+playbook_name=compressed-file-setup.yml
 extra_vars="hadoop_version=$hadoop_ver"
 
 #########################################################################################################
 # code 
 #########################################################################################################
-ansible-playbook ../local_playbooks/$playbook_name --extra-vars "$extra_vars"
-
-
+ansible-playbook ../local_playbooks/$playbook_name -e "$extra_vars"

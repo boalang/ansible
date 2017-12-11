@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Purpose
-# bash script to initiate the Ansible playbook to start or stop the cluster
-# run as:  ./run-hadoop-1-start-stop-playbook.sh 1.2.1 start/stop
+# bash script to initiate the Ansible playbook to deploy Hadoop
+# run as:  ./run-hadoop-1-deploy-playbook.sh 1.2.1
 
 
 #########################################################################################################
@@ -16,12 +16,8 @@
 # just basic sanity test to catch likely errors by say a tired user
 # test for null
 if [ -z "$1" ]; then
-	echo "hadoop_ver=NULL"
-	exit 1
-fi
-
-if [ -z "$2" ]; then
-	echo "\$stop_start_cluster=NULL"
+	echo "command line execution is mising hadoop version number"
+	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 2.7.4"
 	exit 1
 fi
 
@@ -42,25 +38,15 @@ a=$(echo -n $1 | cut -c1)
 b=$(echo -n $1 | cut -c3)
 c=$(echo -n $1 | cut -c5)
 
-# test for proper stop/start value
-if [[ "$2" != "start" && "$2" != "stop" ]]; then
-	echo "invalid stop_start_cluster value"
-	echo "stop_start_cluster=start or stop_start_cluster=stop"
-	exit 1
-fi
-
 #########################################################################################################
 # vars
 #########################################################################################################
 
 hadoop_ver="$a.$b.$c"
-start_stop_cluster=$2
-playbook_name=start-stop.yml
-# default number of seconds to wait between starting daemons on each host
-seconds_to_pause=5
-extra_vars="hadoop_version=$hadoop_ver start_stop_cluster=$start_stop_cluster seconds_to_pause=$seconds_to_pause"
+playbook_name=compressed-file-setup.yml
+extra_vars="hadoop_version=$hadoop_ver"
 
-########################################################################################################
-# code
-########################################################################################################
-ansible-playbook ../local_playbooks/$playbook_name --extra-vars "$extra_vars"
+#########################################################################################################
+# code 
+#########################################################################################################
+ansible-playbook ../local_playbooks/$playbook_name -e "$extra_vars"
