@@ -64,10 +64,10 @@ fi
 if [[ hadoop_ver_numeric -ge 220 && hadoop_ver_numeric -le 274 ]]; then
 	# version 2.2.0 - 2.7.4
 	ansible-playbook ../local_playbooks/compressed-file-setup_220_274.yml -e "$extra_vars"
-elif [[ hadoop_ver_numeric -gt 274 && hadoop_ver_numeric -lt 300 ]]; then
+elif [[ hadoop_ver_numeric -gt 274 && hadoop_ver_numeric -le 300 ]]; then
 	# version 2.8.0 - 2.9.0
-	ansible-playbook ../local_playbooks/compressed-file-setup_280_290.yml -e "$extra_vars"
+	ansible-playbook ../local_playbooks/compressed-file-setup_280_300.yml -e "$extra_vars"
 else
-	echo "Version number is not between 2.7.4 and 2.9.0"
+	echo "Version number is not between 2.2.0 and 3.0.0"
 fi
  
