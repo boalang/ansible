@@ -17,13 +17,13 @@
 # test for null
 if [ -z "$1" ]; then
 	echo "command line execution is mising hadoop version number"
-	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 2.7.4"
+	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
 	exit 1
 fi
 
 if [ -z "$2" ]; then
 	echo "command line execution is missing a value of stop or start"
-	echo "eg. version 2.7.4 should be run as: ./<script-name>.sh 2.7.4 start-or-stop-here"
+	echo "eg. version 1.2.1 should be run as: ./script.sh 1.2.1 start-or-stop-here"
 	exit 1
 fi
 

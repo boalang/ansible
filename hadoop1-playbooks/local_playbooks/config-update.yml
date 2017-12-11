@@ -48,4 +48,3 @@
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
-

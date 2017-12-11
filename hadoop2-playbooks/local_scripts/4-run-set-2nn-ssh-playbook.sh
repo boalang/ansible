@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Purpose:
-# This scrip will initiate a playbook that will create the master directory for the cluster configuration
-# scripts, if the directory does not already exist
-# run as:  ./run-hadoop-1-create-conf-master-playbook.sh 1.2.1
+# This script will initiate a playbook that will set passwordless priviledges for the secondary namenode
+# on the namenode, so that the secondary namenode can merge the edits and fsimage file regularly.
+# run as:  ./run-hadoop-1-set-2nn-ssh-playbook.sh 1.2.1
 
 
 #########################################################################################################
@@ -18,7 +18,7 @@
 # test for null
 if [ -z "$1" ]; then
 	echo "command line execution is mising hadoop version number"
-	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 2.7.4"
+	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
 	exit 1
 fi
 
@@ -44,7 +44,7 @@ c=$(echo -n $1 | cut -c5)
 #########################################################################################################
 
 hadoop_ver="$a.$b.$c"
-playbook_name=create-conf-master.yml
+playbook_name=set-2nn-ssh.yml
 extra_vars="hadoop_version=$hadoop_ver"
 
 #########################################################################################################

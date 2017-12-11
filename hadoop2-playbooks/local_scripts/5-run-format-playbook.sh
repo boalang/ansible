@@ -1,9 +1,8 @@
 #!/bin/bash
 
 # Purpose
-# Bash script to initiate the Ansible playbook to delete Hadoop
-# Basically, it is a convenience playbook for iterative testing.
-# run as:  ./run-hadoop-1-delete-playbook.sh 1.2.1
+# bash script to initiate the Ansible playbook to format the namenode for Hadoop
+# run as:  ./run-hadoop-1-format-playbook.sh 1.2.1
 
 
 #########################################################################################################
@@ -18,7 +17,7 @@
 # test for null
 if [ -z "$1" ]; then
 	echo "command line execution is mising hadoop version number"
-	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 2.7.4"
+	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
 	exit 1
 fi
 
@@ -44,10 +43,10 @@ c=$(echo -n $1 | cut -c5)
 #########################################################################################################
 
 hadoop_ver="$a.$b.$c"
-playbook_name=delete.yml
+playbook_name=format.yml
 extra_vars="hadoop_version=$hadoop_ver"
 
-#########################################################################################################
-# code 
-#########################################################################################################
+########################################################################################################
+# code
+########################################################################################################
 ansible-playbook ../local_playbooks/$playbook_name --extra-vars "$extra_vars"

@@ -60,4 +60,3 @@
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
- 

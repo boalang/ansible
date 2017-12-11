@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Purpose:
-# This script invokes the boa setup playbook to install and setup dependencies for boa.
-# run as:  ./run-boa-setup-playbook.sh 1.2.1
+# Purpose
+# bash script to initiate the Ansible playbook to deploy Hadoop
+# run as:  ./run-hadoop-1-deploy-playbook.sh 1.2.1
 
 
 #########################################################################################################
@@ -17,7 +17,7 @@
 # test for null
 if [ -z "$1" ]; then
 	echo "command line execution is mising hadoop version number"
-	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 2.7.4"
+	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
 	exit 1
 fi
 
@@ -43,12 +43,10 @@ c=$(echo -n $1 | cut -c5)
 #########################################################################################################
 
 hadoop_ver="$a.$b.$c"
-playbook_name=boa-setup.yml
+playbook_name=deploy.yml
 extra_vars="hadoop_version=$hadoop_ver"
 
 #########################################################################################################
 # code 
 #########################################################################################################
-ansible-playbook ../local_playbooks/$playbook_name --extra-vars "$extra_vars"
-
-
+ansible-playbook ../local_playbooks/$playbook_name -e "$extra_vars"
