@@ -1,6 +1,9 @@
 # Purpose:
 # This file contains variables needed to deploy and run Hadoop.
 
+# note: hadoop_ver is passed in from the calling script
+hadoop_version: "{{ hadoop_ver }}"
+
 hadoop_base: /opt/hadoop
 hadoop_prefix: "{{ hadoop_base }}/{{ hadoop_version }}"
 hadoop_yarn_home: "{{ hadoop_prefix }}"

@@ -60,22 +60,26 @@
 # use SHA1 because it is the only algorithm guaranteed to run on all version of Ansible and python
   - name: Get checksum value for {{ hadoop_file_checksum_mds }}
     shell: "grep --ignore-case 'SHA1' {{ hadoop_compressed }}/{{ hadoop_file_checksum_mds }} | cut -c31-"
-    register: checksum_sha1_220_274
+    register: checksum_sha1
     when: "{{ hadoop_version_numeric | int }} >= 220 and {{ hadoop_version_numeric | int }} <= 274"
 
-#  - debug: var=checksum_sha1_220_274
-#  - debug: var=checksum_sha1_280_300
+#  - name: Get checksum value for {{ hadoop_file_checksum_mds }}
+#    shell: "grep --ignore-case 'SHA1' {{ hadoop_compressed }}/{{ hadoop_file_checksum_mds }} | cut -c10-"
+#    register: checksum_sha1
+#    when: "{{ hadoop_version_numeric | int }} > 274 and {{ hadoop_version_numeric | int }} < 300"
+
+
+  - debug: var=checksum_sha1
 
 # the variable checksum_sha1.msg will now look like "2677 48F6 1C9E 27C3 E189  5453 863B 4354 5825 5939"
 # so remove the spaces to make "267748F61C9E27C3E1895453863B435458255939"
   - name:  Prepared {{ checksum_sha1.msg }} for comparion
     debug:
       msg: "{{ checksum_sha1.stdout_lines | replace(' ','') }}"
-    register: checksum_sha1_220_274
+    register: checksum_sha1
     when: "{{ hadoop_version_numeric | int }} >= 220 and {{ hadoop_version_numeric | int }} <= 274"
 
-#  - debug: var=checksum_sha1_220_274
-#  - debug: var=checksum_sha1_280_300
+  - debug: var=checksum_sha1
 
 # note:  if the file needs to be downloaded, Ansible will compare the files checksum value with the 
 # the checksum provided in the "checksum:" line below.
@@ -83,7 +87,7 @@
     get_url:
       url:  "https://archive.apache.org/dist/hadoop/common/hadoop-{{ hadoop_version }}/{{ hadoop_file }}"
       dest: "{{ hadoop_compressed }}/{{ hadoop_file }}"
-      checksum: sha1:{{ checksum_sha1.msg }}
+      checksum: sha1:{{ checksum_sha1.msg[0] }}
     register: downloaded_checksum_result
     when:  hd_file.stat.exists == False
 
@@ -158,7 +162,4 @@
     when: 
       - hd_file.stat.exists == True
       - hd_file_checksum['msg'] != checksum_sha1['msg']
-
-
-
 

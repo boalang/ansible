@@ -9,6 +9,10 @@
 # input testing
 #########################################################################################################
 
+func_print_usage(){
+  echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
+}
+
 # hadoop_ver parameter should be in the form a.b.c
 # this will be used to create the installation directory, such as /opt/hadoop/a.b.c
 # and a hadoop user for this specific version, such as hadoop_abc
@@ -16,8 +20,7 @@
 # just basic sanity test to catch likely errors by say a tired user
 # test for null
 if [ -z "$1" ]; then
-	echo "command line execution is mising hadoop version number"
-	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
+	func_print_usage
 	exit 1
 fi
 
@@ -29,7 +32,8 @@ if [ $len -eq 5 ]; then
 	# do nothing
 	echo $0 > /dev/null
 else
-   	echo "hadoop_ver not of the form a.b.c"
+	echo "Error: version is in an incorrect format"
+   	func_print_usage
 	exit 1
 fi
 
@@ -43,10 +47,27 @@ c=$(echo -n $1 | cut -c5)
 #########################################################################################################
 
 hadoop_ver="$a.$b.$c"
-playbook_name=compressed-file-setup.yml
-extra_vars="hadoop_version=$hadoop_ver"
+hadoop_ver_numeric="$a$b$c"
+extra_vars="hadoop_version=$hadoop_ver hadoop_version_numeric=$hadoop_ver_numeric"
 
 #########################################################################################################
 # code 
 #########################################################################################################
-ansible-playbook ../local_playbooks/$playbook_name -e "$extra_vars"
+# test for numeric value
+re='^[0-9]+$'
+if ! [[ $hadoop_ver_numeric =~ $re ]] ; then
+   	echo "error: Not a number" >&2; 
+	func_print_usage
+	exit 1
+fi
+
+if [[ hadoop_ver_numeric -ge 220 && hadoop_ver_numeric -le 274 ]]; then
+	# version 2.2.0 - 2.7.4
+	ansible-playbook ../local_playbooks/compressed-file-setup_220_274.yml -e "$extra_vars"
+elif [[ hadoop_ver_numeric -gt 274 && hadoop_ver_numeric -lt 300 ]]; then
+	# version 2.8.0 - 2.9.0
+	ansible-playbook ../local_playbooks/compressed-file-setup_280_290.yml -e "$extra_vars"
+else
+	echo "Version number is not between 2.7.4 and 2.9.0"
+fi
+ 
