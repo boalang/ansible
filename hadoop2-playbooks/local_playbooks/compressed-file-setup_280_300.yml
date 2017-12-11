@@ -52,19 +52,16 @@
 
 
 # for hadoop 2.2.0 - 2.7.4, the checksum values for all algorithm types begin at column 31
-# for hadoop 2.8.0 - 3.0.0-alpha/beta, the checksum values for all algorithm types begina at column 10, which is more
-# alpha versions are not handled just yet
-# currently, the version number such as 2.2.0 is turned into the integer 220 for deciding on which checksum
-# statements to run below.
+# for hadoop 2.8.0 - 3.0.0-alpha/beta, the checksum values for all algorithm types begina at column 10
 #
 # use SHA1 because it is the only algorithm guaranteed to run on all version of Ansible and python
   - name: Get checksum value for {{ hadoop_file_checksum_mds }}
     shell: "grep --ignore-case 'SHA1' {{ hadoop_compressed }}/{{ hadoop_file_checksum_mds }} | cut -c10-"
     register: checksum_sha1
-    when: "{{ hadoop_version_numeric | int }} > 274 and {{ hadoop_version_numeric | int }} <= 300"
 
 
-  - debug: var=checksum_sha1
+#  - debug: var=checksum_sha1
+
 
 # the variable checksum_sha1.msg will now look like "2677 48F6 1C9E 27C3 E189  5453 863B 4354 5825 5939"
 # so remove the spaces to make "267748F61C9E27C3E1895453863B435458255939"
@@ -72,9 +69,10 @@
     debug:
       msg: "{{ checksum_sha1.stdout_lines | replace(' ','') }}"
     register: checksum_sha1
-    when: "{{ hadoop_version_numeric | int }} >= 220 and {{ hadoop_version_numeric | int }} <= 274"
 
-  - debug: var=checksum_sha1
+
+#  - debug: var=checksum_sha1
+
 
 # note:  if the file needs to be downloaded, Ansible will compare the files checksum value with the 
 # the checksum provided in the "checksum:" line below.
@@ -96,8 +94,8 @@
     command: find {{ hadoop_compressed }} -type f -exec chmod 0644 {} \;
 
 
-#  - debug: 
-#      var: checksum_sha1
+#  - debug: var=checksum_sha1
+
 
 # If the hadoop tar file was not downloaded, then no checksum has been calculated on it.
 # So, calculate the checksum for the hadoop tar file, if it already existed in the directory.
@@ -137,7 +135,7 @@
     when: hd_file.stat.exists == True
 
   - debug: 
-      var: checksum_sha1['msg']
+      var: checksum_sha1['msg'][0]
     when: hd_file.stat.exists == True
   - debug: 
       var: hd_file_checksum['msg']
@@ -146,15 +144,15 @@
 
 # indicate successful match, if file already existed
   - debug:
-      msg: "checksums match:  {{ hadoop_file }} = {{ hd_file_checksum['msg'] }}; {{ hadoop_file_checksum_mds }} = {{ checksum_sha1['msg'] }}"
+      msg: "checksums match:  {{ hadoop_file }} = {{ hd_file_checksum['msg'] }}; {{ hadoop_file_checksum_mds }} = {{ checksum_sha1['msg'][0] }}"
     when: 
       - hd_file.stat.exists == True 
-      - hd_file_checksum['msg'] == checksum_sha1['msg']
+      - hd_file_checksum['msg'] == checksum_sha1['msg'][0]
 
 # indicate failure of match, if file already existed
   - fail:
-      msg: "checksums do not match:  {{ hadoop_file }} = {{ hd_file_checksum['msg'] }};  {{ hadoop_file_checksum_mds }} = {{ checksum_sha1['msg'] }}"
+      msg: "checksums do not match:  {{ hadoop_file }} = {{ hd_file_checksum['msg'] }};  {{ hadoop_file_checksum_mds }} = {{ checksum_sha1['msg'][0] }}"
     when: 
       - hd_file.stat.exists == True
-      - hd_file_checksum['msg'] != checksum_sha1['msg']
+      - hd_file_checksum['msg'] != checksum_sha1['msg'][0]
 

@@ -52,16 +52,13 @@
 
 
 # for hadoop 2.2.0 - 2.7.4, the checksum values for all algorithm types begin at column 31
-# for hadoop 2.8.0 - 3.0.0-alpha/beta, the checksum values for all algorithm types begina at column 10, which is more
-# alpha versions are not handled just yet
-# currently, the version number such as 2.2.0 is turned into the integer 220 for deciding on which checksum
-# statements to run below.
+# for hadoop 2.8.0 - 3.0.0-alpha/beta, the checksum values for all algorithm types begina at column 10
 #
 # use SHA1 because it is the only algorithm guaranteed to run on all version of Ansible and python
   - name: Get checksum value for {{ hadoop_file_checksum_mds }}
     shell: "grep --ignore-case 'SHA1' {{ hadoop_compressed }}/{{ hadoop_file_checksum_mds }} | cut -c31-"
     register: checksum_sha1
-    when: "{{ hadoop_version_numeric | int }} >= 220 and {{ hadoop_version_numeric | int }} <= 274"
+#    when: "{{ hadoop_version_numeric | int }} >= 220 and {{ hadoop_version_numeric | int }} <= 274"
 
 #  - debug: var=checksum_sha1
 
@@ -71,7 +68,7 @@
     debug:
       msg: "{{ checksum_sha1.stdout_lines | replace(' ','') }}"
     register: checksum_sha1
-    when: "{{ hadoop_version_numeric | int }} >= 220 and {{ hadoop_version_numeric | int }} <= 274"
+#    when: "{{ hadoop_version_numeric | int }} >= 220 and {{ hadoop_version_numeric | int }} <= 274"
 
 #  - debug: var=checksum_sha1
 
@@ -144,10 +141,10 @@
 
 # indicate successful match, if file already existed
   - debug:
-      msg: "checksums match:  {{ hadoop_file }} = {{ hd_file_checksum['msg'] }}; {{ hadoop_file_checksum_mds }} = {{ checksum_sha1['msg'] }}"
+      msg: "checksums match:  {{ hadoop_file }} = {{ hd_file_checksum['msg'] }}; {{ hadoop_file_checksum_mds }} = {{ checksum_sha1['msg'][0] }}"
     when: 
       - hd_file.stat.exists == True 
-      - hd_file_checksum['msg'] == checksum_sha1['msg']
+      - hd_file_checksum['msg'] == checksum_sha1['msg'][0]
 
 # indicate failure of match, if file already existed
   - fail:
