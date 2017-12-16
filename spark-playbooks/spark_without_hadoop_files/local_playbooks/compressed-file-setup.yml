@@ -1,0 +1,180 @@
+---
+# This playbook will check for the necessary spark files and download them if missing.
+# It will also test that the checsums match.
+
+########################################################################################
+# start playbook
+########################################################################################
+
+- name: Compressed file setup for Spark {{ spark_version }}
+  hosts: head
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/spark-vars.yml
+
+
+########################################################################################
+# start tasks
+########################################################################################
+
+  tasks:
+  - name: create {{ spark_compressed }}, if it does not exist
+    file:
+      path: "{{ spark_compressed }}"
+      state: directory
+      mode: 0755
+      recurse: yes
+    
+ 
+  - name: Test if "{{ spark_compressed }}/{{ spark_file }}" already exists.
+    stat:
+      path: "{{ spark_compressed }}/{{ spark_file }}"
+    register: sp_file
+
+
+  - name: Test if "{{ spark_compressed }}/{{ spark_file_checksum_md5 }}" already exists.
+    stat:
+      path: "{{ spark_compressed }}/{{ spark_file_checksum_md5 }}"
+    register: sp_file_md5
+
+
+  - name: Get checksum file for {{ spark_file_checksum_md5 }}, when {{ spark_file_checksum_md5 }} does not exist.
+    get_url:
+      url:  "https://archive.apache.org/dist/spark/spark-{{ spark_version }}/{{ spark_file_checksum_md5 }}"
+      dest: "{{ spark_compressed }}/{{ spark_file_checksum_md5 }}"
+    when:  sp_file_md5.stat.exists == False
+
+
+# it appears that spark 2.0.0 - 2.2.1 MD5 files look as follows:
+# eg.  
+# spark-2.1.1-bin-without-hadoop.tgz: DF 00 5E 6A 86 D2 D8 2D  19 FE FD DE 67 C3
+#                                     F7 EA
+# with the checksum values starting in column 37 and extending over two rows.
+  - name: Get checksum value for {{ spark_file_checksum_md5 }}
+    shell: "cat {{ spark_compressed }}/{{ spark_file_checksum_md5 }} | cut -c37-"
+    register: checksum_md5
+
+#  - debug: var=checksum_md5
+
+
+# because the checksum in not on one line in the spark checksum file, the value in the registered variable will have a 
+# newline character inserted in it after the above grep & cut shell execution.
+#
+# the variable will actually be a dictionary with the following useful elements:
+# "stdout": "2677 48F6 1C9E 27C3 E189  5453 863B 4354 5825\n5939", or
+# "stdout_lines": [ "2677 48F6 1C9E 27C3 E189  5453 863B 4354 5825", "5939" ]
+#
+# need to manipulate the string or the list into a proper variable to test against the files checksum
+
+# the following will join the above list into a string and assign it to the checksum variable
+  - name: Get checksum value for {{ spark_file_checksum_md5 }}
+    debug: 
+      msg: "{{ checksum_md5.stdout_lines | join(' ') }}"
+    register: checksum_md5
+ 
+#  - debug: var=checksum_md5
+
+# the variable checksum_md5.msg will now look like "2677 48F6 1C9E 27C3 E189  5453 863B 4354 5825 5939"
+# so remove the spaces to make "267748F61C9E27C3E1895453863B435458255939"
+  - name:  Prepared {{ checksum_md5.msg }} for comparison
+    debug:
+      msg: "{{ checksum_md5.msg | replace(' ','') }}"
+    register: checksum_md5
+
+#  - debug: var=checksum_md5
+#  - debug: var=sp_file
+#  - debug: var=spark_compressed
+
+# note:  if the file needs to be downloaded, Ansible will compare the files checksum value with the 
+# the checksum provided in the "checksum:" line below.
+  - name: Download {{ spark_file }} into {{ spark_compressed }}, when {{ spark_file }} does not exist.
+    get_url:
+      url:  "https://archive.apache.org/dist/spark/spark-{{ spark_version }}/{{ spark_file }}"
+      dest: "{{ spark_compressed }}/{{ spark_file }}"
+      checksum: md5:{{ checksum_md5.msg }}
+    register: downloaded_checksum_result
+    when:  sp_file.stat.exists == False
+
+#  - debug: var=downloaded_checksum_result
+#  - debug: var=checksum_md5
+
+# if this runs, then the checksum for the downloaded file was okay, but there is little output for the user, so give a message
+# if the checksums did not match, the playbook will fail / halt immediately
+  - debug: 
+      msg: "checksums match:  {{ spark_file }} = {{ downloaded_checksum_result['md5sum']|upper }}; {{ spark_file_checksum_md5 }} = {{ checksum_md5['msg']|upper }}"
+    when: downloaded_checksum_result['changed'] == True
+
+  - name: Ensure {{ spark_compressed }} files are 0644
+    command: find {{ spark_compressed }} -type f -exec chmod 0644 {} \;
+
+
+#  - debug: var=checksum_md5
+
+# If the spark tar file was not downloaded, then no checksum has been calculated on it.
+# So, calculate the checksum for the spark tar file, if it already existed in the directory.
+  - name: Compute checksums for {{ spark_file }} if it already existed.
+    stat:
+      path: "{{ spark_compressed }}/{{ spark_file }}"
+      get_md5: yes
+    register: sp_file_checksum
+    when: sp_file.stat.exists == True
+
+#  - debug: var=sp_file_checksum.stat.md5
+#  - debug: var=checksum_md5
+
+
+# note:  the following uppercase changes only need to be run when the spark tar file already existed, not when downloaded.
+#
+# The output of md5 is a large number, represented in base 16 for convenience, and by convention f equals F, e equals E, etc...
+# https://stackoverflow.com/questions/11892053/is-sha-256-case-insensitive
+#
+# The checksums in the spark mds file are all capitals, but the checksum calculated by Ansible
+# are lowercase, and Ansible will say that f does not equal F and throw an error below.
+# 
+# I believe this is because Ansible does not know the values are checksums, just strings.
+# The same checksum value is used to test checksums for a downloaded file (above), but in that situation
+# Ansible knows that the values are checksums.
+  - name:  toupper( checksum_md5.msg )
+    debug:
+      msg: "{{ checksum_md5.msg | upper }}"
+    register: checksum_md5
+    when: sp_file.stat.exists == True  
+
+
+  - name:   toupper( sp_file_checksum.stat.md5 )
+    debug:
+      msg: "{{ sp_file_checksum.stat.md5 | upper }}"
+    register: sp_file_checksum
+    when: sp_file.stat.exists == True
+
+  - debug: 
+      var: checksum_md5['msg']
+    when: sp_file.stat.exists == True
+  - debug: 
+      var: sp_file_checksum['msg']
+    when: sp_file.stat.exists == True
+
+
+# indicate successful match, if file already existed
+  - debug:
+      msg: "checksums match:  {{ spark_file }} = {{ sp_file_checksum['msg'] }}; {{ spark_file_checksum_md5 }} = {{ checksum_md5['msg'] }}"
+    when: 
+      - sp_file.stat.exists == True 
+      - sp_file_checksum['msg'] == checksum_md5['msg']
+
+# indicate failure of match, if file already existed
+  - fail:
+      msg: "checksums do not match:  {{ spark_file }} = {{ sp_file_checksum['msg'] }};  {{ spark_file_checksum_md5 }} = {{ checksum_md5['msg'] }}"
+    when: 
+      - sp_file.stat.exists == True
+      - sp_file_checksum['msg'] != checksum_md5['msg']
+
+
+
+
