@@ -1,0 +1,324 @@
+---
+# This playbook will install Hadoop and user hadoop on every node in the cluster.
+# If a node already has the particular version of Hadoop installed, the playbook will fail 
+# for that node, but not the whole playbook.
+# 
+# Since, the playbook will only do an initial installation, it can be run at anytime, 
+# such as when adding a new node.
+
+
+########################################################################################
+# start playbook
+########################################################################################
+
+- name: Deploy Hadoop {{ hadoop_version }}
+  hosts: all
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+
+########################################################################################
+# start tasks
+########################################################################################
+
+  tasks:
+  - name: Gather facts about "{{ hadoop_prefix }}" and exit if "{{ hadoop_prefix }}" already exits
+    stat:
+      path: "{{ hadoop_prefix }}"
+    register: p
+
+  - fail:
+      msg: "{{ hadoop_prefix }} already exists.  Run the delete script to remove Hadoop {{ hadoop_version }}, then rerun the deploy scipt."
+    when: p.stat.isdir is defined and p.stat.isdir
+
+  - name: Test for user {{ hadoop_user_name }} and create if not present
+    getent:
+      database: passwd
+      key: "{{ hadoop_user_name }}"
+      split: ':'
+      fail_key: False
+
+#  - debug:
+#      var: getent_passwd
+
+  - debug:
+      msg: "{{ hadoop_user_name }} is not present.  Create user {{ hadoop_user_name }} and group {{ hadoop_user_group }}"
+    when: getent_passwd[ "{{ hadoop_user_name }}" ][4] is not defined
+
+  - debug:
+      msg: "{{ hadoop_user_name }} is already present."
+    when: getent_passwd[ "{{ hadoop_user_name }}" ][4] is defined
+
+  - name: Create group {{ hadoop_user_name }} if group {{ hadoop_user_name }} not present.  
+    group:
+      name: "{{ hadoop_user_name }}"
+      state: present
+    when: getent_passwd[ "{{ hadoop_user_name }}" ][4] is not defined
+    become_user: root
+    become: true
+    become_method: sudo 
+
+  - name: Create user {{ hadoop_user_name }} if not present
+    user:
+      name: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      password: "{{ hadoop_user_pwd | password_hash('sha512') }}"
+      comment: User to run {{ hadoop_version }}
+      shell: /bin/bash
+      home: "{{ hadoop_user_home }}"
+      update_password: on_create
+    when: getent_passwd[ "{{ hadoop_user_name }}" ][4] is not defined
+    become_user: root
+    become: true
+    become_method: sudo 
+
+  - name: create {{ hadoop_base }}, if it does not exist
+    file:
+      path: "{{ hadoop_base }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+
+  - name: Extract {{ hadoop_compressed }}/{{ hadoop_file }} into {{ hadoop_base }}
+    unarchive:
+      src: "{{ hadoop_compressed }}/{{ hadoop_file }}"
+      dest: "{{ hadoop_base }}"
+
+  - name: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} to {{ hadoop_prefix }}
+    command: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} {{ hadoop_prefix }}
+
+  - name: Ensure {{ hadoop_base }} directories are 0755
+    command: find {{ hadoop_base }} -type d -exec chmod 0755 {} \;
+
+  - name: Ensure {{ hadoop_base }} files are 0644
+    command: find {{ hadoop_base }} -type f -exec chmod 0644 {} \;
+
+  - name: Ensure {{ hadoop_prefix }}/bin files are 0744
+    command: find {{ hadoop_prefix }}/bin -type f -exec chmod 0744 {} \;
+
+  - name: Ensure {{ hadoop_prefix }}/sbin files are 0744
+    command: find {{ hadoop_prefix }}/sbin -type f -exec chmod 0744 {} \;
+
+  - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_base }} and all contents
+    file:
+      path: "{{ hadoop_base }}"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      recurse: yes 
+
+  - name: Create {{ hadoop_conf_dir }}, if it does not exist
+    file:
+      path: "{{ hadoop_conf_dir }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+
+  - name: mv {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }}/* to {{ hadoop_conf_dir }}
+    shell: mv {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }}/* {{ hadoop_conf_dir }}
+
+  - name: Ensure directories are 0755
+    command: find {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }} -type d -exec chmod 0755 {} \;
+
+  - name: Ensure files are 0644
+    command: find {{ hadoop_prefix }}/{{ hadoop_default_conf_dir }} -type f -exec chmod 0644 {} \;
+
+  - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_conf_dir }} and all contents
+    file:
+      path: "{{ hadoop_conf_dir }}"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      recurse: yes 
+
+
+# We need to create the subdirectories below /data1 /data2 ... /data(cluster_num_data_node)
+# eg.  /data1/1.2.1/name ... /data(cluster_num_data_node)/1.2.1/name
+#	/data1/1.2.1/name-secondary and so on
+# 
+# do not create the name directory, or else the format script will prompt to overwrite
+# during the format playbook.  Let the format script create the name directory
+#
+# This will be handled with another sequence below.
+
+#  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/name"
+#    file:
+#      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/name"
+#      state: directory
+#      mode: 0755
+#      owner: "{{ hadoop_user_name }}"
+#      group: "{{ hadoop_user_group }}"
+#      recurse: yes
+#    with_sequence: start=1 end={{ cluster_num_drives_per_node }} stride=1
+
+# eg. /data1/1.2.1/name-secondary ... /data(cluster_num_data_node)/1.2.1/name-secondary
+  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_checkpoint_dir }}"
+    file:
+      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_checkpoint_dir }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
+
+# eg. /data1/1.2.1/hdfs-data ... /data(hadoop_num_data_node)/1.2.1/hdfs-data
+  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_datanode_data_dir }}"
+    file:
+      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_datanode_data_dir }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
+
+# eg. /data1/1.2.1/mapred/local ... /data(hadoop_num_data_node)/1.2.1/mapred/local
+  - name: create "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapreduce_cluster_local_dir }}"
+    file:
+      path:  "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapreduce_cluster_local_dir }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
+
+# the mapred/system dir is for storing the distribution of jar files and only needs to exist once
+# assume it exists on /data1, as this should always exist
+  - name: create "{{ hadoop_data_base_dir }}1/{{ hadoop_version }}/{{ mapreduce_jobtracker_system_dir }}"
+    file:
+      path:  "{{ hadoop_data_base_dir }}1/{{ hadoop_version }}/{{ mapreduce_jobtracker_system_dir }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+
+# the directories for HADOOP_LOG_DIR AND HADOOP_PID_DIR only need to be
+# created once in the /data1 dir, which should always exist
+# /data1/1.2.1/logs
+  - name: create "{{ hadoop_HADOOP_LOG_DIR }}"
+    file:
+      path:  "{{ hadoop_HADOOP_LOG_DIR }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+
+# /data1/1.2.1/logs
+  - name: create "{{ hadoop_HADOOP_PID_DIR }}"
+    file:
+      path:  "{{ hadoop_HADOOP_PID_DIR }}"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+
+# now, using debug and with_sequence create a sequence variable that will store the
+# result of each debug statement for each iteration of with_sequence.
+#
+# these sequence variables are then processed into lists (below) and assigned to a variable 
+# that can be referenced in the jinja temlate file to create configuration files 
+# hdfs-site.xml and mapred-site.xml
+
+  - name: create sequence variable dfs_namenode_name_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_name_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: dfs_namenode_name_dir_seq
+
+  - name: create sequence variable dfs_namenode_data_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_datanode_data_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: dfs_datanode_data_dir_seq
+
+  - name: create sequence variable dfs_namenode_checkpoint_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_checkpoint_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: dfs_namenode_checkpoint_dir_seq
+
+  - name: create sequence variable yarn_nodemanager_local_dirs_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ yarn_nodemanager_local_dirs }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: yarn_nodemanager_local_dirs_seq
+
+  - name: create sequence variable mapred_cluster_local_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapreduce_cluster_local_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: mapreduce_cluster_local_dir_seq
+
+
+
+# since, mapred/system is a single directory, its path has been created as a variable in the
+# set_fact: section below.
+
+# create lists of strings that will be assigned to variables that will be used in the
+# xml configuration files
+  - set_fact:
+      dfs_namenode_name_dir_list: "{{ dfs_namenode_name_dir_seq.results | map(attribute='msg') | join(',') }}"
+      dfs_datanode_data_dir_list: "{{ dfs_datanode_data_dir_seq.results | map(attribute='msg') | join(',') }}"
+      dfs_namenode_checkpoint_dir_list: "{{ dfs_namenode_checkpoint_dir_seq.results | map(attribute='msg') | join(',') }}"
+      yarn_nodemanager_local_dirs_list: "{{ yarn_nodemanager_local_dirs_seq.results | map(attribute='msg') | join(',') }}"
+      mapreduce_cluster_local_dir_list: "{{ mapreduce_cluster_local_dir_seq.results | map(attribute='msg') | join(',') }}"
+
+# Note:
+# although, openjdk-8-jdk is being referenced explicitly, it is possible to use statements such as
+# sudo apt-get install packagename=version 
+# to install the exact version of Java (7 or 8 for now), and the following will hold the version
+# apt-mark hold <package-name>
+
+  - name: Update repositories cache and install the openjdk-8-jdk package to remain on Java 8
+    apt:
+      name: openjdk-8-jdk
+      update_cache: yes
+      state: present
+
+# iterate over the dictionary hadoop_env_dict and execute each element on the command line using the shell
+# for the dictionary details, see ../local_variable_files/hadoop-vars.yml
+  - name:  Append export statements for JAVA_HOME, HADOOP_INSTALL, HADOOP_CONF_DIR, HADOOP_LOG_DIR, HADOOP_PID_DIR in {{ hadoop_env_file }}
+    shell:  "{{ item.value }}" 
+    with_dict: "{{ hadoop_env_dict }}"
+
+# create xml config files
+  - name:  Create {{ hadoop_conf_dir }}/core-site-{{ hadoop_version }}.xml
+    template: 
+      src: ../local_templates/core-site-{{ hadoop_version }}.j2
+      dest: "{{ hadoop_conf_dir }}/core-site.xml"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      mode:  0644
+
+  - name:  Create {{ hadoop_conf_dir }}/hdfs-site-{{ hadoop_version }}.xml
+    template: 
+      src: ../local_templates/hdfs-site-{{ hadoop_version }}.j2
+      dest: "{{ hadoop_conf_dir }}/hdfs-site.xml"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      mode:  0644
+
+  - name:  Create {{ hadoop_conf_dir }}/mapred-site-{{ hadoop_version }}.xml
+    template: 
+      src: ../local_templates/mapred-site-{{ hadoop_version }}.j2
+      dest: "{{ hadoop_conf_dir }}/mapred-site.xml"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      mode:  0644
+
+  - name:  Create {{ hadoop_conf_dir }}/yarn-site-{{ hadoop_version }}.xml
+    template: 
+      src: ../local_templates/yarn-site-{{ hadoop_version }}.j2
+      dest: "{{ hadoop_conf_dir }}/yarn-site.xml"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_name }}"
+      mode:  0644

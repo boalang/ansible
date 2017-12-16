@@ -1,0 +1,180 @@
+---
+# Purpose:
+# This playbook will start and stop the cluster
+
+# see https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/ClusterSetup.html
+
+########################################################################################
+# env vars
+########################################################################################
+
+- name:  "{{ hadoop_version }} environment varibles"
+  hosts: name_node
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: create {{ hadoop_env_vars_profile_d_file }}
+    template: 
+      src: ../local_templates/hadoop-{{ hadoop_version }}-env.j2
+      dest: "{{ hadoop_env_vars_profile_d_file }}"
+      owner: root
+      group: root
+      mode:  0644
+    when: start_stop_cluster == "start"
+
+  - name: remove {{ hadoop_env_vars_profile_d_file }}
+    file:
+      path:  "{{ hadoop_env_vars_profile_d_file }}"
+      state: absent
+    when: start_stop_cluster == "stop"
+
+########################################################################################
+# namenode
+########################################################################################
+
+- name: "{{ start_stop_cluster }} namenode"
+  hosts: name_node
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} namenode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} namenode"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+
+########################################################################################
+# secondarynamenode
+########################################################################################
+- name: "{{ start_stop_cluster }} secondarynamenode"
+  hosts: secondary_nn
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} secondarynamenode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} secondarynamenode"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+
+########################################################################################
+# resourcemanager
+########################################################################################
+- name: "{{ start_stop_cluster }} resourcemanager"
+  hosts: resourcemanager
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} resourcemanager"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} resourcemanager"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+
+
+########################################################################################
+# datanode / nodemanager
+########################################################################################
+- name: "{{ start_stop_cluster }} datanode"
+  hosts: data_nodes
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} datanode"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} datanode"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+
+  - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+
+########################################################################################
+# jobhistory
+########################################################################################
+- name: "{{ start_stop_cluster }} history server"
+  hosts: head
+  remote_user: ansible
+  become_user: "{{ hadoop_user_name }}"
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} historyserver"
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    become_method: sudo
+    command:  "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} historyserver"
+
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+    pause:
+      seconds: "{{ seconds_to_pause }}"
+
