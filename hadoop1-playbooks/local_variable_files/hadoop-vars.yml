@@ -48,27 +48,27 @@ hadoop_mapred_system_dir: "mapred/system"
 # When using the with_dict attribute with the file module, the module will automatically iterate over 
 # all of the elements in the dictionary.
 
-hadoop_env_dict:
+hadoop_env_list:
 # java home
-  java_new_line:  echo  >> {{ hadoop_env_file }};
-  java_comment:  echo \# Setting JAVA_HOME via Ansible playbook >> {{ hadoop_env_file }};
-  java_export:  echo export JAVA_HOME={{ java_home }} >> {{ hadoop_env_file }}
+  - echo "" >> {{ hadoop_env_file }};
+  - echo \# Setting JAVA_HOME via Ansible playbook >> {{ hadoop_env_file }};
+  - echo export JAVA_HOME={{ java_home }} >> {{ hadoop_env_file }}
 # HADOOP_INSTALL=/opt/hadoop/version
-  install_new_line:  echo  >> {{ hadoop_env_file }};
-  install_comment:  echo \# Setting HADOOP_INSTALL via Ansible playbook >> {{ hadoop_env_file }};
-  install_export:  echo export HADOOP_INSTALL={{ hadoop_install }} >> {{ hadoop_env_file }}
+  - echo "" >> {{ hadoop_env_file }};
+  - echo \# Setting HADOOP_INSTALL via Ansible playbook >> {{ hadoop_env_file }};
+  - echo export HADOOP_INSTALL={{ hadoop_install }} >> {{ hadoop_env_file }}
 # HADOOP_CONF_DIR=/opt/hadoop/conf_version
-  conf_new_line:  echo  >> {{ hadoop_env_file }};
-  conf_comment:  echo \# Setting HADOOP_CONF_DIR via Ansible playbook >> {{ hadoop_env_file }};
-  conf_export:  echo export HADOOP_CONF_DIR={{ hadoop_conf_dir }} >> {{ hadoop_env_file }}
+  - echo "" >> {{ hadoop_env_file }};
+  - echo \# Setting HADOOP_CONF_DIR via Ansible playbook >> {{ hadoop_env_file }};
+  - echo export HADOOP_CONF_DIR={{ hadoop_conf_dir }} >> {{ hadoop_env_file }}
 # HADOOP_LOG_DIR=/data1/version/logs
-  logs_new_line:  echo  >> {{ hadoop_env_file }};
-  logs_comment:  echo \# Setting HADOOP_LOG_DIR via Ansible playbook >> {{ hadoop_env_file }};
-  logs_export:  echo export HADOOP_LOG_DIR={{ hadoop_HADOOP_LOG_DIR }} >> {{ hadoop_env_file }}
+  - echo "" >> {{ hadoop_env_file }};
+  - echo \# Setting HADOOP_LOG_DIR via Ansible playbook >> {{ hadoop_env_file }};
+  - echo export HADOOP_LOG_DIR={{ hadoop_HADOOP_LOG_DIR }} >> {{ hadoop_env_file }}
 # HADOOP_PID_DIR=/data1/version/pids
-  pids_new_line:  echo  >> {{ hadoop_env_file }};
-  pids_comment:  echo \# Setting HADOOP_PID_DIR via Ansible playbook >> {{ hadoop_env_file }};
-  pids_export:  echo export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }} >> {{ hadoop_env_file }}
+  - echo "" >> {{ hadoop_env_file }};
+  - echo \# Setting HADOOP_PID_DIR via Ansible playbook >> {{ hadoop_env_file }};
+  - echo export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }} >> {{ hadoop_env_file }}
 
 
 protobuf_java_250_md5_name: protobuf-java-2.5.0.jar.md5

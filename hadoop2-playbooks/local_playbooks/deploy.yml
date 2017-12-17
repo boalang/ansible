@@ -112,7 +112,7 @@
     file:
       path: "{{ hadoop_base }}"
       owner: "{{ hadoop_user_name }}"
-      group: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
       recurse: yes 
 
   - name: Create {{ hadoop_conf_dir }}, if it does not exist
@@ -287,8 +287,8 @@
 # iterate over the dictionary hadoop_env_dict and execute each element on the command line using the shell
 # for the dictionary details, see ../local_variable_files/hadoop-vars.yml
   - name:  Append export statements for JAVA_HOME, HADOOP_INSTALL, HADOOP_CONF_DIR, HADOOP_LOG_DIR, HADOOP_PID_DIR in {{ hadoop_env_file }}
-    shell:  "{{ item.value }}" 
-    with_dict: "{{ hadoop_env_dict }}"
+    shell:  "{{ item }}" 
+    with_items: "{{ hadoop_env_list }}"
 
 # create xml config files
   - name:  Create {{ hadoop_conf_dir }}/core-site-{{ hadoop_version }}.xml
