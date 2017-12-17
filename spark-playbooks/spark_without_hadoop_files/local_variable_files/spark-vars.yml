@@ -5,77 +5,42 @@
 spark_version: "{{ spark_ver }}"
 
 spark_base: /opt/spark
-spark_prefix: "{{ spark_base }}/{{ spark_version }}"
-#spark_yarn_home: "{{ spark_prefix }}"
+spark_home: "{{ spark_base }}/{{ spark_version }}"
 spark_compressed: /opt/compressed
-spark_file: spark-{{ spark_version }}-bin-without-hadoop.tgz
-spark_file_checksum_md5: spark-{{ spark_version }}-bin-without-hadoop.tgz.md5
 
-
+spark_file_extracted: spark-{{ spark_version }}-bin-without-hadoop
+spark_file: "{{ spark_file_extracted }}.tgz"
+spark_file_checksum_md5: "{{ spark_file }}.md5"
 
 spark_user_name:  spark
 spark_user_group: "{{ spark_user_name }}"
 spark_user_pwd:  "{{ spark_user_name }}"
 spark_user_home: /home/{{ spark_user_name }}
 
-spark_conf_dir: "{{ spark_base }}/{{ spark_version }}_conf_in_use"
-spark_conf_master_dir: "{{ spark_base }}/{{ spark_version }}_conf_master"
-spark_default_conf_dir:  etc/spark
-spark_data_base_dir: /data
-
-spark_env_file: "{{ spark_conf_dir }}/spark-env.sh"
-spark_env_vars_profile_d_file:  /etc/profile.d/spark-{{ spark_version }}-env.sh
-
-# these two directories only need to be on one drive, so they'll be coded to /data1, as it should always exist
-spark_HADOOP_LOG_DIR: "{{ spark_data_base_dir }}1/{{ spark_version }}/logs"
-spark_HADOOP_PID_DIR: "{{ spark_data_base_dir }}1/{{ spark_version }}/pids"
-mapred_system_dir: /data1/{{ spark_version }}/mapred/system
-
-spark_name_node: head
-spark_secondary_name_node: head
-spark_resourcemanager_node: head
-spark_data_node_base_name: boa-
-spark_num_data_node: 15
-spark_num_drives_per_node: 2
-
-path: "{{ spark_prefix }}/bin:{{ spark_prefix }}/sbin:{{ java_home }}/bin:{{ java_home }}/bin"
-
 # hard-code java_home to the symlink java-1.8.0-openjdk-adm46
 # to ensure the default-jdk doesn't inadvertenly update to java 9
 java_home: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
-spark_dfs_namenode_name_dir: name
-spark_dfs_datanode_data_dir: hdfs-data
-spark_dfs_namenode_checkpoint_dir: name-secondary
-yarn_nodemanager_local_dirs: yarn-nodemanager-local-dir
-mapreduce_cluster_local_dir: "mapred/local"
-mapreduce_jobtracker_system_dir: "mapred/system"
+spark_conf_dir: "{{ spark_home }}/conf"
+spark_defaults_conf_file_name: spark-defaults.conf
+spark_defaults_conf_file_path: "{{ spark_conf_dir }}/{{ spark_defaults_conf_file_name }}"
+spark_env_file_name: spark-env.sh
+spark_env_file_path: "{{ spark_conf_dir }}/{{ spark_env_file_name }}"
+spark_master_node: head
 
+path: "{{ spark_home }}/bin:{{ spark_home }}/sbin:{{ java_home }}/bin:{{ java_home }}/bin"
 
-# This dictionary will facilitate adding relevant export statements at the bottom of spark-env.sh
-# When using the with_dict attribute with the file module, the module will automatically iterate over 
-# all of the elements in the dictionary.
+spark_defaults_conf_file_list:
+  - echo "" >> {{ spark_defaults_conf_file_path }};
+  - echo "" >> {{ spark_defaults_conf_file_path }};
+  - echo \# Set via Ansible playbook >> {{ spark_defaults_conf_file_path }};
+  - echo spark.master  spark://{{ spark_master_node }}:7077 >> {{ spark_defaults_conf_file_path }}
 
-spark_env_dict:
-# java home
-  java_new_line:  echo  >> {{ spark_env_file }};
-  java_comment:  echo \# Setting JAVA_HOME via Ansible playbook >> {{ spark_env_file }};
-  java_export:  echo export JAVA_HOME={{ java_home }} >> {{ spark_env_file }}
-# HADOOP_INSTALL=/opt/spark/version
-  install_new_line:  echo  >> {{ spark_env_file }};
-  install_comment:  echo \# Setting HADOOP_INSTALL via Ansible playbook >> {{ spark_env_file }};
-  install_export:  echo export HADOOP_INSTALL={{ spark_prefix }} >> {{ spark_env_file }}
-# HADOOP_CONF_DIR=/opt/spark/conf_version
-  conf_new_line:  echo  >> {{ spark_env_file }};
-  conf_comment:  echo \# Setting HADOOP_CONF_DIR via Ansible playbook >> {{ spark_env_file }};
-  conf_export:  echo export HADOOP_CONF_DIR={{ spark_conf_dir }} >> {{ spark_env_file }}
-# HADOOP_LOG_DIR=/data1/version/logs
-  logs_new_line:  echo  >> {{ spark_env_file }};
-  logs_comment:  echo \# Setting HADOOP_LOG_DIR via Ansible playbook >> {{ spark_env_file }};
-  logs_export:  echo export HADOOP_LOG_DIR={{ spark_HADOOP_LOG_DIR }} >> {{ spark_env_file }}
-# HADOOP_PID_DIR=/data1/version/pids
-  pids_new_line:  echo  >> {{ spark_env_file }};
-  pids_comment:  echo \# Setting HADOOP_PID_DIR via Ansible playbook >> {{ spark_env_file }};
-  pids_export:  echo export HADOOP_PID_DIR={{ spark_HADOOP_PID_DIR }} >> {{ spark_env_file }}
+# note: in spark 1 SPARK_MASTER_HOST was SPARK_MASTER_IP
+spark_env_file_list:
+  - echo "" >> {{ spark_env_file_path }};
+  - echo "" >> {{ spark_env_file_path }};
+  - echo \# Set via Ansible playbook >> {{ spark_env_file_path }};
+  - echo SPARK_MASTER_HOST={{ spark_master_node }} >> {{ spark_env_file_path }}
 
 

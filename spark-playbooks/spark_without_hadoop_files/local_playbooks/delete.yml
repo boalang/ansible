@@ -1,13 +1,13 @@
 ---
 # Purpose:
-# This playbook will delete hadoop from all nodes.
+# This playbook will delete spark from all nodes.
 # Basically, it is a convenience playbook for iterative testing.
 # It saves me from having to delete all the directories by hand.
 
 ########################################################################################
 # start playbook
 ########################################################################################
-- name: Delete Hadoop {{ hadoop_version }}
+- name: Delete Spark {{ spark_version }}
   hosts: all
   remote_user: ansible
   become_user: root
@@ -17,26 +17,16 @@
   gather_facts: no
 
   vars_files:
-    - ../local_variable_files/hadoop-vars.yml
+    - ../local_variable_files/spark-vars.yml
 
 ########################################################################################
 # start tasks
 ########################################################################################
 
   tasks:
-  - name: rm -rf {{ hadoop_prefix }}
+  - name: rm -rf {{ spark_home }}
     file:
-      path: "{{ hadoop_prefix }}"
+      path: "{{ spark_home }}"
       state: absent
 
-  - name: rm -rf {{ hadoop_conf_dir }}
-    file:
-      path: "{{ hadoop_conf_dir }}"
-      state: absent
-
-  - name: rm -rf {{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}
-    file:
-      path: "{{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}"
-      state: absent
-    with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
 
