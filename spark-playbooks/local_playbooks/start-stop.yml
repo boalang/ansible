@@ -1,0 +1,91 @@
+---
+# Purpose:
+# This playbook will start and stop the cluster
+
+
+########################################################################################
+# env vars
+########################################################################################
+
+- name:  "{{ spark_version }} environment varibles"
+  hosts: spark_master
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/spark-vars.yml
+
+  tasks:
+  - name: create {{ spark_env_vars_profile_d_file }}
+    template: 
+      src: ../local_templates/spark-{{ spark_version }}-env.j2
+      dest: "{{ spark_env_vars_profile_d_file }}"
+      owner: root
+      group: root
+      mode:  0644
+    when: start_stop_cluster == "start"
+
+  - name: remove {{ spark_env_vars_profile_d_file }}
+    file:
+      path:  "{{ spark_env_vars_profile_d_file }}"
+      state: absent
+    when: start_stop_cluster == "stop"
+
+########################################################################################
+# SPARK_MASTER
+########################################################################################
+
+- name: "{{ start_stop_cluster }} master"
+  hosts: spark_master
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/spark-vars.yml
+
+  tasks:
+  - name: "{{ spark_home }}/sbin/{{ start_stop_cluster }}-master.sh"
+#    become_user: "{{ spark_user_name }}"
+#    become: true
+#    become_method: sudo
+    command: "{{ spark_home }}/sbin/{{ start_stop_cluster }}-master.sh" 
+
+########################################################################################
+# SPARK_WORKER(s)
+########################################################################################
+
+- name: "{{ start_stop_cluster }} slaves"
+  hosts: spark_slaves
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/spark-vars.yml
+
+  tasks:
+  - name: "{{ spark_home }}/sbin/{{ start_stop_cluster }}-slave.sh spark://{{ spark_master_node }}:{{ spark_master_port }}"
+#    become_user: "{{ spark_user_name }}"
+#    become: true
+#    become_method: sudo
+    command: "{{ spark_home }}/sbin/{{ start_stop_cluster}}-slave.sh spark://{{ spark_master_node }}:{{ spark_master_port }}" 
+    when: start_stop_cluster == "start"
+
+  - name: "{{ spark_home }}/sbin/{{ start_stop_cluster }}-slave.sh"
+#    become_user: "{{ spark_user_name }}"
+#    become: true
+#    become_method: sudo
+    command: "{{ spark_home }}/sbin/{{ start_stop_cluster}}-slave.sh" 
+    when: start_stop_cluster == "stop"
+

@@ -2,21 +2,21 @@
 
 # Purpose
 # bash script to initiate the Ansible playbook to start or stop the cluster
-# run as:  ./run-hadoop-1-start-stop-playbook.sh 1.2.1 start/stop
+# run as:  ./run-spark-1-start-stop-playbook.sh 1.2.1 start/stop
 
 
 #########################################################################################################
 # input testing
 #########################################################################################################
 
-# hadoop_ver parameter should be in the form a.b.c
-# this will be used to create the installation directory, such as /opt/hadoop/a.b.c
-# and a hadoop user for this specific version, such as hadoop_abc
+# spark_ver parameter should be in the form a.b.c
+# this will be used to create the installation directory, such as /opt/spark/a.b.c
+# and a spark user for this specific version, such as spark_abc
 
 # just basic sanity test to catch likely errors by say a tired user
 # test for null
 if [ -z "$1" ]; then
-	echo "command line execution is mising hadoop version number"
+	echo "command line execution is mising spark version number"
 	echo "eg. version 1.2.1 should be run as: ./<script-name>.sh 1.2.1"
 	exit 1
 fi
@@ -35,7 +35,7 @@ if [ $len -eq 5 ]; then
 	# do nothing
 	echo $0 > /dev/null
 else
-   	echo "hadoop_ver not of the form a.b.c"
+   	echo "spark_ver not of the form a.b.c"
 	exit 1
 fi
 
@@ -55,12 +55,10 @@ fi
 # vars
 #########################################################################################################
 
-hadoop_ver="$a.$b.$c"
+spark_ver="$a.$b.$c"
 start_stop_cluster=$2
 playbook_name=start-stop.yml
-# default number of seconds to wait between starting daemons on each host
-seconds_to_pause=5
-extra_vars="hadoop_version=$hadoop_ver start_stop_cluster=$start_stop_cluster seconds_to_pause=$seconds_t"
+extra_vars="spark_version=$spark_ver start_stop_cluster=$start_stop_cluster"
 
 ########################################################################################################
 # code

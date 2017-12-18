@@ -1,7 +1,7 @@
-[sparkmaster]
+[spark_master]
 head ansible_port=22
 
-[sparkslaves]
+[spark_slaves]
 boa-1 ansible_port=22
 boa-2 ansible_port=22
 boa-3 ansible_port=22

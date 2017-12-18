@@ -53,11 +53,10 @@
 
 # it appears that spark 2.0.0 - 2.2.1 MD5 files look as follows:
 # eg.  
-# spark-2.1.1-bin-without-hadoop.tgz: DF 00 5E 6A 86 D2 D8 2D  19 FE FD DE 67 C3
-#                                     F7 EA
-# with the checksum values starting in column 37 and extending over two rows.
+# spark-2.1.1-bin-without-hadoop.tgz: DF 00 5E 6A 86 D2 D8 2D  19 FE FD DE 67 C3 F7 EA
+# with the checksum values starting in column 32 and extending over two rows.
   - name: Get checksum value for {{ spark_file_checksum_md5 }}
-    shell: "cat {{ spark_compressed }}/{{ spark_file_checksum_md5 }} | cut -c37-"
+    shell: "cat {{ spark_compressed }}/{{ spark_file_checksum_md5 }} | cut -c32-"
     register: checksum_md5
 
 #  - debug: var=checksum_md5
@@ -73,23 +72,24 @@
 # need to manipulate the string or the list into a proper variable to test against the files checksum
 
 # the following will join the above list into a string and assign it to the checksum variable
-  - name: Get checksum value for {{ spark_file_checksum_md5 }}
-    debug: 
-      msg: "{{ checksum_md5.stdout_lines | join(' ') }}"
-    register: checksum_md5
+#  - name: Get checksum value for {{ spark_file_checksum_md5 }}
+#    debug: 
+#      msg: "{{ checksum_md5.stdout_lines | join(' ') }}"
+#    register: checksum_md5
  
 #  - debug: var=checksum_md5
 
 # the variable checksum_md5.msg will now look like "2677 48F6 1C9E 27C3 E189  5453 863B 4354 5825 5939"
 # so remove the spaces to make "267748F61C9E27C3E1895453863B435458255939"
-  - name:  Prepared {{ checksum_md5.msg }} for comparison
+  - name:  Prepared {{ checksum_md5['stdout'] }} for comparison
     debug:
-      msg: "{{ checksum_md5.msg | replace(' ','') }}"
+      msg: "{{ checksum_md5['stdout'] | replace(' ','') }}"
     register: checksum_md5
 
 #  - debug: var=checksum_md5
 #  - debug: var=sp_file
 #  - debug: var=spark_compressed
+
 
 # note:  if the file needs to be downloaded, Ansible will compare the files checksum value with the 
 # the checksum provided in the "checksum:" line below.
@@ -103,6 +103,9 @@
 
 #  - debug: var=downloaded_checksum_result
 #  - debug: var=checksum_md5
+
+#  - fail: msg="stop now"
+#    when: true
 
 # if this runs, then the checksum for the downloaded file was okay, but there is little output for the user, so give a message
 # if the checksums did not match, the playbook will fail / halt immediately

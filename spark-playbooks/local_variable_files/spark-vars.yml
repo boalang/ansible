@@ -8,7 +8,7 @@ spark_base: /opt/spark
 spark_home: "{{ spark_base }}/{{ spark_version }}"
 spark_compressed: /opt/compressed
 
-spark_file_extracted: spark-{{ spark_version }}-bin-without-hadoop
+spark_file_extracted: spark-{{ spark_version }}-bin-hadoop2.7
 spark_file: "{{ spark_file_extracted }}.tgz"
 spark_file_checksum_md5: "{{ spark_file }}.md5"
 
@@ -26,19 +26,21 @@ spark_defaults_conf_file_name: spark-defaults.conf
 spark_defaults_conf_file_path: "{{ spark_conf_dir }}/{{ spark_defaults_conf_file_name }}"
 spark_env_file_name: spark-env.sh
 spark_env_file_path: "{{ spark_conf_dir }}/{{ spark_env_file_name }}"
-spark_master_node: head
 
 path: "{{ spark_home }}/bin:{{ spark_home }}/sbin:{{ java_home }}/bin:{{ java_home }}/bin"
 
+spark_env_vars_profile_d_file:  /etc/profile.d/spark-{{ spark_version }}-env.sh
+
+spark_master_node: head
+spark_master_port: 7077
+
 spark_defaults_conf_file_list:
   - echo "" >> {{ spark_defaults_conf_file_path }};
-  - echo "" >> {{ spark_defaults_conf_file_path }};
   - echo \# Set via Ansible playbook >> {{ spark_defaults_conf_file_path }};
-  - echo spark.master  spark://{{ spark_master_node }}:7077 >> {{ spark_defaults_conf_file_path }}
+  - echo spark.master  spark://{{ spark_master_node }}:{{ spark_master_port }} >> {{ spark_defaults_conf_file_path }}
 
 # note: in spark 1 SPARK_MASTER_HOST was SPARK_MASTER_IP
 spark_env_file_list:
-  - echo "" >> {{ spark_env_file_path }};
   - echo "" >> {{ spark_env_file_path }};
   - echo \# Set via Ansible playbook >> {{ spark_env_file_path }};
   - echo SPARK_MASTER_HOST={{ spark_master_node }} >> {{ spark_env_file_path }}
