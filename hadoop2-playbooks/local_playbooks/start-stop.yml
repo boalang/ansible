@@ -23,7 +23,7 @@
   tasks:
   - name: create {{ hadoop_env_vars_profile_d_file }}
     template: 
-      src: ../local_templates/hadoop-{{ hadoop_version }}-env.j2
+      src: ../local_templates/hadoop-env.j2
       dest: "{{ hadoop_env_vars_profile_d_file }}"
       owner: root
       group: root

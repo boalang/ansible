@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export JAVA_HOME={{ java_home }}
+export HADOOP_INSTALL={{ hadoop_install }}
+export HADOOP_CONF_DIR={{ hadoop_conf_dir }}
+export HADOOP_LOG_DIR={{ hadoop_HADOOP_LOG_DIR }}
+export HADOOP_PID_DIR={{ hadoop_HADOOP_PID_DIR }}
+export PATH={{ hadoop_install }}/bin:{{ hadoop_install }}/sbin:{{ java_home }}/bin:$PATH
+
