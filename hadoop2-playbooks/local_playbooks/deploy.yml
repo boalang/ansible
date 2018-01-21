@@ -291,33 +291,33 @@
     with_items: "{{ hadoop_env_list }}"
 
 # create xml config files
-  - name:  Create {{ hadoop_conf_dir }}/core-site-{{ hadoop_version }}.xml
+  - name:  Create {{ hadoop_conf_dir }}/core-site.xml
     template: 
-      src: ../local_templates/core-site-{{ hadoop_version }}.j2
+      src: ../local_templates/core-site.j2
       dest: "{{ hadoop_conf_dir }}/core-site.xml"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_name }}"
       mode:  0644
 
-  - name:  Create {{ hadoop_conf_dir }}/hdfs-site-{{ hadoop_version }}.xml
+  - name:  Create {{ hadoop_conf_dir }}/hdfs-site.xml
     template: 
-      src: ../local_templates/hdfs-site-{{ hadoop_version }}.j2
+      src: ../local_templates/hdfs-site.j2
       dest: "{{ hadoop_conf_dir }}/hdfs-site.xml"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_name }}"
       mode:  0644
 
-  - name:  Create {{ hadoop_conf_dir }}/mapred-site-{{ hadoop_version }}.xml
+  - name:  Create {{ hadoop_conf_dir }}/mapred-site.xml
     template: 
-      src: ../local_templates/mapred-site-{{ hadoop_version }}.j2
+      src: ../local_templates/mapred-site.j2
       dest: "{{ hadoop_conf_dir }}/mapred-site.xml"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_name }}"
       mode:  0644
 
-  - name:  Create {{ hadoop_conf_dir }}/yarn-site-{{ hadoop_version }}.xml
+  - name:  Create {{ hadoop_conf_dir }}/yarn-site.xml
     template: 
-      src: ../local_templates/yarn-site-{{ hadoop_version }}.j2
+      src: ../local_templates/yarn-site.j2
       dest: "{{ hadoop_conf_dir }}/yarn-site.xml"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_name }}"
