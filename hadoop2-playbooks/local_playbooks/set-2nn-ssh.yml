@@ -99,12 +99,12 @@
       state: present
       update_cache: yes
 
-  - name: ssh-copy-id {{ hadoop_name_node }}
+  - name: ssh-copy-id {{ hadoop_name_node }} -p {{ ssh_port_head }}
     become_user: "{{ hadoop_user_name }}"
     become: true
     become_method: sudo
     expect:
-      command: ssh-copy-id {{ hadoop_name_node }}
+      command: ssh-copy-id {{ hadoop_name_node }} -p {{ ssh_port_head }}
       responses:
         (?i)\(yes/no\)\?: "yes"
         (?i)password: "{{ hadoop_user_pwd }}"

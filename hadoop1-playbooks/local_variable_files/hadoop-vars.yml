@@ -75,3 +75,5 @@ protobuf_java_250_md5_name: protobuf-java-2.5.0.jar.md5
 protobuf_java_250_md5_path: http://central.maven.org/maven2/com/google/protobuf/protobuf-java/2.5.0/
 protobuf_java_250_md5_url: http://central.maven.org/maven2/com/google/protobuf/protobuf-java/2.5.0/{{ protobuf_java_250_md5_name }}
 protobuf_java_250_jar_url: http://central.maven.org/maven2/com/google/protobuf/protobuf-java/2.5.0/protobuf-java-2.5.0.jar
+
+ssh_port_head: 22

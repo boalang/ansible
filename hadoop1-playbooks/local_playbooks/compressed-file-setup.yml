@@ -1,6 +1,6 @@
 ---
 # This playbook will check for the necessary hadoop files and download them if missing.
-# It will also test that the checsums match.
+# It will also test that the checksums match.
 
 ########################################################################################
 # start playbook
