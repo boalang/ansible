@@ -65,7 +65,7 @@
 
 # the variable checksum_sha1.msg will now look like "2677 48F6 1C9E 27C3 E189  5453 863B 4354 5825 5939"
 # so remove the spaces to make "267748F61C9E27C3E1895453863B435458255939"
-  - name:  Prepared {{ checksum_sha1.msg }} for comparion
+  - name:  Prepared {{ checksum_sha1.stdout_lines  }} for comparion
     debug:
       msg: "{{ checksum_sha1.stdout_lines | replace(' ','') }}"
     register: checksum_sha1

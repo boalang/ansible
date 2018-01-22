@@ -96,17 +96,17 @@
   - name: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} to {{ hadoop_prefix }}
     command: mv {{ hadoop_base }}/hadoop-{{ hadoop_version }} {{ hadoop_prefix }}
 
-  - name: Ensure {{ hadoop_base }} directories are 0755
-    command: find {{ hadoop_base }} -type d -exec chmod 0755 {} \;
+#  - name: Ensure {{ hadoop_base }} directories are 0755
+#    command: find {{ hadoop_base }} -type d -exec chmod 0755 {} \;
 
-  - name: Ensure {{ hadoop_base }} files are 0644
-    command: find {{ hadoop_base }} -type f -exec chmod 0644 {} \;
+#  - name: Ensure {{ hadoop_base }} files are 0644
+#    command: find {{ hadoop_base }} -type f -exec chmod 0644 {} \;
 
-  - name: Ensure {{ hadoop_prefix }}/bin files are 0744
-    command: find {{ hadoop_prefix }}/bin -type f -exec chmod 0744 {} \;
+#  - name: Ensure {{ hadoop_prefix }}/bin files are 0744
+#    command: find {{ hadoop_prefix }}/bin -type f -exec chmod 0744 {} \;
 
-  - name: Ensure {{ hadoop_prefix }}/sbin files are 0744
-    command: find {{ hadoop_prefix }}/sbin -type f -exec chmod 0744 {} \;
+#  - name: Ensure {{ hadoop_prefix }}/sbin files are 0744
+#    command: find {{ hadoop_prefix }}/sbin -type f -exec chmod 0744 {} \;
 
   - name: Ensure {{ hadoop_user_name }} is owner of {{ hadoop_base }} and all contents
     file:
