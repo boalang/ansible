@@ -8,6 +8,11 @@ head ansible_port=22
 # port must match port variable defined in 
 # ./local_variable_files/hadoop-vars.yml
 
+[resourcemanager]
+head ansible_port=22
+# port must match port variable defined in 
+# ./local_variable_files/hadoop-vars.yml
+
 [data_nodes]
 boa-1 ansible_port=22
 boa-2 ansible_port=22
