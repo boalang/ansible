@@ -54,9 +54,6 @@
 
   tasks:
   - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} namenode"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} namenode"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
@@ -80,9 +77,6 @@
 
   tasks:
   - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} secondarynamenode"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} secondarynamenode"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
@@ -106,9 +100,6 @@
 
   tasks:
   - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} resourcemanager"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} resourcemanager"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
@@ -133,9 +124,6 @@
 
   tasks:
   - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} datanode"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} datanode"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
@@ -143,9 +131,6 @@
       seconds: "{{ seconds_to_pause }}"
 
   - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
@@ -169,12 +154,8 @@
 
   tasks:
   - name: "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} historyserver"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} historyserver"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
     pause:
       seconds: "{{ seconds_to_pause }}"
-

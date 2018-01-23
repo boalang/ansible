@@ -38,7 +38,6 @@
 ########################################################################################
 # start namenode
 ########################################################################################
-
 - name: "{{ start_stop_cluster }} namenode"
   hosts: name_node
   remote_user: ansible
@@ -53,29 +52,18 @@
 
   tasks:
   - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} namenode"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} namenode"
-#    when: start_stop_cluster == "start"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to {{ start_stop_cluster }}
     pause:
       seconds: "{{ seconds_to_pause }}"
-#    when: start_stop_cluster == "start"
 
   - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} jobtracker"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} jobtracker"
-#    when: start_stop_cluster == "start"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow jobtracker to start
     pause:
       seconds: "{{ seconds_to_pause }}"
-#    when: start_stop_cluster == "start"
-
 
 ########################################################################################
 # start secondary namenode
@@ -94,17 +82,11 @@
 
   tasks:
   - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} secondarynamenode"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} secondarynamenode"
-#    when: start_stop_cluster == "start"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to {{ start_stop_cluster }}
     pause:
       seconds: "{{ seconds_to_pause }}"
-#    when: start_stop_cluster == "start"
-
 
 ########################################################################################
 # start data nodes
@@ -123,28 +105,15 @@
 
   tasks:
   - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} datanode"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} datanode"
-#    when: start_stop_cluster == "start"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow datanode to {{ start_stop_cluster }}
     pause:
       seconds: "{{ seconds_to_pause }}"
-#    when: start_stop_cluster == "start"
 
   - name: "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} tasktracker"
-#    become_user: "{{ hadoop_user_name }}"
-#    become: true
-#    become_method: sudo
     command:  "{{ hadoop_install }}/bin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} tasktracker"
-#    when: start_stop_cluster == "start"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow tasktracker to {{ start_stop_cluster }}
     pause:
       seconds: "{{ seconds_to_pause }}"
-#    when: start_stop_cluster == "start"
-
-
-
