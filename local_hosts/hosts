@@ -18,15 +18,15 @@ boa-1 ansible_port=22
 boa-2 ansible_port=22
 boa-3 ansible_port=22
 boa-4 ansible_port=22
-#boa-5
-#boa-6
-#boa-7
-#boa-8
-#boa-9
-#boa-10
-#boa-11
-#boa-12
-#boa-13
-#boa-14
-#boa-15
+#boa-5 ansible_port=22
+#boa-6 ansible_port=22
+#boa-7 ansible_port=22
+#boa-8 ansible_port=22
+#boa-9 ansible_port=22
+#boa-10 ansible_port=22
+#boa-11 ansible_port=22
+#boa-12 ansible_port=22
+#boa-13 ansible_port=22
+#boa-14 ansible_port=22
+#boa-15 ansible_port=22
 

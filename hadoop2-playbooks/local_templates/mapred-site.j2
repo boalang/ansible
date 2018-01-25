@@ -30,17 +30,18 @@
     <value>{{ mapreduce_jobtracker_system_dir }}</value>
   </property>
 
-<!-- name change -->
+<!-- name change and disappeared from mapred-default.xlm in 2.8.0
   <property>
     <name>mapreduce.tasktracker.map.tasks.maximum</name>
     <value>4</value>
   </property>
-
-<!-- name change -->
+-->
+<!-- name change and disappeared from mapred-default.xlm in 2.8.0
   <property>
     <name>mapreduce.tasktracker.reduce.tasks.maximum</name>
     <value>4</value>
   </property>
+-->
 
   <property>
     <name>mapred.child.java.opts</name>
@@ -67,6 +68,16 @@ See also: https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-commo
   <property>
     <name>mapreduce.reduce.java.opts</name>
     <value>-Xmx2048m</value>
+  </property>
+
+  <property>
+    <name>mapreduce.map.memory.mb</name>
+    <value>2</value>
+  </property>
+
+  <property>
+    <name>mapreduce.reduce.memory.mb</name>
+    <value>2</value>
   </property>
 
 </configuration>
