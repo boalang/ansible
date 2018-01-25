@@ -79,7 +79,7 @@
   - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} secondarynamenode"
     command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} secondarynamenode"
 
-  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to start
     pause:
       seconds: "{{ seconds_to_pause }}"
 
@@ -102,7 +102,7 @@
   - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} resourcemanager"
     command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} resourcemanager"
 
-  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow resource manager to start
     pause:
       seconds: "{{ seconds_to_pause }}"
 
@@ -126,14 +126,14 @@
   - name: "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} datanode"
     command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} datanode"
 
-  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow data nodes to start
     pause:
       seconds: "{{ seconds_to_pause }}"
 
   - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
     command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
 
-  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow node managers to start
     pause:
       seconds: "{{ seconds_to_pause }}"
 
@@ -156,6 +156,6 @@
   - name: "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} historyserver"
     command:  "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} historyserver"
 
-  - name: Pause playbook {{ seconds_to_pause }} seconds to allow namenode to start
+  - name: Pause playbook {{ seconds_to_pause }} seconds to allow history to start
     pause:
       seconds: "{{ seconds_to_pause }}"
