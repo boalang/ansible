@@ -1,0 +1,45 @@
+---
+# Purpose
+# The task file dynamically creates the variables used in the hadoop configuration template files.
+# 
+# Important Notes:
+# The calling playbook will use an include statement to include this file, but the use of include
+# will be removed in Ansible 2.8:  http://docs.ansible.com/ansible/latest/include_module.html
+# 
+# It is recommended that the use of include be replaced by import* and include*, such as
+# include_tasks, import_playbook, import_tasks.  Unfortunately, such items are not available
+# until version 2.4, and version 2.0 is what is currently included in the Ubuntu repo.
+
+
+# dynamic variables to provide the template files with proper data directory structures
+# eg.  /data1/.... /data2/.... /dataN/....
+  - name: create sequence variable dfs_name_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_name_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: dfs_name_dir_seq
+
+  - name: create sequence variable dfs_data_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_data_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: dfs_data_dir_seq
+
+  - name: create sequence variable fs_checkpoint_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_fs_checkpoint_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: fs_checkpoint_dir_seq
+
+  - name: create sequence variable mapred_local_dir_seq
+    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_mapred_local_dir }}
+    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
+    register: mapred_local_dir_seq
+
+# create lists of strings that will be assigned to variables that will be used in the
+# xml configuration files
+  - set_fact:
+      dfs_name_dir_list: "{{ dfs_name_dir_seq.results | map(attribute='msg') | join(',') }}"
+      dfs_data_dir_list: "{{ dfs_data_dir_seq.results | map(attribute='msg') | join(',') }}"
+      fs_checkpoint_dir_list: "{{ fs_checkpoint_dir_seq.results | map(attribute='msg') | join(',') }}"
+      mapred_local_dir_list: "{{ mapred_local_dir_seq.results | map(attribute='msg') | join(',') }}"
+
+
+
