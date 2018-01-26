@@ -36,6 +36,7 @@
     <value>4</value>
   </property>
 -->
+
 <!-- name change and disappeared from mapred-default.xlm in 2.8.0
   <property>
     <name>mapreduce.tasktracker.reduce.tasks.maximum</name>
@@ -43,9 +44,13 @@
   </property>
 -->
 
+<!--  
+HTDG 4th pg. 302, The JVM options used to launch the container process that runs map and reduct tasks.
+In addition to memory settings, this property can include JVM properties for debugging, for example.
+-->
   <property>
     <name>mapred.child.java.opts</name>
-    <value>-Xmx2048m</value>
+    <value>-Xmx1536m</value>
   </property>
 
 <!-- added -->
@@ -53,10 +58,12 @@
 HTDG 4th pg 302, The JVM options used for the child process that runs map tasks 
 See also: https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/ClusterSetup.html 
   (Larger heap-size for child jvms of maps.)
+
+should be lower than mapreduce.map.memory.mb 
 -->
   <property>
     <name>mapreduce.map.java.opts</name>
-    <value>-Xmx2048m</value>
+    <value>-Xmx1536m</value>
   </property>
 
 <!-- added -->
@@ -64,20 +71,29 @@ See also: https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-commo
 HTDG 4th pg 302, The JVM options used for the child process that runs reduce tasks 
 See also: https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/ClusterSetup.html
   Larger heap-size for child jvms of reduces.
+
+should be lower than mapred.reduce.memory.mb
 -->
   <property>
     <name>mapreduce.reduce.java.opts</name>
-    <value>-Xmx2048m</value>
+    <value>-Xmx1536m</value>
   </property>
 
+<!-- added
+HTDG pg.302, The amount of memory for map containers.
+-->
   <property>
     <name>mapreduce.map.memory.mb</name>
-    <value>1536</value>
+    <value>2048</value>
   </property>
 
-  <property>
+
+<!-- added 
+HTDG pg. 302, The amount of memory for reduce containers.
+-->
+ <property>
     <name>mapreduce.reduce.memory.mb</name>
-    <value>1536</value>
+    <value>2048</value>
   </property>
 
 </configuration>
