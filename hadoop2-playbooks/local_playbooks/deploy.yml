@@ -226,51 +226,6 @@
       group: "{{ hadoop_user_group }}"
       recurse: yes
 
-# now, using debug and with_sequence create a sequence variable that will store the
-# result of each debug statement for each iteration of with_sequence.
-#
-# these sequence variables are then processed into lists (below) and assigned to a variable 
-# that can be referenced in the jinja temlate file to create configuration files 
-# hdfs-site.xml and mapred-site.xml
-
-  - name: create sequence variable dfs_namenode_name_dir_seq
-    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_name_dir }}
-    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-    register: dfs_namenode_name_dir_seq
-
-  - name: create sequence variable dfs_namenode_data_dir_seq
-    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_datanode_data_dir }}
-    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-    register: dfs_datanode_data_dir_seq
-
-  - name: create sequence variable dfs_namenode_checkpoint_dir_seq
-    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_namenode_checkpoint_dir }}
-    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-    register: dfs_namenode_checkpoint_dir_seq
-
-  - name: create sequence variable yarn_nodemanager_local_dirs_seq
-    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ yarn_nodemanager_local_dirs }}
-    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-    register: yarn_nodemanager_local_dirs_seq
-
-  - name: create sequence variable mapred_cluster_local_dir_seq
-    debug: msg={{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ mapreduce_cluster_local_dir }}
-    with_sequence: start=1 end={{ hadoop_num_drives_per_node }}
-    register: mapreduce_cluster_local_dir_seq
-
-
-
-# since, mapred/system is a single directory, its path has been created as a variable in the
-# set_fact: section below.
-
-# create lists of strings that will be assigned to variables that will be used in the
-# xml configuration files
-  - set_fact:
-      dfs_namenode_name_dir_list: "{{ dfs_namenode_name_dir_seq.results | map(attribute='msg') | join(',') }}"
-      dfs_datanode_data_dir_list: "{{ dfs_datanode_data_dir_seq.results | map(attribute='msg') | join(',') }}"
-      dfs_namenode_checkpoint_dir_list: "{{ dfs_namenode_checkpoint_dir_seq.results | map(attribute='msg') | join(',') }}"
-      yarn_nodemanager_local_dirs_list: "{{ yarn_nodemanager_local_dirs_seq.results | map(attribute='msg') | join(',') }}"
-      mapreduce_cluster_local_dir_list: "{{ mapreduce_cluster_local_dir_seq.results | map(attribute='msg') | join(',') }}"
 
 # Note:
 # although, openjdk-8-jdk is being referenced explicitly, it is possible to use statements such as
@@ -289,6 +244,10 @@
   - name:  Append export statements for JAVA_HOME, HADOOP_INSTALL, HADOOP_CONF_DIR, HADOOP_LOG_DIR, HADOOP_PID_DIR in {{ hadoop_env_file }}
     shell:  "{{ item }}" 
     with_items: "{{ hadoop_env_list }}"
+
+
+# include the varibles needed when transforming the configuration template files
+  - include:  ../local_includes/create_variables_for_config_templates.yml
 
 # create xml config files
   - name:  Create {{ hadoop_conf_dir }}/core-site.xml
