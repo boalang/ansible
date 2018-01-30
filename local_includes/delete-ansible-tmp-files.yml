@@ -1,0 +1,12 @@
+---
+# Purpose --To delete tmp files.
+# Ansible stores temporary information in /home/ansible/.ansible/tmp during playbook execution.
+# These files should be deleted upon completion, but often remain and eventually fill-up the partition.
+# 
+# Place an include at the bottom of every playbook (H1 & H2) to delete tmp/*.
+
+- name: Deleting /home/ansible/.ansible/tmp
+  file:
+    path: /home/ansible/.ansible/tmp
+    state: absent
+

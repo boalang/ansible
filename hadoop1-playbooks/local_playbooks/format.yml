@@ -32,4 +32,4 @@
     command: find {{ hadoop_data_base_dir }}{{ item }}/{{ hadoop_version }}/{{ hadoop_dfs_name_dir }} -type d -exec chmod 0755 {} \;
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
 
-
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

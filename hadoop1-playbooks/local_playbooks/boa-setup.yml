@@ -77,4 +77,4 @@
       dest: "{{ hadoop_install }}/lib/mysql-connector-java.jar"
       state: link
      
-#    command: ln -s /usr/share/java/mysql-connector-java.jar {{ hadoop_install }}/lib/mysql-connector-java.jar
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

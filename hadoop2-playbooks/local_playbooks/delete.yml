@@ -40,3 +40,4 @@
       state: absent
     with_sequence: start=1 end={{ hadoop_num_drives_per_node }} stride=1
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

@@ -8,7 +8,7 @@
 
 
 - name: "{{ hadoop_version }} environment varibles"
-  hosts: name_node
+  hosts: all
   remote_user: ansible
   become_user: root
   become: true
@@ -34,6 +34,8 @@
       path:  "{{ hadoop_env_vars_profile_d_file }}"
       state: absent
     when: start_stop_cluster == "stop"
+
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # start namenode
@@ -65,6 +67,9 @@
     pause:
       seconds: "{{ seconds_to_pause }}"
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
+
+
 ########################################################################################
 # start secondary namenode
 ########################################################################################
@@ -87,6 +92,9 @@
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to {{ start_stop_cluster }}
     pause:
       seconds: "{{ seconds_to_pause }}"
+
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
+
 
 ########################################################################################
 # start data nodes
@@ -117,3 +125,5 @@
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow tasktracker to {{ start_stop_cluster }}
     pause:
       seconds: "{{ seconds_to_pause }}"
+
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

@@ -273,4 +273,4 @@
       group: "{{ hadoop_user_name }}"
       mode:  0644
 
-
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

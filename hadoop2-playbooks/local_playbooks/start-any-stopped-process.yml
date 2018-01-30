@@ -14,7 +14,7 @@
 ########################################################################################
 
 - name: "Set {{ hadoop_version }} environment varibles"
-  hosts: name_node
+  hosts: all
   remote_user: ansible
   become_user: root
   become: true
@@ -34,6 +34,7 @@
       group: root
       mode:  0644
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # namenode
@@ -66,6 +67,8 @@
       msg: NameNode is running
     when: jps_result.stdout | search ("NameNode") == true
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
+
 ########################################################################################
 # secondary namenode
 ########################################################################################
@@ -97,6 +100,7 @@
       msg: SecondaryNameNode is running
     when: jps_result.stdout | search ("SecondaryNameNode") == true
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # resource manager
@@ -128,6 +132,7 @@
       msg: ResourceManager is running
     when: jps_result.stdout | search ("ResourceManager") == true
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # jobhistory
@@ -159,6 +164,7 @@
       msg: JobHistoryServer is running
     when: jps_result.stdout | search ("JobHistoryServer") == true
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # datanode / nodemanager
@@ -198,3 +204,4 @@
       msg: NodeManager is running
     when: jps_result.stdout | search ("NodeManager") == true
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

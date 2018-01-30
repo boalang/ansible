@@ -70,6 +70,8 @@
       group: "{{ hadoop_user_name }}"
       mode:  0644
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
+
 
 ########################################################################################
 # Update <version>_conf_in_use directories
@@ -121,3 +123,5 @@
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_name }}"
       mode:  0644
+
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

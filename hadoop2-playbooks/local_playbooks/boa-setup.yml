@@ -77,3 +77,4 @@
       dest: "{{ hadoop_prefix }}/lib/mysql-connector-java.jar"
       state: link
      
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

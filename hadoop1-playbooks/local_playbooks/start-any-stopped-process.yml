@@ -10,7 +10,7 @@
 ########################################################################################
 
 - name: "Set {{ hadoop_version }} environment varibles"
-  hosts: name_node
+  hosts: all
   remote_user: ansible
   become_user: root
   become: true
@@ -38,7 +38,7 @@
 - name: Testing namenode for stopped processes
   hosts: name_node
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh
@@ -69,7 +69,7 @@
 - name: Testing secondary namenode for stopped processes
   hosts: secondary_nn
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh
@@ -100,7 +100,7 @@
 - name: Testing datanode for stopped processes
   hosts: data_nodes
   remote_user: ansible
-  become_user: root
+  become_user: "{{ hadoop_user_name }}"
   become: true
   become_method: sudo
   connection: ssh

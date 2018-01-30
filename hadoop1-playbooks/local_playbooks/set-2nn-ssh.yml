@@ -107,3 +107,5 @@
       responses:
         (?i)\(yes/no\)\?: "yes"
         (?i)password: "{{ hadoop_user_pwd }}"
+
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

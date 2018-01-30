@@ -9,7 +9,7 @@
 ########################################################################################
 
 - name:  "{{ hadoop_version }} environment varibles"
-  hosts: name_node
+  hosts: all
   remote_user: ansible
   become_user: root
   become: true
@@ -36,6 +36,9 @@
       state: absent
     when: start_stop_cluster == "stop"
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
+
+
 ########################################################################################
 # namenode
 ########################################################################################
@@ -60,6 +63,8 @@
     pause:
       seconds: "{{ seconds_to_pause }}"
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
+
 ########################################################################################
 # secondarynamenode
 ########################################################################################
@@ -82,6 +87,8 @@
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow secondary namenode to start
     pause:
       seconds: "{{ seconds_to_pause }}"
+
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # resourcemanager
@@ -106,6 +113,7 @@
     pause:
       seconds: "{{ seconds_to_pause }}"
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # datanode / nodemanager
@@ -130,13 +138,14 @@
     pause:
       seconds: "{{ seconds_to_pause }}"
 
-  - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} nodemanager"
-    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} nodemanager"
+  - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
+    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow node managers to start
     pause:
       seconds: "{{ seconds_to_pause }}"
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
 
 ########################################################################################
 # jobhistory
@@ -160,3 +169,5 @@
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow history to start
     pause:
       seconds: "{{ seconds_to_pause }}"
+
+  - include: ../../local_includes/delete-ansible-tmp-files.yml

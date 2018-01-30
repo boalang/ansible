@@ -156,3 +156,4 @@
       - hd_file.stat.exists == True
       - hd_file_checksum['msg'] != checksum_sha1['msg'][0]
 
+  - include: ../../local_includes/delete-ansible-tmp-files.yml
