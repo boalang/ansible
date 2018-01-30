@@ -1,0 +1,200 @@
+---
+# Purpose:
+# This playbook will check the cluster for the following processes and start them if stopped:
+# ResourceManager
+# SecondaryNameNode
+# NameNode
+# JobHistoryServer
+# NodeManager
+# DataNode
+
+
+########################################################################################
+# env vars
+########################################################################################
+
+- name: "Set {{ hadoop_version }} environment varibles"
+  hosts: name_node
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: redeploy {{ hadoop_env_vars_profile_d_file }}
+    template: 
+      src: ../local_templates/hadoop-env.j2
+      dest: "{{ hadoop_env_vars_profile_d_file }}"
+      owner: root
+      group: root
+      mode:  0644
+
+
+########################################################################################
+# namenode
+########################################################################################
+
+- name: Testing for stopped name node
+  hosts: name_node
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: Test jps output for NameNode process
+    shell: jps
+    register: jps_result 
+
+#  - debug:  var=jps_result
+
+  - name: Restarting NameNode
+    command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs start namenode"
+    when: jps_result.stdout | search ("NameNode") == false
+
+  - debug: 
+      msg: NameNode is running
+    when: jps_result.stdout | search ("NameNode") == true
+
+########################################################################################
+# secondary namenode
+########################################################################################
+
+- name: Testing for stopped secondary namenode
+  hosts: secondary_nn
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: Test jps output for SecondaryNameNode process
+    shell: jps
+    register: jps_result 
+
+#  - debug:  var=jps_result
+
+  - name: Restarting SecondaryNameNode
+    command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs start secondarynamenode"
+    when: jps_result.stdout | search ("SecondaryNameNode") == false
+
+  - debug: 
+      msg: SecondaryNameNode is running
+    when: jps_result.stdout | search ("SecondaryNameNode") == true
+
+
+########################################################################################
+# resource manager
+########################################################################################
+- name: Testing for stopped resource manager
+  hosts: resourcemanager
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: Test jps output for ResourceManager process
+    shell: jps
+    register: jps_result 
+
+#  - debug:  var=jps_result
+
+  - name: Restarting ResourceManager
+    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} start resourcemanager"
+    when: jps_result.stdout | search ("ResourceManager") == false
+
+  - debug: 
+      msg: ResourceManager is running
+    when: jps_result.stdout | search ("ResourceManager") == true
+
+
+########################################################################################
+# jobhistory
+########################################################################################
+- name: Testing for stopped job history server
+  hosts: head
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: Test jps output for JobHistoryServer process
+    shell: jps
+    register: jps_result 
+
+#  - debug:  var=jps_result
+
+  - name: Restarting JobHistoryServer
+    command:  "{{ hadoop_prefix }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_conf_dir }} start historyserver"
+    when: jps_result.stdout | search ("JobHistoryServer") == false
+
+  - debug: 
+      msg: JobHistoryServer is running
+    when: jps_result.stdout | search ("JobHistoryServer") == true
+
+
+########################################################################################
+# datanode / nodemanager
+########################################################################################
+- name: Testing for stopped data nodes and node managers
+  hosts: data_nodes
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../local_variable_files/hadoop-vars.yml
+
+  tasks:
+  - name: Test jps output for DataNode and NodeManager processes
+    shell: jps
+    register: jps_result 
+
+#  - debug:  var=jps_result
+
+  - name: Restarting DataNode
+    command:  "{{ hadoop_prefix }}/sbin/hadoop-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs start datanode"
+    when: jps_result.stdout | search ("DataNode") == false
+
+  - name: Restarting NodeManager
+    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs start nodemanager"
+    when: jps_result.stdout | search ("NodeManager") == false
+
+  - debug: 
+      msg: DataNode is running
+    when: jps_result.stdout | search ("DataNode") == true
+
+  - debug: 
+      msg: NodeManager is running
+    when: jps_result.stdout | search ("NodeManager") == true
+

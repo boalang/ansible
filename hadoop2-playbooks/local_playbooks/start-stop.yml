@@ -130,12 +130,13 @@
     pause:
       seconds: "{{ seconds_to_pause }}"
 
-  - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
-    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} {{ start_stop_cluster }} nodemanager"
+  - name: "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} nodemanager"
+    command:  "{{ hadoop_yarn_home }}/sbin/yarn-daemon.sh --config {{ hadoop_conf_dir }} --script hdfs {{ start_stop_cluster }} nodemanager"
 
   - name: Pause playbook {{ seconds_to_pause }} seconds to allow node managers to start
     pause:
       seconds: "{{ seconds_to_pause }}"
+
 
 ########################################################################################
 # jobhistory
