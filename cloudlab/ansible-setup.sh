@@ -516,3 +516,7 @@ else
 	func_run_on_slaves	
 
 fi
+
+# signal script is done
+echo `date` > $HOST_NAME.txt
+
