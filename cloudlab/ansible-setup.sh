@@ -455,7 +455,7 @@ func_setup_master(){
 	# functions to prep master
 	func_create_slaves_file
 	func_print_script_info
-	func_update_system
+	#func_update_system
 	func_install_ansible_software
 	func_create_ansible_user
 	func_set_ansible_sudoer_privileges
@@ -493,12 +493,12 @@ func_run_on_slaves(){
 
 	# functions to run on the slave
 	func_print_script_info
-	func_update_system
+	#func_update_system
 	func_install_python
 	func_create_ansible_user
 	func_set_ansible_sudoer_privileges
 	func_create_set_ssh_keys_localhost
-	func_get_master_rsa_pub	
+	# func_get_master_rsa_pub	
 	# func_slave_script_delete_yourself
 }
 ####################################################################################################################
