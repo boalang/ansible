@@ -179,6 +179,23 @@ func_create_set_ssh_keys_localhost(){
 	echo "chown -R $ANSIBLE_UN:$ANSIBLE_UN $SSH_DIR"
 	chown -R $ANSIBLE_UN:$ANSIBLE_UN $SSH_DIR
 }
+#===================================================================================================================
+func_update_restart_sshd(){
+
+	# cloudlab comes with sshd_config PasswordAuthentication no, but we need yes to allow the sharing of 
+	# public keys, so update /etc/ssh/sshd_conf with sed
+	
+	PA=PasswordAuthentication
+	sed -i "s/$PA\ no/$PA\ yes/g" /etc/ssh/sshd_config
+
+	# this works on systems using systemd, ubuntu 16
+	systemctl restart ssh
+
+	# for sysvinit / upstart, ubuntu 14
+	# sudo /etc/init.d/ssh restart
+
+	
+}
 ####################################################################################################################
 # End General Functions
 ####################################################################################################################
@@ -295,7 +312,7 @@ func_copy_master_pub_key_to_slave_auth_keys(){
 	# the public key should have already been copied to the slave, now cat it to the authorized_keys file on the slave
 	local REMOTE_IP=$1
 	echo ""
-	echo "sshpass -p "$ANSIBLE_PWD" ssh -o StrictHostKeyChecking=no "$ANSIBLE_UN@$REMOTE_IP:~" 'cat /home/$ANSIBLE_UN/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys'"
+	echo "sshpass -p "$ANSIBLE_PWD" ssh -o StrictHostKeyChecking=no "$ANSIBLE_UN@$REMOTE_IP" 'cat /home/$ANSIBLE_UN/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys'"
 	sshpass -p "$ANSIBLE_PWD" ssh -o StrictHostKeyChecking=no "$ANSIBLE_UN@$REMOTE_IP" "cat /home/$ANSIBLE_UN/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys"
 }
 #===================================================================================================================
@@ -476,7 +493,7 @@ func_prep_master_to_setup_slaves(){
 	func_ssh-keyscan_ansible
 
 	# unprepare master for slave update
-	func_remove_sshpass
+	# func_remove_sshpass
 
 	# i'm not sure this needs to be removed, since it will be a fresh install
 	# func_remove_public_key_file
@@ -516,6 +533,9 @@ else
 	func_run_on_slaves	
 
 fi
+
+# restart ssh
+func_update_restart_sshd
 
 # signal script is done
 echo `date` > $HOST_NAME.txt
