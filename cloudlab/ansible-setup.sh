@@ -244,6 +244,9 @@ func_setup_slaves_detail(){
 	# process addresses
 	# func_send_script_to_slave $NODE
 	func_send_public_key_to_slave $NODE
+	func_copy_master_pub_key_to_slave_auth_keys $NODE
+	#func_ssh-copy-id_slave $NODE
+
 	# func_execute_script_on_slave $NODE	
 	# echo ""
 	# func_retrieve_slave_log_file $NODE
@@ -285,6 +288,30 @@ func_send_public_key_to_slave(){
 	echo "sshpass -p $ANSIBLE_PWD scp -o StrictHostKeyChecking=no $PUB_KEY_FILE $ANSIBLE_UN@$IP:~"
 	sshpass -p "$ANSIBLE_PWD" scp -o StrictHostKeyChecking=no $PUB_KEY_FILE "$ANSIBLE_UN@$IP:~"
 
+}
+#===================================================================================================================
+func_copy_master_pub_key_to_slave_auth_keys(){
+
+	# the public key should have already been copied to the slave, now cat it to the authorized_keys file on the slave
+	local REMOTE_IP=$1
+	echo ""
+	echo "sshpass -p "$ANSIBLE_PWD" ssh -o StrictHostKeyChecking=no "$ANSIBLE_UN@$REMOTE_IP:~" 'cat /home/$ANSIBLE_UN/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys'"
+	sshpass -p "$ANSIBLE_PWD" ssh -o StrictHostKeyChecking=no "$ANSIBLE_UN@$REMOTE_IP" "cat /home/$ANSIBLE_UN/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys"
+}
+#===================================================================================================================
+func_ssh-copy-id_slave(){
+
+	local REMOTE_IP=$1
+	local PAUSE=45
+	local EXPECT_TIMEOUT=120
+	# PROG_USER_SELECTION=3 is required to force slave to run proper functions
+	PROG_USER_SELECTION=3
+
+	echo ""
+	echo "./expect-ssh-copy-id-script.sh $ANSIBLE_UN $ANSIBLE_PWD $REMOTE_IP"
+	echo ""
+
+	./expect-ssh-copy-id-script.sh $ANSIBLE_UN $ANSIBLE_PWD $REMOTE_IP
 }
 #===================================================================================================================
 func_execute_script_on_slave(){
