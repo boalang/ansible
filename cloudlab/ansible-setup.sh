@@ -27,6 +27,7 @@ PROG_USER=`logname`
 PROG_USER_PWD="not set"
 HOST_IP=`hostname -I`
 HOST_NAME=`hostname`
+HOST_NAME_SHORT=`hostname -s`
 
 ####################################################################################################################
 # Begin General Functions
@@ -171,8 +172,8 @@ func_create_set_ssh_keys_localhost(){
 	ssh-keyscan $HOST_IP >> $KNOWN_HOSTS
 
 	# this sets up ssh passwordless by host name
-	echo "ssh-keyscan $HOST_NAME >> $KNOWN_HOSTS"
-	ssh-keyscan $HOST_NAME >> $KNOWN_HOSTS
+	echo "ssh-keyscan $HOST_NAME_SHORT >> $KNOWN_HOSTS"
+	ssh-keyscan $HOST_NAME_SHORT >> $KNOWN_HOSTS
 
 	# user ansible owns everything in .ssh
 	echo ""
@@ -380,7 +381,7 @@ func_ssh-keyscan_ansible(){
 	# run the keyscan command again, but this time collect the keys asociated with the ip addresses
 
 	# get the ip v4 version
-	IPV4=getent hosts 5850-ansible1 | cut -d' ' -f1
+	IPV4=getent hosts | cut -d' ' -f1
 
 	echo ""
 	echo "running:  ssh-keyscan -4 $IPV4 >> /home/$ANSIBLE_UN/.ssh/known_hosts"
@@ -538,5 +539,5 @@ fi
 func_update_restart_sshd
 
 # signal script is done
-echo `date` > $HOST_NAME.txt
+echo `date` > $HOST_NAME_SHORT.txt
 
