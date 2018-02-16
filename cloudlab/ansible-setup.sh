@@ -194,8 +194,6 @@ func_update_restart_sshd(){
 
 	# for sysvinit / upstart, ubuntu 14
 	# sudo /etc/init.d/ssh restart
-
-	
 }
 ####################################################################################################################
 # End General Functions
@@ -222,6 +220,50 @@ func_install_ansible_software(){
 ####################################################################################################################
 # Begin Functions to Prepare the Master to setup Slaves
 ####################################################################################################################
+func_wait_for_slaves_to_boot(){
+
+	# This should be called before the master runs its installation script, to ensure that all of the slaves 
+	# installation scripts have finished, before beginning its own ansible installation script.
+
+	# Both the master and slaves will write a timestamp to a file /tmp/<name-of-node>.txt when their installation
+	# scripts are finished.  
+
+	# We'll copy these scripts to /tmp on the master node.  If the file does not yet exist on the slave, then 
+	# nothing will be returned to /tmp on the master and we'll sleep for a few seconds and then try again.
+
+	# we're going to allow for a maximum of 10 iterations, before throwing an error and quitting
+	# assume that all of the slaves are "not done" yet
+	NOT_DONE=$NUM_SLAVES
+	MAX_TRIES=10
+	for (( cnt=0; cnt<$MAX_TRIES; cnt=cnt+1 )); do
+	
+		for SLAVE_NAME in `cat $SLAVE_FILE`; do
+			FILE_TO_TEST="/tmp/$SLAVE_NAME.txt"
+
+			# if the file exists
+			if [[ -e $FILE_TO_TEST ]]; then
+				# decrement not done
+				NOT_DONE=$NOT_DONE-1
+			else
+				# try to retrieve it	
+				sshpass -p "$ANSIBLE_PWD" scp -o StrictHostKeyChecking=no "$ANSIBLE_UN@$SLAVE_NAME:$FILE_TO_TEST" $FILE_TO_TEST
+			fi
+		done
+		
+		if [ $NOT_DONE -eq 0 ]; then
+			# slave are done
+			break
+		fi
+
+		if [ $cnt -eq ($MAX_TRIES - 1) ];then
+			ERR_MSG="Timeout reached waiting for slave files to complete ansible setup scripts. Exit master setup script."
+			echo $ERR_MSG >> /users/$USER/error.log
+			echo $ERR_MSG >> /tmp/error.log
+			exit 1
+		fi
+	done
+}
+#===================================================================================================================
 func_install_sshpass(){
 
 	# install sshpass to facilitate automated interaction with managed nodes
@@ -260,32 +302,13 @@ func_setup_slaves(){
 func_setup_slaves_detail(){
 
 	# process addresses
-	# func_send_script_to_slave $NODE
+	
 	func_send_public_key_to_slave $NODE
 	func_copy_master_pub_key_to_slave_auth_keys $NODE
-	#func_ssh-copy-id_slave $NODE
 
-	# func_execute_script_on_slave $NODE	
-	# echo ""
-	# func_retrieve_slave_log_file $NODE
-	# func_remove_slave_log_file $NODE
 	echo ""
 	echo "$NODE process complete"
 	echo ""
-}
-#===================================================================================================================
-func_send_script_to_slave(){
-
-	# use sshpass & scp to copy the installation script to the slave
-	# using StrictHostKeyChecking=no will automatically add the remote host's key to the user's known_host file
-	# but allow $PROG_USER to log into $PROG_USER's account on $IP with only a password
-	# .ssh and known_hosts will be removed and the origial .ssh put back, if exited, upon program completion
-
-	local IP=$1
-	echo ""
-	echo "sshpass -p $PROG_USER_PWD scp -o StrictHostKeyChecking=no `pwd`/$PROG_BASE_NAME $PROG_USER@$IP:~"
-	sshpass -p "$PROG_USER_PWD" scp -o StrictHostKeyChecking=no `pwd`/$PROG_BASE_NAME "$PROG_USER@$IP:~"
-
 }
 #===================================================================================================================
 func_send_public_key_to_slave(){
@@ -298,10 +321,6 @@ func_send_public_key_to_slave(){
 	local IP=$1
 	local PUB_KEY_FILE=/home/$ANSIBLE_UN/.ssh/id_rsa.pub
 	
-#	echo ""
-#	echo "sshpass -p $PROG_USER_PWD scp -o StrictHostKeyChecking=no $PUB_KEY_FILE $PROG_USER@$IP:~"
-#	sshpass -p "$PROG_USER_PWD" scp -o StrictHostKeyChecking=no $PUB_KEY_FILE "$PROG_USER@$IP:~"
-
 	echo ""
 	echo "sshpass -p $ANSIBLE_PWD scp -o StrictHostKeyChecking=no $PUB_KEY_FILE $ANSIBLE_UN@$IP:~"
 	sshpass -p "$ANSIBLE_PWD" scp -o StrictHostKeyChecking=no $PUB_KEY_FILE "$ANSIBLE_UN@$IP:~"
@@ -315,56 +334,6 @@ func_copy_master_pub_key_to_slave_auth_keys(){
 	echo ""
 	echo "sshpass -p "$ANSIBLE_PWD" ssh -o StrictHostKeyChecking=no "$ANSIBLE_UN@$REMOTE_IP" 'cat /home/$ANSIBLE_UN/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys'"
 	sshpass -p "$ANSIBLE_PWD" ssh -o StrictHostKeyChecking=no "$ANSIBLE_UN@$REMOTE_IP" "cat /home/$ANSIBLE_UN/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys"
-}
-#===================================================================================================================
-func_ssh-copy-id_slave(){
-
-	local REMOTE_IP=$1
-	local PAUSE=45
-	local EXPECT_TIMEOUT=120
-	# PROG_USER_SELECTION=3 is required to force slave to run proper functions
-	PROG_USER_SELECTION=3
-
-	echo ""
-	echo "./expect-ssh-copy-id-script.sh $ANSIBLE_UN $ANSIBLE_PWD $REMOTE_IP"
-	echo ""
-
-	./expect-ssh-copy-id-script.sh $ANSIBLE_UN $ANSIBLE_PWD $REMOTE_IP
-}
-#===================================================================================================================
-func_execute_script_on_slave(){
-
-	local REMOTE_IP=$1
-	local PAUSE=45
-	local EXPECT_TIMEOUT=120
-	# PROG_USER_SELECTION=3 is required to force slave to run proper functions
-	PROG_USER_SELECTION=3
-
-	echo ""
-	echo "./expect-script.sh $ANSIBLE_UN $ANSIBLE_PWD $PROG_USER_SELECTION $SLAVE_FILE $REMOTE_IP $PROG_USER $PROG_USER_PWD $EXPECT_TIMEOUT $SHOW_EXPECT_SCRIPT_MSG"
-	echo ""
-
-	./expect-script.sh $ANSIBLE_UN $ANSIBLE_PWD $PROG_USER_SELECTION $SLAVE_FILE $REMOTE_IP $PROG_USER $PROG_USER_PWD $EXPECT_TIMEOUT $SHOW_EXPECT_SCRIPT_MSG
-}
-#===================================================================================================================
-func_retrieve_slave_log_file(){
-
-	# to void having to set the master's public key in the slave's known_host file by using scp to send
-	# the slave's log file to the master, just let the master retrieve it, since the master's .ssh directory
-	# is going to be replaced with it original .ssh, if it existed, anyway
-
-	local IP=$1
-	echo ""
-	echo "sshpass -p $PROG_USER_PWD scp -o StrictHostKeyChecking=no $PROG_USER@$IP:~/$IP.log `pwd`/files_output"
-	sshpass -p $PROG_USER_PWD scp -o StrictHostKeyChecking=no $PROG_USER@$IP:~/$IP.log `pwd`/files_output
-}
-#===================================================================================================================
-func_remove_slave_log_file(){
-
-	local IP=$1
-	echo ""
-	echo "sshpass -p $PROG_USER_PWD ssh -o StrictHostKeyChecking=no $PROG_USER@$IP rm -f $IP.log"
-	sshpass -p $PROG_USER_PWD ssh -o StrictHostKeyChecking=no $PROG_USER@$IP "rm -f $IP.log"
 }
 #===================================================================================================================
 func_ssh-keyscan_ansible(){
@@ -483,6 +452,9 @@ func_setup_master(){
 func_prep_master_to_setup_slaves(){
 
 	# preparing the master to setup the slaves
+
+	# check that the slaves have finished running their ansible setup scripts
+	
 
 	func_install_sshpass
 	# func_install_expect
