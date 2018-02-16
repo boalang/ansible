@@ -539,5 +539,5 @@ fi
 func_update_restart_sshd
 
 # signal script is done
-echo `date` > $HOST_NAME_SHORT.txt
+echo `date` > /tmp/$HOST_NAME_SHORT.txt
 
