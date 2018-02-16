@@ -3,7 +3,7 @@
 # To install user ansible on all nodes and Ansible on master node, so that Ansible can be used to setup hadoop.
 #
 # run as
-# /path-to-script/cluster-setup.sh {master|slave} NUM_SLAVES
+# /path-to-script/cluster-setup.sh {<master-name>|<slave-name-prefix>} NUM_SLAVES
 
 
 ####################################################################################################################
@@ -14,17 +14,12 @@ PROG_BASE_NAME=$(basename $0)
 ANSIBLE_UN="ansible"
 ANSIBLE_PWD="$ANSIBLE_UN"
 
-# default value is setup master
-PROG_USER_SELECTION=$1
-
-NUM_SLAVES=$2
-# just assume the prefix is slave for now
-SLAVE_NAME_PREFIX="slave"
-MASTER_NAME_PREFIX="master"
+MASTER_NAME=$1
+SLAVE_NAME_PREFIX=$2
+NUM_SLAVES=$3
 SLAVE_FILE="slaves.txt"
 
 PROG_USER=`logname`
-PROG_USER_PWD="not set"
 HOST_IP=`hostname -I`
 HOST_NAME=`hostname`
 HOST_NAME_SHORT=`hostname -s`
@@ -34,7 +29,7 @@ HOST_NAME_SHORT=`hostname -s`
 ####################################################################################################################
 func_create_slaves_file(){
 	
-	for (( i=0; i<$NUM_SLAVES; i=i+1 )); do
+	for (( i=1; i<=$NUM_SLAVES; i=i+1 )); do
 		echo "$SLAVE_NAME_PREFIX$i" >> $SLAVE_FILE
 	done
 }
@@ -220,7 +215,7 @@ func_install_ansible_software(){
 ####################################################################################################################
 # Begin Functions to Prepare the Master to setup Slaves
 ####################################################################################################################
-func_wait_for_slaves_to_boot(){
+func_wait_for_slave_setup_scripts_to_finish(){
 
 	# This should be called before the master runs its installation script, to ensure that all of the slaves 
 	# installation scripts have finished, before beginning its own ansible installation script.
@@ -255,7 +250,7 @@ func_wait_for_slaves_to_boot(){
 			break
 		fi
 
-		if [ $cnt -eq ($MAX_TRIES - 1) ];then
+		if [ $cnt -eq $MAX_TRIES-1 ];then
 			ERR_MSG="Timeout reached waiting for slave files to complete ansible setup scripts. Exit master setup script."
 			echo $ERR_MSG >> /users/$USER/error.log
 			echo $ERR_MSG >> /tmp/error.log
@@ -272,16 +267,6 @@ func_install_sshpass(){
 	echo "apt-get install -y sshpass"
 	echo ""
 	apt-get install -y sshpass
-}
-#===================================================================================================================
-func_install_expect(){
-
-	# install expect to facilitate logging into the user account of slave nodes and running setup script with sudo
-
-	echo ""
-	echo "apt-get install -y expect"
-	echo ""
-	apt-get install -y expect
 }
 #===================================================================================================================
 func_setup_slaves(){
@@ -357,50 +342,6 @@ func_ssh-keyscan_ansible(){
 	ssh-keyscan -4 -f "$IPV4" >> "/home/$ANSIBLE_UN/.ssh/known_hosts"
 
 }
-#===================================================================================================================
-func_remove_sshpass(){
-
-	echo ""
-	echo "apt-get purge -y sshpass"
-	echo ""
-	apt-get purge -y sshpass
-}
-#===================================================================================================================
-func_remove_public_key_file(){
-	
-	# remove master_id_rsa.pub
-	echo ""
-	echo "rm -f `pwd`/master_id_rsa.pub"
-	rm -f `pwd`/master_id_rsa.pub
-}
-#===================================================================================================================
-func_test_ansible_ssh(){
-
-	# process addresses
-	# invoke a script as the user ansible
-	# that script then uses an expect script to log into each node in the cluster and verify that
-	# 	the user ansible is able to ssh without a password to each node.
-
-	echo ""
-	echo "** Testing passwordless ssh for user $ANSIBLE_UN **"
-
-	# process the master
-	su -c './test-ansible-ssh.sh ansible 0' $ANSIBLE_UN
-
-	# process slaves
-	su -c './test-ansible-ssh.sh ansible 1' $ANSIBLE_UN
-
-	# make sure all of the ssh log files are owned by $PROG_USER
-	chown -R $PROG_USER.$PROG_USER `pwd`/files_output
-}
-#===================================================================================================================
-func_remove_expect(){
-
-	echo ""
-	echo "apt-get purge -y expect"
-	echo ""
-	apt-get purge -y expect
-}
 ####################################################################################################################
 # End Functions to Prepare the Master to setup Slaves
 ####################################################################################################################
@@ -415,19 +356,6 @@ func_install_python(){
 	echo "apt-get install -y python"
 	echo ""
 	apt-get install -y python
-}
-#===================================================================================================================
-func_get_master_rsa_pub(){
-
-	# set the public key for the user on the master node
-	echo ""
-	echo "cat `pwd`/id_rsa.pub >> /home/$ANSIBLE_UN/.ssh/authorized_keys"
-	cat `pwd`/id_rsa.pub >> /home/"$ANSIBLE_UN"/.ssh/authorized_keys
-
-	# and remove the master's public key
-	echo ""
-	echo "rm -f `pwd`/id_rsa.pub"
-	rm -f `pwd`/id_rsa.pub
 }
 ####################################################################################################################
 # End Functions to setup Slaves
@@ -454,10 +382,9 @@ func_prep_master_to_setup_slaves(){
 	# preparing the master to setup the slaves
 
 	# check that the slaves have finished running their ansible setup scripts
-	
+	func_wait_for_slave_setup_scripts_to_finish
 
 	func_install_sshpass
-	# func_install_expect
 
 	# for each slave, copy over script, execute script using expect script, remove script
 	func_setup_slaves
@@ -465,18 +392,6 @@ func_prep_master_to_setup_slaves(){
 	# collect all the host keys from slave nodes
 	func_ssh-keyscan_ansible
 
-	# unprepare master for slave update
-	# func_remove_sshpass
-
-	# i'm not sure this needs to be removed, since it will be a fresh install
-	# func_remove_public_key_file
-
-	# test that the user ansible can ssh into all nodes (master and slaves)
-	####### leave this for now, but comment out once it seems to be working
-	# func_test_ansible_ssh
-
-	# expect needed for ssh testing, so remove last
-	# func_remove_expect
 }
 #===================================================================================================================
 func_run_on_slaves(){
@@ -488,15 +403,13 @@ func_run_on_slaves(){
 	func_create_ansible_user
 	func_set_ansible_sudoer_privileges
 	func_create_set_ssh_keys_localhost
-	# func_get_master_rsa_pub	
-	# func_slave_script_delete_yourself
 }
 ####################################################################################################################
 # End Sequences of Functions to setup Cluster
 ####################################################################################################################
 
 
-if [[ $PROG_USER_SELECTION == "master" ]]; then
+if [[ $MASTER_NAME -eq "master" || $MASTER_NAME -eq "head" ]]; then
 
 	func_setup_master
 	func_prep_master_to_setup_slaves
@@ -511,5 +424,5 @@ fi
 func_update_restart_sshd
 
 # signal script is done
-echo `date` > /tmp/$HOST_NAME_SHORT.txt
+echo `date` > /tmp/"$HOST_NAME_SHORT.txt"
 
