@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Purpose
 # To manage the cluster setup.
 #
