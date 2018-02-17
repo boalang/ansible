@@ -339,7 +339,11 @@ func_ssh-keyscan_ansible(){
 	# note:  as is, only the host name will be added to the known_hosts file, but the ip address would be helpful too
 	# run the keyscan command again, but this time collect the keys asociated with the ip addresses
 
-	# get the ip v4 version
+	# Get the ip v4 version
+	# Ubuntu continues to give warnings "hosts command not found", although the command continues to execute
+	# correctly, and it is as specified in the man page for getent
+	# possible alternative if getent fails to execute correctly
+	# cat /etc/hosts | grep '#' -v | grep '^1' | grep '^127' -v | cut -d' ' -f1
 	IPV4=getent hosts | cut -d' ' -f1
 
 	echo ""

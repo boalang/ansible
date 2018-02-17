@@ -14,17 +14,19 @@
 # Either way the first argument will determine the scripts execution path.  
 # The slave script will ignore the last three agruments.
 
+PATH_TO_CL_DIR=/tmp/ansible-master/cloudlab
+
 # testing
-echo "$1 : $2 : $3 : $4" > var-values.txt
+echo "$1 : $2 : $3 : $4" > $PATH_TO_CL_DIR/var-values.txt
 
 # setup ansible
-./ansible-setup.sh  $1 $2 $3 $4 2>&1 | tee ansible-setup.log
+$PATH_TO_CL_DIR/ansible-setup.sh  $1 $2 $3 $4 2>&1 | tee $PATH_TO_CL_DIR/ansible-setup.log
 
 # setup / format the disk drive (not hadoop formatting).
-# ./init-hdfs.sh
+# $PATH_TO_CL_DIR/init-hdfs.sh
 
 # prepare hadoop for installation
 # rename and move ansible dir
-# mv /tmp/ansible-master /tmp/ansible
-# mv /tmp/ansible /home/ansible/ansible
+mv /tmp/ansible-master /tmp/ansible
+mv /tmp/ansible /home/ansible/
 
