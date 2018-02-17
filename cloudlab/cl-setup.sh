@@ -16,7 +16,7 @@
 echo "$1 : $2 : $3 : $4" > var-values.txt
 
 # setup ansible
-./ansible-setup.sh  $1 $2 $3 $4
+./ansible-setup.sh  $1 $2 $3 $4 2>&1 | tee ansible-setup.log
 
 # setup / format the disk drive (not hadoop formatting).
 # ./init-hdfs.sh
