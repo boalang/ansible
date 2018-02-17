@@ -23,10 +23,16 @@ echo "$1 : $2 : $3 : $4" > $PATH_TO_CL_DIR/var-values.txt
 $PATH_TO_CL_DIR/ansible-setup.sh  $1 $2 $3 $4 2>&1 | tee $PATH_TO_CL_DIR/ansible-setup.log
 
 # setup / format the disk drive (not hadoop formatting).
-# $PATH_TO_CL_DIR/init-hdfs.sh
+$PATH_TO_CL_DIR/init-hdfs.sh
 
 # prepare hadoop for installation
 # rename and move ansible dir
 mv /tmp/ansible-master /tmp/ansible
 mv /tmp/ansible /home/ansible/
 
+# dynamically create Ansible inventory (hosts) file
+
+# execute high level ansible playbook scripts to install and start hadoop
+
+
+# run Ansible role to install Drupal
