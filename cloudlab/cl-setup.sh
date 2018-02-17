@@ -22,5 +22,7 @@ echo "$1 : $2 : $3 : $4" > var-values.txt
 ./init-hdfs.sh
 
 # prepare hadoop for installation
-mkdir -p /home/ansible/ansible
-mv /tmp/ansible-master /home/ansible/ansible
+# rename and move ansible dir
+mv /tmp/ansible-master /tmp/ansible
+mv /tmp/ansible /home/ansible/
+

@@ -380,18 +380,10 @@ func_setup_master(){
 func_prep_master_to_setup_slaves(){
 
 	# preparing the master to setup the slaves
-
-	# check that the slaves have finished running their ansible setup scripts
-	func_wait_for_slave_setup_scripts_to_finish
-
 	func_install_sshpass
-
-	# for each slave, copy over script, execute script using expect script, remove script
+	func_wait_for_slave_setup_scripts_to_finish
 	func_setup_slaves
-
-	# collect all the host keys from slave nodes
 	func_ssh-keyscan_ansible
-
 }
 #===================================================================================================================
 func_run_on_slaves(){
