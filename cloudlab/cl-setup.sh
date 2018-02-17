@@ -24,5 +24,5 @@ echo "$1 : $2 : $3 : $4" > var-values.txt
 # prepare hadoop for installation
 # rename and move ansible dir
 mv /tmp/ansible-master /tmp/ansible
-mv /tmp/ansible /home/ansible/
+mv /tmp/ansible /home/ansible
 

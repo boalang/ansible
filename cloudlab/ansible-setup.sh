@@ -17,7 +17,7 @@ ANSIBLE_PWD="$ANSIBLE_UN"
 MASTER_NAME=$1
 SLAVE_NAME_PREFIX=$2
 NUM_SLAVES=$3
-SLAVE_FILE="slaves.txt"
+SLAVE_FILE="/tmp/slaves.txt"
 
 PROG_USER=`logname`
 HOST_IP=`hostname -I`
@@ -42,7 +42,11 @@ func_print_script_info(){
 	echo "Script user:	$PROG_USER"
 	echo "Running as:	$USER"
 	echo "Running on:	`hostname -f`"
-	echo "IP-Address:	$HOST_IP"	
+	echo "IP-Address:	$HOST_IP"
+	echo "Master name:	$MASTER_NAME"
+	echo "Slave Prefix:  	$SLAVE_NAME_PREFIX"
+	echo "Num Slaves:	$NUM_SLAVES"
+	echo "Slave File:	$SLAVE_FILE"
 	echo "###############################################"
 	echo ""
 }
@@ -226,36 +230,37 @@ func_wait_for_slave_setup_scripts_to_finish(){
 	# We'll copy these scripts to /tmp on the master node.  If the file does not yet exist on the slave, then 
 	# nothing will be returned to /tmp on the master and we'll sleep for a few seconds and then try again.
 
-	# we're going to allow for a maximum of 10 iterations, before throwing an error and quitting
-	# assume that all of the slaves are "not done" yet
-	NOT_DONE=$NUM_SLAVES
+	# allow for a maximum of 10 iterations, before throwing an error and quitting
+	NUM_SLAVES_DONE=0
 	MAX_TRIES=10
 	for (( cnt=0; cnt<$MAX_TRIES; cnt=cnt+1 )); do
 	
 		for SLAVE_NAME in `cat $SLAVE_FILE`; do
+
 			FILE_TO_TEST="/tmp/$SLAVE_NAME.txt"
 
-			# if the file exists
 			if [[ -e $FILE_TO_TEST ]]; then
-				# decrement not done
-				NOT_DONE=$NOT_DONE-1
+				NUM_SLAVES_DONE=$((NUM_SLAVES_DONE + 1))
 			else
-				# try to retrieve it	
+				echo ""	
+				echo "Attempting to retrieve $FILE_TO_TEST"
 				sshpass -p "$ANSIBLE_PWD" scp -o StrictHostKeyChecking=no "$ANSIBLE_UN@$SLAVE_NAME:$FILE_TO_TEST" $FILE_TO_TEST
 			fi
 		done
-		
-		if [ $NOT_DONE -eq 0 ]; then
+
+		if (($NUM_SLAVES_DONE == $NUM_SLAVES)); then
 			# slave are done
 			break
 		fi
 
-		if [ $cnt -eq $MAX_TRIES-1 ];then
+		if (($cnt == $MAX_TRIES-1));then
 			ERR_MSG="Timeout reached waiting for slave files to complete ansible setup scripts. Exit master setup script."
-			echo $ERR_MSG >> /users/$USER/error.log
 			echo $ERR_MSG >> /tmp/error.log
 			exit 1
 		fi
+
+		# increment the time to sleep in each iteration, in case of slight delay don't want to just exit 1
+		sleep $((cnt*2))
 	done
 }
 #===================================================================================================================
@@ -400,16 +405,16 @@ func_run_on_slaves(){
 # End Sequences of Functions to setup Cluster
 ####################################################################################################################
 
+if [ -z "$MASTER_NAME" ]; then
+	echo "Missing first argument"
+	exit 1
+fi
 
-if [[ $MASTER_NAME -eq "master" || $MASTER_NAME -eq "head" ]]; then
-
+if [ $MASTER_NAME == "master" -o $MASTER_NAME == "head" ]; then
 	func_setup_master
 	func_prep_master_to_setup_slaves
-
 else
-
 	func_run_on_slaves	
-
 fi
 
 # restart ssh
