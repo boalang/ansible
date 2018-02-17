@@ -19,10 +19,10 @@ echo "$1 : $2 : $3 : $4" > var-values.txt
 ./ansible-setup.sh  $1 $2 $3 $4
 
 # setup / format the disk drive (not hadoop formatting).
-./init-hdfs.sh
+# ./init-hdfs.sh
 
 # prepare hadoop for installation
 # rename and move ansible dir
-mv /tmp/ansible-master /tmp/ansible
-mv /tmp/ansible /home/ansible
+# mv /tmp/ansible-master /tmp/ansible
+# mv /tmp/ansible /home/ansible/ansible
 
