@@ -22,7 +22,7 @@ MASTER_NAME=$1
 SLAVE_NAME_PREFIX=$2
 NUM_SLAVES=$3
 HADOOP_VERSION=$4
-TESTING=$5
+
 
 # testing
 echo "$MASTER_NAME : $SLAVE_NAME_PREFIX : $NUM_SLAVES : $HADOOP_VERSION" > $PATH_TO_CL_TMP/var-values.txt
@@ -38,10 +38,7 @@ mv /tmp/ansible /home/ansible/
 chown -R ansible.ansible /home/ansible
 
 # setup / format the disk drive (not hadoop formatting).
-if [ -z "$TESTING" ];then
-	# the argument will be empty when running on cloudlab
-	$PATH_TO_CL_ANSIBLE/init-hdfs.sh
-fi
+$PATH_TO_CL_ANSIBLE/init-hdfs.sh
 
 #########################################################################################################
 # slave nodes stop here
