@@ -7,7 +7,7 @@
 ########################################################################################
 
 - name: Compressed file setup for Hadoop {{ hadoop_version }}
-  hosts: head
+  hosts: name_node
   remote_user: ansible
   become_user: root
   become: true

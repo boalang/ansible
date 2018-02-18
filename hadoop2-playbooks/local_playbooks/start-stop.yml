@@ -151,7 +151,7 @@
 # jobhistory
 ########################################################################################
 - name: "{{ start_stop_cluster }} history server"
-  hosts: head
+  hosts: name_node
   remote_user: ansible
   become_user: "{{ hadoop_user_name }}"
   become: true

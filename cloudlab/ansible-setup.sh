@@ -194,6 +194,12 @@ func_update_restart_sshd(){
 	# for sysvinit / upstart, ubuntu 14
 	# sudo /etc/init.d/ssh restart
 }
+#===================================================================================================================
+func_set_ansible_home_ownership(){
+
+	# ensure ansible is the owner of /home/ansible	
+	chown -R $ANSIBLE_UN.$ANSIBLE_PWD /home/ansible
+}
 ####################################################################################################################
 # End General Functions
 ####################################################################################################################
@@ -421,9 +427,10 @@ else
 	func_run_on_slaves	
 fi
 
+# ensure ansible owns /home/ansible
+func_set_ansible_home_ownership
 # restart ssh
 func_update_restart_sshd
-
 # signal script is done
 echo `date` > /tmp/"$HOST_NAME_SHORT.txt"
 

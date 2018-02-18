@@ -138,7 +138,7 @@
 # jobhistory
 ########################################################################################
 - name: Testing for stopped job history server
-  hosts: head
+  hosts: name_node
   remote_user: ansible
   become_user: root
   become: true

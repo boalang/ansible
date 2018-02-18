@@ -26,9 +26,9 @@ hadoop_HADOOP_LOG_DIR: "{{ hadoop_data_base_dir }}1/{{ hadoop_version }}/logs"
 hadoop_HADOOP_PID_DIR: "{{ hadoop_data_base_dir }}1/{{ hadoop_version }}/pids"
 mapred_system_dir: /data1/{{ hadoop_version }}/mapred/system
 
-hadoop_name_node: head
-hadoop_secondary_name_node: head
-hadoop_data_node_base_name: boa-
+hadoop_name_node: "{{ hadoop_name_node }}"
+hadoop_secondary_name_node: "{{ hadoop_secondary_name_node }}"
+hadoop_data_node_base_name: "{{ hadoop_data_node_base_name }}" # eg. boa-
 hadoop_num_data_node: 15
 hadoop_num_drives_per_node: 2
 
