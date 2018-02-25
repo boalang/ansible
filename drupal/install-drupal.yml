@@ -71,11 +71,9 @@
 #      group: ansible
 #      mode: 0666
 
-  - name:  rm /var/www/vhosts/localhost/scripts
-    file:
-      path: /var/www/vhosts/localhost/scripts
-      owner: ansible
-      group: ansible
-      state: absent
-      recurse: yes
+#  - name:  rm /var/www/vhosts/localhost/scripts
+#    file:
+#      path: /var/www/vhosts/localhost/scripts
+#      state: absent
+#      recurse: yes
 
