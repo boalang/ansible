@@ -42,34 +42,34 @@ fi
 #########################################################################################################
 # dynamically create Ansible inventory (hosts) file
 # remove default hosts file and create a new one
-PATH_TO_HOSTS_FILE=$PATH_TO_ANSIBLE_DIR/local_hosts/hosts
-rm -f $PATH_TO_HOSTS_FILE
+LOCAL_HOSTS_FILE=$PATH_TO_ANSIBLE_DIR/local_hosts/hosts
+rm -f $LOCAL_HOSTS_FILE
 # note: 
 # CL seems to setup default ssh port, if that changes you'll need to update here
 # Best to pass in as a parameter.
 
 echo ""
-echo "[name_node]" | tee -a $PATH_TO_HOSTS_FILE
-echo "$MASTER_NAME ansible_port=22" | tee -a $PATH_TO_HOSTS_FILE
-echo "# port must match port variable defined in ./local_variable_files/hadoop-vars.yml" | tee -a $PATH_TO_HOSTS_FILE
-echo "" >> $PATH_TO_HOSTS_FILE
+echo "[name_node]" | tee -a $LOCAL_HOSTS_FILE
+echo "$MASTER_NAME ansible_port=22" | tee -a $LOCAL_HOSTS_FILE
+echo "# port must match port variable defined in ./local_variable_files/hadoop-vars.yml" | tee -a $LOCAL_HOSTS_FILE
+echo "" >> $LOCAL_HOSTS_FILE
 
-echo "[secondary_nn]" | tee -a $PATH_TO_HOSTS_FILE
-echo "$MASTER_NAME ansible_port=22" | tee -a $PATH_TO_HOSTS_FILE
-echo "# port must match port variable defined in ./local_variable_files/hadoop-vars.yml" | tee -a $PATH_TO_HOSTS_FILE
-echo "" >> $PATH_TO_HOSTS_FILE
+echo "[secondary_nn]" | tee -a $LOCAL_HOSTS_FILE
+echo "$MASTER_NAME ansible_port=22" | tee -a $LOCAL_HOSTS_FILE
+echo "# port must match port variable defined in ./local_variable_files/hadoop-vars.yml" | tee -a $LOCAL_HOSTS_FILE
+echo "" >> $LOCAL_HOSTS_FILE
 
-echo "[resourcemanager]" | tee -a $PATH_TO_HOSTS_FILE
-echo "$MASTER_NAME ansible_port=22" | tee -a $PATH_TO_HOSTS_FILE
-echo "# port must match port variable defined in ./local_variable_files/hadoop-vars.yml" | tee -a $PATH_TO_HOSTS_FILE
-echo "" >> $PATH_TO_HOSTS_FILE
+echo "[resourcemanager]" | tee -a $LOCAL_HOSTS_FILE
+echo "$MASTER_NAME ansible_port=22" | tee -a $LOCAL_HOSTS_FILE
+echo "# port must match port variable defined in ./local_variable_files/hadoop-vars.yml" | tee -a $LOCAL_HOSTS_FILE
+echo "" >> $LOCAL_HOSTS_FILE
 
-echo "[data_nodes]" | tee -a $PATH_TO_HOSTS_FILE
+echo "[data_nodes]" | tee -a $LOCAL_HOSTS_FILE
 for (( cnt=1; cnt<=$NUM_SLAVES; cnt=cnt+1 )); do
-	echo "$SLAVE_NAME_PREFIX$cnt ansible_port=22" | tee -a $PATH_TO_HOSTS_FILE
+	echo "$SLAVE_NAME_PREFIX$cnt ansible_port=22" | tee -a $LOCAL_HOSTS_FILE
 done
 
-echo "" >> $PATH_TO_HOSTS_FILE
+echo "" >> $LOCAL_HOSTS_FILE
 
 #########################################################################################################
 
@@ -82,11 +82,11 @@ echo "" >> $PATH_TO_HOSTS_FILE
 cd /home/ansible/ansible/hadoop"$HADOOP_MAJOR_VERSION"-playbooks/local_scripts
 
 # execute high level ansible playbook scripts to install and start hadoop
-./1-run-compressed-file-setup-playbook.sh 	$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a $PATH_TO_ANSIBLE_DIR/hadoop-install-script1.log
-./2-run-deploy-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIXN | tee -a $PATH_TO_ANSIBLE_DIR/hadoop-install-script2.log
-./3-run-create-conf-master-playbook.sh 		$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a $PATH_TO_ANSIBLE_DIR/hadoop-install-script3.log
-./4-run-set-2nn-ssh-playbook.sh 		$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX| tee -a $PATH_TO_ANSIBLE_DIR/hadoop-install-script4.log
-./5-run-format-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a $PATH_TO_ANSIBLE_DIR/hadoop-install-script5.log
-./6-run-boa-setup-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX| tee -a $PATH_TO_ANSIBLE_DIR/hadoop-install-script6.log
-./7-run-start-stop-playbook.sh 			$HADOOP_VERSION start  $MASTER_NAME $SLAVE_NAME_PREFIX| tee -a $PATH_TO_ANSIBLE_DIR/hadoop-install-script7.log
+./1-run-compressed-file-setup-playbook.sh 	$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script1.log
+./2-run-deploy-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIXN | tee -a /tmp/hadoop-install-script2.log
+./3-run-create-conf-master-playbook.sh 		$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script3.log
+./4-run-set-2nn-ssh-playbook.sh 		$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script4.log
+./5-run-format-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script5.log
+./6-run-boa-setup-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script6.log
+./7-run-start-stop-playbook.sh 			$HADOOP_VERSION start  $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script7.log
 
