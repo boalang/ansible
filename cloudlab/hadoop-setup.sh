@@ -84,7 +84,7 @@ cd /home/ansible/ansible/hadoop"$HADOOP_MAJOR_VERSION"-playbooks/local_scripts
 # execute high level ansible playbook scripts to install and start hadoop
 ./1-run-compressed-file-setup-playbook.sh 	$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script1.log
 ./2-run-deploy-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIXN | tee -a /tmp/hadoop-install-script2.log
-./3-run-create-conf-master-playbook.sh 		$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script3.log
+#./3-run-create-conf-master-playbook.sh 		$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script3.log
 ./4-run-set-2nn-ssh-playbook.sh 		$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script4.log
 ./5-run-format-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script5.log
 ./6-run-boa-setup-playbook.sh 			$HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX | tee -a /tmp/hadoop-install-script6.log

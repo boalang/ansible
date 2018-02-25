@@ -26,7 +26,7 @@ HADOOP_VERSION=$4
 #########################################################################################################
 
 # setup ansible
-$PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a $PATH_TO_CL_TMP/ansible-setup.log
+$PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
 #########################################################################################################
 
