@@ -1,0 +1,4 @@
+---
+# The values mentioned by the author at the bottom of https://galaxy.ansible.com/geerlingguy/php/
+# that could go in here are already defined in various sections of the playbook.
+# For the moment, see if these default values suffice.

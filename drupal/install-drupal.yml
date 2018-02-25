@@ -1,0 +1,80 @@
+---
+
+- name: Install Drupal using roles provided by geerlingguy
+  hosts: drupal
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: yes
+
+# roles from:  https://galaxy.ansible.com/geerlingguy
+  roles:
+    - ./roles/geerlingguy.apache
+
+    - ./roles/geerlingguy.mysql
+
+    - ./roles/geerlingguy.php
+
+    - ./roles/geerlingguy.php-mysql
+
+    - ./roles/geerlingguy.git
+
+    - ./roles/geerlingguy.composer
+
+    - ./roles/geerlingguy.drush
+
+    - ./roles/geerlingguy.drupal
+
+# there are still a few items that need to be taken care of to prep for use.
+  tasks:
+  - name: create /var/www/vhosts/localhost/drupal/sites/all/modules/boa
+    file:
+      path: /var/www/vhosts/localhost/drupal/sites/all/modules/boa
+      owner: ansible
+      group: ansible
+      state: directory
+      mode: 0775
+      recurse: yes
+
+  - name:  'https://github.com/boalang/drupal.git'
+    git:
+      repo: 'https://github.com/boalang/drupal.git'
+      dest: /var/www/vhosts/localhost/drupal/sites/all/modules/boa
+      version: master
+      force: yes
+
+  - name: create /var/www/vhosts/localhost/drupal/sites/default/files
+    file:
+      path: /var/www/vhosts/localhost/drupal/sites/default/files
+      owner: ansible
+      group: ansible
+      state: directory
+      mode: 0777
+      recurse: yes
+
+  - name:  cp default.settings.php to settings.php
+    copy:
+      src: /var/www/vhosts/localhost/drupal/sites/default/default.settings.php
+      dest: /var/www/vhosts/localhost/drupal/sites/default/settings.php
+      owner: ansible
+      group: ansible
+      mode: 0666
+
+  - name:  cp /var/www/vhosts/localhost/scripts/* /var/www/vhosts/localhost/drupal/scripts
+    copy:
+      src: /var/www/vhosts/localhost/scripts/
+      dest: /var/www/vhosts/localhost/drupal/scripts
+      owner: ansible
+      group: ansible
+      mode: 0666
+
+  - name:  rm /var/www/vhosts/localhost/scripts
+    file:
+      path: /var/www/vhosts/localhost/scripts
+      owner: ansible
+      group: ansible
+      state: absent
+      recurse: yes
+

@@ -420,7 +420,10 @@ if [ -z "$MASTER_NAME" ]; then
 	exit 1
 fi
 
-if [ $MASTER_NAME == "master" -o $MASTER_NAME == "head" ]; then
+# using *"var"* to test for master or head in the master/head node name
+# to allow multiple versions of testing nodes
+# actualy nodes likely just called master or head
+if [[ $MASTER_NAME == *"master"* || $MASTER_NAME == *"head"* ]]; then
 	func_setup_master
 	func_prep_master_to_setup_slaves
 else

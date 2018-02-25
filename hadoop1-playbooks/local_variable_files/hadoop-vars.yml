@@ -28,7 +28,8 @@ mapred_system_dir: /data1/{{ hadoop_version }}/mapred/system
 
 hadoop_name_node: "{{ hadoop_name_node }}"
 hadoop_secondary_name_node: "{{ hadoop_secondary_name_node }}"
-hadoop_data_node_base_name: "{{ hadoop_data_node_base_name }}" # eg. boa-
+# eg. boa-
+hadoop_data_node_base_name: "{{ hadoop_data_node_base_name }}"
 hadoop_num_data_node: 15
 hadoop_num_drives_per_node: 2
 

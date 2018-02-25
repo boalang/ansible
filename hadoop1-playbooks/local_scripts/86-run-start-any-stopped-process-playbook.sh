@@ -52,8 +52,8 @@ c=$(echo -n $1 | cut -c5)
 #fi
 
 HADOOP_NN=$3
-HADOOP_2NN=$4
-SLAVE_NODE_PREFIX=$5
+HADOOP_2NN=$5
+SLAVE_NODE_PREFIX=$4
 
 # test if the head/master name is specified and use default if now
 if [ -z "$3" ]; then
@@ -61,12 +61,12 @@ if [ -z "$3" ]; then
 fi
 
 # same for secondary nn
-if [ -z "$4" ]; then
+if [ -z "$5" ]; then
 	HADOOOP_2NN=$HADOOP_NN
 fi
 
 # same for secondary nn
-if [ -z "$5" ]; then
+if [ -z "$4" ]; then
 	SLAVE_NODE_PREFIX="boa-"
 fi
 

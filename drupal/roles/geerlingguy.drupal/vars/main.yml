@@ -1,0 +1,19 @@
+---
+# example vars/main.yml from https://galaxy.ansible.com/geerlingguy/drupal/
+
+drupal_install_site: true
+drupal_build_composer_project: true
+#drupal_composer_install_dir: "/var/www/drupal"
+
+# keep this in sync with geerlingguy.apache/vars/main.yml
+drupal_composer_install_dir: "/var/www/vhosts/localhost/drupal"
+
+drupal_core_path: "{{ drupal_composer_install_dir }}/web"
+#drupal_domain: "example.com"
+
+# i think drupal_domain can be 127.0.0.1 or localhost for testing,
+# but I'll need to use sed to update it dynamically to the public
+# domain when running on cloudlab (i think).
+#
+# i used localhost for the virtual host in the apache role, so see if it helps here.
+drupal_domain: "localhost"

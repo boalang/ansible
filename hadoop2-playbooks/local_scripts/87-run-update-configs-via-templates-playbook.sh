@@ -40,8 +40,8 @@ b=$(echo -n $1 | cut -c3)
 c=$(echo -n $1 | cut -c5)
 
 HADOOP_NN=$2
-HADOOP_2NN=$3
-SLAVE_NODE_PREFIX=$4
+HADOOP_2NN=$4
+SLAVE_NODE_PREFIX=$3
 HADOOP_RM=$5
 
 # test if the head/master name is specified and use default if now
@@ -55,12 +55,12 @@ if [ -z "$3" ]; then
 fi
 
 # same for slave prefix
-if [ -z "$4" ]; then
+if [ -z "$3" ]; then
 	SLAVE_NODE_PREFIX="boa-"
 fi
 
 # same for RM
-if [ -z "$5" ]; then
+if [ -z "$4" ]; then
 	HADOOP_RM=$HADOOP_NN
 fi
 

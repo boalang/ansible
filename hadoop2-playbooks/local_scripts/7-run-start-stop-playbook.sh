@@ -52,8 +52,8 @@ if [[ "$2" != "start" && "$2" != "stop" ]]; then
 fi
 
 HADOOP_NN=$3
-HADOOP_2NN=$4
-SLAVE_NODE_PREFIX=$5
+HADOOP_2NN=$5
+SLAVE_NODE_PREFIX=$4
 HADOOP_RM=$6
 
 # test if the head/master name is specified and use default if now
@@ -62,12 +62,12 @@ if [ -z "$3" ]; then
 fi
 
 # same for 2NN
-if [ -z "$4" ]; then
+if [ -z "$5" ]; then
 	HADOOOP_2NN=$HADOOP_NN
 fi
 
 # same for slave prefix
-if [ -z "$5" ]; then
+if [ -z "$4" ]; then
 	SLAVE_NODE_PREFIX="boa-"
 fi
 
