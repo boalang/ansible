@@ -68,9 +68,9 @@ drupal_db_user: drupal
 drupal_db_password: drupal
 
 # ****
-#drupal_db_name: drupal
+drupal_db_name: drupal
 # try using example_db for the moment, bc that was the default value for the database name when running the geerlingguy.mysql role
-drupal_db_name: example_db
+# drupal_db_name: example_db
 # ****
 
 drupal_db_backend: mysql
@@ -86,5 +86,7 @@ drupal_site_name: "Drupal"
 drupal_install_profile: standard
 drupal_site_install_extra_args: []
 drupal_enable_modules: []
-drupal_account_name: admin
-drupal_account_pass: admin
+#drupal_account_name: admin
+drupal_account_name: drupal
+#drupal_account_pass: admin
+drupal_account_pass: drupal

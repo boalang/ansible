@@ -17,7 +17,8 @@ __php_packages:
 # https://galaxy.ansible.com/geerlingguy/apache/
 # https://galaxy.ansible.com/geerlingguy/php/
   - libapache2-mod-php7.0
-  - libapache2-mod-fastcgi
+# cloudlab says no package, so just remove for now.  i'm not sure we'll actually need it
+#  - libapache2-mod-fastcgi
 __php_webserver_daemon: "apache2"
 
 # Vendor-specific configuration paths on Debian/Ubuntu make my brain asplode.
