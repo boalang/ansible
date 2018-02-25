@@ -23,14 +23,18 @@ SLAVE_NAME_PREFIX=$2
 NUM_SLAVES=$3
 HADOOP_VERSION=$4
 
+func_cloudlab_setup_log(){
+	echo "$1 $2:  `date`" >> /tmp/cloudlab-setup.log
+}
+
 #########################################################################################################
 
-echo "start ansible-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+func_cloudlab_setup_log "start" "ansible-setup.sh"
 
 # setup ansible
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
-echo "end ansible-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+func_cloudlab_setup_log "end" "ansible-setup.sh"
 
 #########################################################################################################
 
@@ -55,17 +59,17 @@ fi
 # to be sure ansible owns everything in /home/ansible before starting script
 chown -R ansible.ansible /home/ansible
 
-echo "start hadoop-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+func_cloudlab_setup_log "start" "hadoop-setup.sh"
 
 su - ansible -c "$PATH_TO_CL_ANSIBLE/hadoop-setup.sh $HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX $PATH_TO_ANSIBLE_DIR $NUM_SLAVES"
 
-echo "end hadoop-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+func_cloudlab_setup_log "end" "hadoop-setup.sh"
 
 #########################################################################################################
 
-echo "start drupal-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+func_cloudlab_setup_log "start" "drupal-setup.sh"
 
 # ansible to install Drupal (LAMP)
 su - ansible -c "$PATH_TO_CL_ANSIBLE/drupal-setup.sh $MASTER_NAME $PATH_TO_CL_ANSIBLE $PATH_TO_ANSIBLE_DIR"
 
-echo "end drupal-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+func_cloudlab_setup_log "end" "drupal-setup.sh"

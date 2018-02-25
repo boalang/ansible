@@ -18,6 +18,9 @@
   vars:
     ansible_ssh_pipelining: true
 
+
+##############################################
+# this is where the mysql database tables are populated
 - name: Install Drupal with drush.
   command: >
     {{ drush_path }} site-install {{ drupal_install_profile | default('standard') }} -y
@@ -32,6 +35,7 @@
   notify: clear opcache
   when: "'Drupal bootstrap' not in drupal_site_installed.stdout"
   become: no
+##############################################
 
 - name: Install configured modules with drush.
   command: >
