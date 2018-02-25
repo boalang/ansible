@@ -25,8 +25,12 @@ HADOOP_VERSION=$4
 
 #########################################################################################################
 
+echo "start ansible-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+
 # setup ansible
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
+
+echo "end ansible-setup.sh\n`date`" > /tmp/cloudlab-setup.log
 
 #########################################################################################################
 
@@ -51,12 +55,17 @@ fi
 # to be sure ansible owns everything in /home/ansible before starting script
 chown -R ansible.ansible /home/ansible
 
-## *******************************************************************************************************
-# disable hadoop install to test drubal
+echo "start hadoop-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+
 su - ansible -c "$PATH_TO_CL_ANSIBLE/hadoop-setup.sh $HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX $PATH_TO_ANSIBLE_DIR $NUM_SLAVES"
 
+echo "end hadoop-setup.sh\n`date`" > /tmp/cloudlab-setup.log
+
 #########################################################################################################
+
+echo "start drupal-setup.sh\n`date`" > /tmp/cloudlab-setup.log
 
 # ansible to install Drupal (LAMP)
 su - ansible -c "$PATH_TO_CL_ANSIBLE/drupal-setup.sh $MASTER_NAME $PATH_TO_CL_ANSIBLE $PATH_TO_ANSIBLE_DIR"
 
+echo "end drupal-setup.sh\n`date`" > /tmp/cloudlab-setup.log
