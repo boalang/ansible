@@ -62,13 +62,14 @@
       group: ansible
       mode: 0666
 
-  - name:  cp /var/www/vhosts/localhost/scripts/* /var/www/vhosts/localhost/drupal/scripts
-    copy:
-      src: /var/www/vhosts/localhost/scripts/
-      dest: /var/www/vhosts/localhost/drupal/scripts
-      owner: ansible
-      group: ansible
-      mode: 0666
+#
+#  - name:  cp /var/www/vhosts/localhost/scripts/* /var/www/vhosts/localhost/drupal/scripts
+#    copy:
+#      src: /var/www/vhosts/localhost/scripts/
+#      dest: /var/www/vhosts/localhost/drupal/scripts
+#      owner: ansible
+#      group: ansible
+#      mode: 0666
 
   - name:  rm /var/www/vhosts/localhost/scripts
     file:
