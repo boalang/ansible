@@ -5,8 +5,10 @@ mysql_databases:
     collation: latin1_general_ci
 mysql_users:
   - name: drupal
-#    host: "%"
     host: "localhost"
     password: drupal
-#    priv: "example_db.*:ALL"
+    priv: "drupal.*:ALL"
+  - name: drupal
+    host: "%"
+    password: drupal
     priv: "drupal.*:ALL"

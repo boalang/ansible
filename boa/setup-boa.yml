@@ -1,0 +1,91 @@
+---
+# ASSUMES Hadoop 1.2.1
+
+- name: Install the remaining boa items
+  hosts: {{ master_name }}
+  remote_user: ansible
+  become_user: root
+  become: true
+  become_method: sudo 
+  connection: ssh
+  gather_facts: no
+
+  vars_files:
+    - ../hadoop1-playbooks/local_variable_files/hadoop-vars.yml
+
+
+  tasks:
+  - name: create ~/hadoop/bin if does not exist
+    file:
+      path: "{{ hadoop_user_home }}/bin/"
+      state: directory
+      mode: 0755
+
+  - name: boa.cs.iastate.edu/cloudlab/BoaCompilePoller.java
+    get_url: 
+      url: boa.cs.iastate.edu/cloudlab/BoaCompilePoller.java
+      dest: "{{ hadoop_user_home }}/bin/"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: boa.cs.iastate.edu/cloudlab/run-poller.sh
+    get_url: 
+      url: boa.cs.iastate.edu/cloudlab/run-poller.sh
+      dest: "{{ hadoop_user_home }}/bin/"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0755
+
+  - name: boa.cs.iastate.edu/cloudlab/boa-compile.sh
+    get_url: 
+      url: boa.cs.iastate.edu/cloudlab/boa-compile.sh
+      dest: "{{ hadoop_user_home }}/bin/"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0755
+
+  - name: boa.cs.iastate.edu/cloudlab/boa-run.sh
+    get_url: 
+      url: boa.cs.iastate.edu/cloudlab/boa-run.sh
+      dest: "{{ hadoop_user_home }}/bin/"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0755
+
+  - name: create ~/hadoop/complier/current/dist if does not exist
+    file:
+      path: "{{ hadoop_user_home }}/compiler/current/dist/"
+      state: directory
+      mode: 0755
+
+  - name: boa.cs.iastate.edu/cloudlab/boa-compiler.jar
+    get_url: 
+      url: boa.cs.iastate.edu/cloudlab/boa-compiler.jar
+      dest: "{{ hadoop_user_home }}/compiler/current/dist/"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: boa.cs.iastate.edu/cloudlab/boa-runtime.jar
+    get_url: 
+      url: boa.cs.iastate.edu/cloudlab/boa-runtime.jar
+      dest: "{{ hadoop_user_home }}/compiler/current/dist/"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - cron:
+      name: "run BoaCompilerPoller"
+      minute: "*/10"
+      job: "jps|grep BoaCompilePoller >/dev/null ; if [ $? -eq 1 ]; then cd /home/hadoop/bin ; exec ./run-poller >/dev/null 2>&1 ; fi"
+
+  - cron:
+      name: "kill BoaCompilerPoller"
+      minute: 9
+      hour: 4
+      job: "jps|grep BoaCompilePoller|cut -f1 -d' '|xargs kill -9 >/dev/null 2>&1"
+
+
+  - name:  cd /home/hadoop/bin ; exec ./run-poller >/dev/null 2>&1
+    shell:  cd /home/hadoop/bin ; exec ./run-poller >/dev/null 2>&1

@@ -24,9 +24,6 @@ echo "# port must match port variable defined in ./local_variable_files/hadoop-v
 ln -s $PATH_TO_ANSIBLE_DIR/ansible.cfg $PATH_TO_DRUPAL_DIR/roles/ansible.cfg
 ln -s $PATH_TO_ANSIBLE_DIR/ansible.cfg $PATH_TO_DRUPAL_DIR/ansible.cfg
 
-# stop here for now and run ansible playbooks by hand until debugged
-#exit 1
-
 cd $PATH_TO_ANSIBLE_DIR/drupal
 
 ansible-playbook install-drupal.yml | tee -a $DRUPAL_LOG_FILE

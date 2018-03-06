@@ -65,6 +65,15 @@ su - ansible -c "$PATH_TO_CL_ANSIBLE/hadoop-setup.sh $HADOOP_VERSION $MASTER_NAM
 
 func_cloudlab_setup_log "end" "hadoop-setup.sh"
 
+########################################################################################################
+
+func_cloudlab_setup_log "start" "boa-setup.sh"
+
+# setup boa items
+su - ansible -c "$PATH_TO_CL_ANSIBLE/boa-setup.sh $MASTER_NAME $PATH_TO_ANSIBLE_DIR"
+
+func_cloudlab_setup_log "end" "boa-setup.sh"
+
 #########################################################################################################
 
 func_cloudlab_setup_log "start" "drupal-setup.sh"
