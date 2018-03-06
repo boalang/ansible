@@ -5,13 +5,12 @@
 MASTER_NAME=$1
 PATH_TO_ANSIBLE_DIR=$2
 PATH_TO_BOA_DIR=$PATH_TO_ANSIBLE_DIR/boa
-BOA_LOG_FILE=/tmp/boa.log
 
 # create link to ansible.cfg file
 ln -s $PATH_TO_ANSIBLE_DIR/ansible.cfg $PATH_TO_BOA_DIR/ansible.cfg
 
-cd $PATH_TO_BOA_DIR
+echo "MASTER_NAME=$MASTER_NAME" >> /tmp/boa1.log
+echo "PATH_TO_BOA_DIR=$PATH_TO_BOA_DIR" >> /tmp/boa1.log
 
-ansible-playbook setup-boa.yml --extra-vars "master_name=$MASTER_NAME" | tee -a $BOA_LOG_FILE
-
+ansible-playbook $PATH_TO_BOA_DIR/setup-boa.yml --extra-vars "master_name=$MASTER_NAME" | tee -a /tmp/boa2.log
 

@@ -72,6 +72,11 @@ func_cloudlab_setup_log "start" "boa-setup.sh"
 # setup boa items
 su - ansible -c "$PATH_TO_CL_ANSIBLE/boa-setup.sh $MASTER_NAME $PATH_TO_ANSIBLE_DIR"
 
+# runs fine from cli as user hadoop, but cannot overcome errors from within ansible playbook
+# let root su to hadoop and run it
+su - hadoop -c "exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1"
+
+
 func_cloudlab_setup_log "end" "boa-setup.sh"
 
 #########################################################################################################

@@ -2,7 +2,7 @@
 # ASSUMES Hadoop 1.2.1
 
 - name: Install the remaining boa items
-  hosts: {{ master_name }}
+  hosts: name_node
   remote_user: ansible
   become_user: root
   become: true
@@ -21,33 +21,33 @@
       state: directory
       mode: 0755
 
-  - name: boa.cs.iastate.edu/cloudlab/BoaCompilePoller.java
+  - name: http://boa.cs.iastate.edu/cloudlab/BoaCompilePoller.java
     get_url: 
-      url: boa.cs.iastate.edu/cloudlab/BoaCompilePoller.java
+      url: http://boa.cs.iastate.edu/cloudlab/BoaCompilePoller.java
       dest: "{{ hadoop_user_home }}/bin/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
-  - name: boa.cs.iastate.edu/cloudlab/run-poller.sh
+  - name: http://boa.cs.iastate.edu/cloudlab/run-poller.sh
     get_url: 
-      url: boa.cs.iastate.edu/cloudlab/run-poller.sh
+      url: http://boa.cs.iastate.edu/cloudlab/run-poller.sh
       dest: "{{ hadoop_user_home }}/bin/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0755
 
-  - name: boa.cs.iastate.edu/cloudlab/boa-compile.sh
+  - name: http://boa.cs.iastate.edu/cloudlab/boa-compile.sh
     get_url: 
-      url: boa.cs.iastate.edu/cloudlab/boa-compile.sh
+      url: http://boa.cs.iastate.edu/cloudlab/boa-compile.sh
       dest: "{{ hadoop_user_home }}/bin/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0755
 
-  - name: boa.cs.iastate.edu/cloudlab/boa-run.sh
+  - name: http://boa.cs.iastate.edu/cloudlab/boa-run.sh
     get_url: 
-      url: boa.cs.iastate.edu/cloudlab/boa-run.sh
+      url: http://boa.cs.iastate.edu/cloudlab/boa-run.sh
       dest: "{{ hadoop_user_home }}/bin/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
@@ -59,17 +59,17 @@
       state: directory
       mode: 0755
 
-  - name: boa.cs.iastate.edu/cloudlab/boa-compiler.jar
+  - name: http://boa.cs.iastate.edu/cloudlab/boa-compiler.jar
     get_url: 
-      url: boa.cs.iastate.edu/cloudlab/boa-compiler.jar
+      url: http://boa.cs.iastate.edu/cloudlab/boa-compiler.jar
       dest: "{{ hadoop_user_home }}/compiler/current/dist/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
-  - name: boa.cs.iastate.edu/cloudlab/boa-runtime.jar
+  - name: http://boa.cs.iastate.edu/cloudlab/boa-runtime.jar
     get_url: 
-      url: boa.cs.iastate.edu/cloudlab/boa-runtime.jar
+      url: http://boa.cs.iastate.edu/cloudlab/boa-runtime.jar
       dest: "{{ hadoop_user_home }}/compiler/current/dist/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
@@ -86,6 +86,8 @@
       hour: 4
       job: "jps|grep BoaCompilePoller|cut -f1 -d' '|xargs kill -9 >/dev/null 2>&1"
 
-
-  - name:  cd /home/hadoop/bin ; exec ./run-poller >/dev/null 2>&1
-    shell:  cd /home/hadoop/bin ; exec ./run-poller >/dev/null 2>&1
+# can't get around the errors running here.  run from cloudlab-setup.sh
+#  - name: exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1
+#    become_user: "{{ hadoop_user_name }}"
+#    command:  exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1 
+#    ignor_errors: true
