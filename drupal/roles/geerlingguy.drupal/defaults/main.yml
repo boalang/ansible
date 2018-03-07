@@ -12,7 +12,9 @@ drupal_deploy_version: "7.57"
 drupal_deploy_update: true
 
 #drupal_deploy_dir: "/var/www/drupal"
-drupal_deploy_dir: "/var/www/vhosts/localhost/drupal"
+# drupal_deploy_dir: "/var/www/vhosts/localhost/drupal"
+# keep in sync with geerlingguy.apache/vars/main.yml, geerlingguy.drupal/vars/main.yml
+drupal_deploy_dir: "/var/www/vhosts/localhost/boa"
 
 #drupal_deploy_accept_hostkey: no
 drupal_deploy_accept_hostkey: yes

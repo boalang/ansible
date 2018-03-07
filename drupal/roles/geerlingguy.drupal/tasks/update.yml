@@ -1,8 +1,11 @@
 ---
-- name: Run database updates.
-  command: "{{ drush_path }} updatedb -y"
-  args:
-    chdir: "{{ drupal_core_path }}"
+# commented out because the table creation has been commented out
+# in tasks/main.yml, see tasks/main.yml comments for details
+#
+#- name: Run database updates.
+#  command: "{{ drush_path }} updatedb -y"
+#  args:
+#    chdir: "{{ drupal_core_path }}"
 
 # TODO: Import configuration if configured?
 # TODO: Other commands if configured?

@@ -29,9 +29,9 @@
 
 # there are still a few items that need to be taken care of to prep for use.
   tasks:
-  - name: create /var/www/vhosts/localhost/drupal/sites/all/modules/boa
+  - name: create /var/www/vhosts/localhost/boa/sites/all/modules/boa
     file:
-      path: /var/www/vhosts/localhost/drupal/sites/all/modules/boa
+      path: /var/www/vhosts/localhost/boa/sites/all/modules/boa
       owner: ansible
       group: ansible
       state: directory
@@ -41,13 +41,13 @@
   - name:  'https://github.com/boalang/drupal.git'
     git:
       repo: 'https://github.com/boalang/drupal.git'
-      dest: /var/www/vhosts/localhost/drupal/sites/all/modules/boa
+      dest: /var/www/vhosts/localhost/boa/sites/all/modules/boa
       version: master
       force: yes
 
-  - name: create /var/www/vhosts/localhost/drupal/sites/default/files
+  - name: create /var/www/vhosts/localhost/boa/sites/default/files
     file:
-      path: /var/www/vhosts/localhost/drupal/sites/default/files
+      path: /var/www/vhosts/localhost/boa/sites/default/files
       owner: ansible
       group: ansible
       state: directory
@@ -56,8 +56,8 @@
 
   - name:  cp default.settings.php to settings.php
     copy:
-      src: /var/www/vhosts/localhost/drupal/sites/default/default.settings.php
-      dest: /var/www/vhosts/localhost/drupal/sites/default/settings.php
+      src: /var/www/vhosts/localhost/boa/sites/default/default.settings.php
+      dest: /var/www/vhosts/localhost/boa/sites/default/settings.php
       owner: ansible
       group: ansible
       mode: 0666

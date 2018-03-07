@@ -58,7 +58,12 @@
 
 # i think the database is already installed at this point
 # the tasks in this include seems to add the tables
-# try commenting it out and see if the table are then added with the drupal gui install
+# 
+# this seems to cause a problem, because when I access http://<site>:8080/drupal, the installer
+# complains that the tables are already created and won't finish the install.
+#
+# also comment out the top of tasks/update.yml
+#
 # Install site if configured.
 #- include: tasks/install-site.yml
 #  when: drupal_install_site

@@ -5,7 +5,7 @@ drupal_install_site: true
 drupal_build_composer_project: true
 #drupal_composer_install_dir: "/var/www/drupal"
 
-# keep this in sync with geerlingguy.apache/vars/main.yml
+# keep this in sync with geerlingguy.apache/vars/main.yml, geerlingguy.drupal/defaults/main.yml
 #drupal_composer_install_dir: "/var/www/vhosts/localhost/drupal"
 drupal_composer_install_dir: "/var/www/vhosts/localhost/boa"
 
