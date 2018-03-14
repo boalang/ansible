@@ -106,14 +106,14 @@
     file:
       path: /tmp/ace-related/ace
       state: directory
-      mode: 0775
+      mode: 0755
       recurse: yes
 
   - name: create /tmp/ace-related/ace-builds
     file:
       path: /tmp/ace-related/ace-builds
       state: directory
-      mode: 0775
+      mode: 0755
       recurse: yes
 
   - name:  'https://github.com/boalang/ace.git'
@@ -140,10 +140,10 @@
       chdir: /tmp/ace-related/ace
     shell: node /tmp/ace-related/ace/Makefile.dryice.js full --target /tmp/ace-related/ace-builds
 
-  - name: mv /tmp/ace-related/ace-builds to {{ boa_web_root }}/sites/all/libraries/ace-builds
-    shell: /tmp/ace-related/ace-builds "{{ boa_web_root }}/sites/all/libraries"
+  - name: mv /tmp/ace-related/ace-builds {{ boa_web_root }}/sites/all/libraries
+    shell: mv /tmp/ace-related/ace-builds "{{ boa_web_root }}/sites/all/libraries/ace"
 
-  - name:  chmod -r 0755 on {{ boa_web_root }}/sites/all/libraries directories
+  - name:  chmod -r 0755 {{ boa_web_root }}/sites/all/libraries directories
     file:
       path: "{{ boa_web_root }}/sites/all/libraries"
       state: directory
