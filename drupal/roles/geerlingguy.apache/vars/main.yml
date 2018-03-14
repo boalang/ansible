@@ -4,5 +4,7 @@ apache_vhosts:
 
 # keep this in sync with geerlingguy.drupal/vars/main.yml drupal_composer_install_dir: 
 # and geerlingguy.drupal/defaults.main
-  - {servername: "localhost", documentroot: "/var/www/vhosts/localhost/boa"}
+#  - {servername: "localhost", documentroot: "/var/www/vhosts/localhost/boa"}
+  - {servername: "localhost", documentroot: "/var/www"}
+
 

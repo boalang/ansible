@@ -76,7 +76,6 @@ su - ansible -c "$PATH_TO_CL_ANSIBLE/boa-setup.sh $MASTER_NAME $PATH_TO_ANSIBLE_
 # let root su to hadoop and run it
 su - hadoop -c "exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1"
 
-
 func_cloudlab_setup_log "end" "boa-setup.sh"
 
 #########################################################################################################
@@ -87,3 +86,4 @@ func_cloudlab_setup_log "start" "drupal-setup.sh"
 su - ansible -c "$PATH_TO_CL_ANSIBLE/drupal-setup.sh $MASTER_NAME $PATH_TO_CL_ANSIBLE $PATH_TO_ANSIBLE_DIR"
 
 func_cloudlab_setup_log "end" "drupal-setup.sh"
+

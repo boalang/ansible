@@ -9,6 +9,10 @@
   connection: ssh
   gather_facts: yes
 
+  vars:
+    apache_web_root: /var/www
+    boa_web_root: "{{ apache_web_root }}/boa"
+
 # roles from:  https://galaxy.ansible.com/geerlingguy
   roles:
     - ./roles/geerlingguy.apache
@@ -19,19 +23,50 @@
 
     - ./roles/geerlingguy.php-mysql
 
-    - ./roles/geerlingguy.git
+#    - ./roles/geerlingguy.git
 
-    - ./roles/geerlingguy.composer
+#    - ./roles/geerlingguy.composer
 
-    - ./roles/geerlingguy.drush
+#    - ./roles/geerlingguy.drush
 
-    - ./roles/geerlingguy.drupal
+#    - ./roles/geerlingguy.drupal
 
 # there are still a few items that need to be taken care of to prep for use.
   tasks:
-  - name: create /var/www/vhosts/localhost/boa/sites/all/modules/boa
+  - name: apt-get install drush
+    apt:
+      name: drush
+      state: present
+
+  - name: cd {{ apache_web_root }}; drush dl drupal-7.x
+    shell: drush dl drupal-7.x
+    args:
+      chdir: "{{ apache_web_root }}"
+
+  - name: mv {{ apache_web_root }}/drupal-7.x-dev {{ boa_web_root }}
+    shell: mv {{ apache_web_root }}/drupal-7.x-dev {{ boa_web_root }}
+
+# this needs to run before drush site-install, as drush needs to use settings.php
+  - name:  cp default.settings.php to settings.php
+    copy:
+      src: "{{ boa_web_root }}/sites/default/default.settings.php"
+      dest: "{{ boa_web_root }}/sites/default/settings.php"
+      owner: ansible
+      group: ansible
+      mode: 0666
+
+  - name: create {{ boa_web_root }}/sites/default/files
     file:
-      path: /var/www/vhosts/localhost/boa/sites/all/modules/boa
+      path: "{{ boa_web_root }}/sites/default/files"
+      owner: ansible
+      group: ansible
+      state: directory
+      mode: 0777
+      recurse: yes
+
+  - name: create {{ boa_web_root }}/sites/all/modules/boa
+    file:
+      path: "{{ boa_web_root }}/sites/all/modules/boa"
       owner: ansible
       group: ansible
       state: directory
@@ -41,39 +76,23 @@
   - name:  'https://github.com/boalang/drupal.git'
     git:
       repo: 'https://github.com/boalang/drupal.git'
-      dest: /var/www/vhosts/localhost/boa/sites/all/modules/boa
+      dest: "{{ boa_web_root }}/sites/all/modules/boa"
       version: master
       force: yes
 
-  - name: create /var/www/vhosts/localhost/boa/sites/default/files
+  - name: echo "y" | drush site-install standard --db-url=mysql://drupal:drupal@127.0.0.1:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su=drupal --db-su-pw=drupal --account-name=boa --account-pass=rocks --site-name=boa
+    args:
+      chdir: "{{ boa_web_root }}"
+    shell: echo "y" | drush site-install standard --db-url=mysql://drupal:drupal@127.0.0.1:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su=drupal --db-su-pw=drupal --account-name=boa --account-pass=rocks --site-name=boa
+
+  - name: echo "y" | drush en boa
+    args:
+      chdir: "{{ boa_web_root }}"
+    shell: echo "y" | drush en boa
+    
+  - name: make sure ansible is the owner of all files
     file:
-      path: /var/www/vhosts/localhost/boa/sites/default/files
-      owner: ansible
+      path: "{{ boa_web_root }}"
       group: ansible
-      state: directory
-      mode: 0777
+      owner: ansible
       recurse: yes
-
-  - name:  cp default.settings.php to settings.php
-    copy:
-      src: /var/www/vhosts/localhost/boa/sites/default/default.settings.php
-      dest: /var/www/vhosts/localhost/boa/sites/default/settings.php
-      owner: ansible
-      group: ansible
-      mode: 0666
-
-#
-#  - name:  cp /var/www/vhosts/localhost/scripts/* /var/www/vhosts/localhost/drupal/scripts
-#    copy:
-#      src: /var/www/vhosts/localhost/scripts/
-#      dest: /var/www/vhosts/localhost/drupal/scripts
-#      owner: ansible
-#      group: ansible
-#      mode: 0666
-
-#  - name:  rm /var/www/vhosts/localhost/scripts
-#    file:
-#      path: /var/www/vhosts/localhost/scripts
-#      state: absent
-#      recurse: yes
-
