@@ -53,16 +53,16 @@
       group: "{{ hadoop_user_group }}"
       mode: 0755
 
-  - name: create ~/hadoop/complier/current/dist if does not exist
+  - name: create ~/hadoop/complier/live/dist if does not exist
     file:
-      path: "{{ hadoop_user_home }}/compiler/current/dist/"
+      path: "{{ hadoop_user_home }}/compiler/live/dist/"
       state: directory
       mode: 0755
 
   - name: http://boa.cs.iastate.edu/cloudlab/boa-compiler.jar
     get_url: 
       url: http://boa.cs.iastate.edu/cloudlab/boa-compiler.jar
-      dest: "{{ hadoop_user_home }}/compiler/current/dist/"
+      dest: "{{ hadoop_user_home }}/compiler/live/dist/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
@@ -70,7 +70,7 @@
   - name: http://boa.cs.iastate.edu/cloudlab/boa-runtime.jar
     get_url: 
       url: http://boa.cs.iastate.edu/cloudlab/boa-runtime.jar
-      dest: "{{ hadoop_user_home }}/compiler/current/dist/"
+      dest: "{{ hadoop_user_home }}/compiler/live/dist/"
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       mode: 0644
