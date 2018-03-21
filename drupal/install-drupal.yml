@@ -155,3 +155,5 @@
       group: ansible
       owner: ansible
       recurse: yes
+
+  - include: ../local_includes/delete-ansible-tmp-files.yml

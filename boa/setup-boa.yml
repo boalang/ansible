@@ -1,5 +1,5 @@
 ---
-# ASSUMES Hadoop 1.2.1
+# ASSUMES Hadoop 1.2.1 
 
 - name: Install the remaining boa items
   hosts: name_node
@@ -75,16 +75,12 @@
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
-  - cron:
-      name: "run BoaCompilerPoller"
-      minute: "*/10"
-      job: "jps|grep BoaCompilePoller >/dev/null ; if [ $? -eq 1 ]; then cd /home/hadoop/bin ; exec ./run-poller >/dev/null 2>&1 ; fi"
-
-  - cron:
-      name: "kill BoaCompilerPoller"
-      minute: 9
-      hour: 4
-      job: "jps|grep BoaCompilePoller|cut -f1 -d' '|xargs kill -9 >/dev/null 2>&1"
+  - name: make sure {{ hadoop_user_name }} is the owner of all {{ hadoop_user_home }} files
+    file:
+      path: "{{ hadoop_user_home }}"
+      group: "{{ hadoop_user_group }}"
+      owner: "{{ hadoop_user_name }}"
+      recurse: yes
 
 #######################
   - name: get http://boa.cs.iastate.edu/cloudlab/index
@@ -95,20 +91,12 @@
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
-# run first to create all directories
-  - name: hadoop dfs -mkdir /repcache/live/ast
-    become_user: "{{ hadoop_user_name }}"
-    become: true
-    shell: hadoop dfs -mkdir /repcache/live/ast
-    args:
-      chdir: "{{ hadoop_user_home }}"
+# run first to create directories
+  - name: "{{ hadoop_base }}/1.2.1/bin/hadoop dfs -mkdir /repcache/live/ast"
+    shell: su - {{ hadoop_user_name }} -c "export JAVA_HOME={{ java_home }}; {{ hadoop_base }}/1.2.1/bin/hadoop dfs -mkdir /repcache/live/ast"
 
-  - name: copy http://boa.cs.iastate.edu/cloudlab/index to HDFS /repcache/live/ast/index
-    become_user: "{{ hadoop_user_name }}"
-    become: true
-    shell: hadoop dfs -copyFromLocal index /repcache/live/ast
-    args:
-      chdir: "{{ hadoop_user_home }}"
+  - name: "{{ hadoop_base }}/1.2.1/bin/hadoop dfs -copyFromLocal index /repcache/live/ast"
+    shell: su - {{ hadoop_user_name }} -c "export JAVA_HOME={{ java_home }}; {{ hadoop_base }}/1.2.1/bin/hadoop dfs -copyFromLocal index /repcache/live/ast"
 
   - name: rm {{ hadoop_user_home }}/index
     file:
@@ -124,12 +112,8 @@
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
-  - name: transfer http://boa.cs.iastate.edu/cloudlab/data to HDFS /repcache/live/ast/data
-    become_user: "{{ hadoop_user_name }}"
-    become: true
-    shell: hadoop dfs -copyFromLocal data /repcache/live/ast
-    args:
-      chdir: "{{ hadoop_user_home }}"
+  - name: "{{ hadoop_base }}/1.2.1/bin/hadoop dfs -copyFromLocal data /repcache/live/ast"
+    shell: su - {{ hadoop_user_name }} -c "export JAVA_HOME={{ java_home }}; {{ hadoop_base }}/1.2.1/bin/hadoop dfs -copyFromLocal data /repcache/live/ast"
 
   - name: rm {{ hadoop_user_home }}/data
     file:
@@ -145,17 +129,35 @@
       group: "{{ hadoop_user_group }}"
       mode: 0644
 
-  - name: transfer http://boa.cs.iastate.edu/cloudlab/projects.seq to HDFS /repcache/live/projects.seq
-    become_user: "{{ hadoop_user_name }}"
-    become: true
-    shell: hadoop dfs -copyFromLocal projects.seq /repcache/live
-    args:
-      chdir: "{{ hadoop_user_home }}"
+  - name: "{{ hadoop_base }}/1.2.1/bin/hadoop dfs -copyFromLocal projects.seq /repcache/live"
+    shell: su - {{ hadoop_user_name }} -c "export JAVA_HOME={{ java_home }}; {{ hadoop_base }}/1.2.1/bin/hadoop dfs -copyFromLocal projects.seq /repcache/live"
 
   - name: rm {{ hadoop_user_home }}/projects.seq
     file:
       path: "{{ hadoop_user_home }}/projects.seq"
       state: absent
 
+  - cron:
+      name: "run BoaCompilerPoller"
+      minute: "*/10"
+      user: "{{ hadoop_user_name }}"
+      job: "jps|grep BoaCompilePoller >/dev/null ; if [ $? -eq 1 ]; then cd /home/hadoop/bin ; exec ./run-poller >/dev/null 2>&1 ; fi"
 
+  - cron:
+      name: "kill BoaCompilerPoller"
+      minute: 9
+      hour: 4
+      user: "{{ hadoop_user_name }}"
+      job: "jps|grep BoaCompilePoller|cut -f1 -d' '|xargs kill -9 >/dev/null 2>&1"
 
+  - name: install at
+    apt:
+      name: at
+      state: present
+
+  - at:
+      command: su - {{ hadoop_user_name }} -c "exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1"
+      count: 1
+      units: minutes
+
+  - include: ../local_includes/delete-ansible-tmp-files.yml

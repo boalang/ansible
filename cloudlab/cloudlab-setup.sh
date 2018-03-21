@@ -23,18 +23,14 @@ SLAVE_NAME_PREFIX=$2
 NUM_SLAVES=$3
 HADOOP_VERSION=$4
 
-func_cloudlab_setup_log(){
-	echo "$1 $2:  `date`" >> /tmp/cloudlab-setup.log
-}
 
 #########################################################################################################
 
-func_cloudlab_setup_log "start" "ansible-setup.sh"
+echo "`date`" > /tmp/1-ansible-setup-started.txt
 
-# setup ansible
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
-func_cloudlab_setup_log "end" "ansible-setup.sh"
+echo "`date`" > /tmp/1-ansible-setup-complete.txt
 
 #########################################################################################################
 
@@ -54,42 +50,34 @@ if [ -z "$SLAVE_NAME_PREFIX" ];then
 fi
 
 #########################################################################################################
-# the hadoop scripts need to be run as the user ansible
+
+echo "`date`" > /tmp/2-hadoop-setup-started.txt
 
 # to be sure ansible owns everything in /home/ansible before starting script
 chown -R ansible.ansible /home/ansible
 
-func_cloudlab_setup_log "start" "hadoop-setup.sh"
-
 su - ansible -c "$PATH_TO_CL_ANSIBLE/hadoop-setup.sh $HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX $PATH_TO_ANSIBLE_DIR $NUM_SLAVES"
 
-func_cloudlab_setup_log "end" "hadoop-setup.sh"
+echo "`date`" > /tmp/2-hadoop-setup-complete.txt
 
 ########################################################################################################
 
-func_cloudlab_setup_log "start" "boa-setup.sh"
+echo "`date`" > /tmp/3-boa-compiler-setup-started.txt
 
 # setup boa items
 su - ansible -c "$PATH_TO_CL_ANSIBLE/boa-setup.sh $MASTER_NAME $PATH_TO_ANSIBLE_DIR"
 
-# runs fine from cli as user hadoop, but cannot overcome errors from within ansible playbook
-# let root su to hadoop and run it
-su - hadoop -c "exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1"
-
-func_cloudlab_setup_log "end" "boa-setup.sh"
+echo "`date`" > /tmp/3-boa-compiler-setup-complete.txt
 
 #########################################################################################################
 
-func_cloudlab_setup_log "start" "drupal-setup.sh"
+echo "`date`" > /tmp/4-drupal-setup-started.txt
 
 # ansible to install Drupal (LAMP)
 su - ansible -c "$PATH_TO_CL_ANSIBLE/drupal-setup.sh $MASTER_NAME $PATH_TO_CL_ANSIBLE $PATH_TO_ANSIBLE_DIR"
 
-func_cloudlab_setup_log "end" "drupal-setup.sh"
-echo "drupal has been installed" > /tmp/drupal-setup-complete.txt
+echo "`date`" > /tmp/4-drupal-setup-complete.txt
 
 #########################################################################################################
 
-# install boalan/ace
-apt-get install -y npm
 
