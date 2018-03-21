@@ -86,8 +86,76 @@
       hour: 4
       job: "jps|grep BoaCompilePoller|cut -f1 -d' '|xargs kill -9 >/dev/null 2>&1"
 
-# can't get around the errors running here.  run from cloudlab-setup.sh
-#  - name: exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1
-#    become_user: "{{ hadoop_user_name }}"
-#    command:  exec /home/hadoop/bin/run-poller.sh >/dev/null 2>&1 
-#    ignor_errors: true
+#######################
+  - name: get http://boa.cs.iastate.edu/cloudlab/index
+    get_url: 
+      url: http://boa.cs.iastate.edu/cloudlab/index
+      dest: "{{ hadoop_user_home }}"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+# run first to create all directories
+  - name: hadoop dfs -mkdir /repcache/live/ast
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    shell: hadoop dfs -mkdir /repcache/live/ast
+    args:
+      chdir: "{{ hadoop_user_home }}"
+
+  - name: copy http://boa.cs.iastate.edu/cloudlab/index to HDFS /repcache/live/ast/index
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    shell: hadoop dfs -copyFromLocal index /repcache/live/ast
+    args:
+      chdir: "{{ hadoop_user_home }}"
+
+  - name: rm {{ hadoop_user_home }}/index
+    file:
+      path: "{{ hadoop_user_home }}/index"
+      state: absent
+
+#######################
+  - name: get http://boa.cs.iastate.edu/cloudlab/data
+    get_url: 
+      url: http://boa.cs.iastate.edu/cloudlab/data
+      dest: "{{ hadoop_user_home }}"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: transfer http://boa.cs.iastate.edu/cloudlab/data to HDFS /repcache/live/ast/data
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    shell: hadoop dfs -copyFromLocal data /repcache/live/ast
+    args:
+      chdir: "{{ hadoop_user_home }}"
+
+  - name: rm {{ hadoop_user_home }}/data
+    file:
+      path: "{{ hadoop_user_home }}/data"
+      state: absent
+
+#######################
+  - name: get http://boa.cs.iastate.edu/cloudlab/projects.seq
+    get_url: 
+      url: http://boa.cs.iastate.edu/cloudlab/projects.seq
+      dest: "{{ hadoop_user_home }}"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      mode: 0644
+
+  - name: transfer http://boa.cs.iastate.edu/cloudlab/projects.seq to HDFS /repcache/live/projects.seq
+    become_user: "{{ hadoop_user_name }}"
+    become: true
+    shell: hadoop dfs -copyFromLocal projects.seq /repcache/live
+    args:
+      chdir: "{{ hadoop_user_home }}"
+
+  - name: rm {{ hadoop_user_home }}/projects.seq
+    file:
+      path: "{{ hadoop_user_home }}/projects.seq"
+      state: absent
+
+
+

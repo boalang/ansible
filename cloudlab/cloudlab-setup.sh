@@ -86,7 +86,7 @@ func_cloudlab_setup_log "start" "drupal-setup.sh"
 su - ansible -c "$PATH_TO_CL_ANSIBLE/drupal-setup.sh $MASTER_NAME $PATH_TO_CL_ANSIBLE $PATH_TO_ANSIBLE_DIR"
 
 func_cloudlab_setup_log "end" "drupal-setup.sh"
-echo "drupal has been installed" > drupal-setup-complete.txt
+echo "drupal has been installed" > /tmp/drupal-setup-complete.txt
 
 #########################################################################################################
 
