@@ -1,12 +1,12 @@
 # {{ ansible_managed }}
 
 [client]
-password = drupal
+#password = drupal
 port = {{ mysql_port }}
 socket = {{ mysql_socket }}
 
 [mysqld]
-useSSL=false
+#useSSL=false
 port = {{ mysql_port }}
 bind-address = {{ mysql_bind_address }}
 datadir = {{ mysql_datadir }}

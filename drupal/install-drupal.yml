@@ -82,10 +82,15 @@
       version: master
       force: yes
 
-  - name: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@127.0.0.1:3306/drupal?useSSL=false install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
+#  - name: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@127.0.0.1:3306/drupal?useSSL=false install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
+#    args:
+#      chdir: "{{ boa_web_root }}"
+#    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@127.0.0.1:3306/drupal?useSSL=false install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
+
+  - name: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@127.0.0.1:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
     args:
       chdir: "{{ boa_web_root }}"
-    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@127.0.0.1:3306/drupal?useSSL=false install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
+    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@127.0.0.1:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
 
   - name: echo "y" | drush en boa
     args:
