@@ -8,7 +8,7 @@ mysql_users:
     host: "localhost"
 #    password: drupal
 #    password: ''
-    password: ""
+#    password: ""
 #    password:
     priv: "drupal.*:ALL,GRANT"
   - name: drupal
