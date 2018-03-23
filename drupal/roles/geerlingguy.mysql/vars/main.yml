@@ -6,15 +6,19 @@ mysql_databases:
 mysql_users:
   - name: drupal
     host: "localhost"
-#    password: drupal
+    password: drupal
 #    password: ''
 #    password: ""
-#    password:
     priv: "drupal.*:ALL,GRANT"
   - name: drupal
     host: "%"
-#    password: drupal
+    password: drupal
 #    password: ''
-    password: ""
-#    password:
+#    password: ""
+    priv: "drupal.*:ALL,GRANT"
+  - name: drupal
+    host: "127.0.0.1"
+    password: drupal
+#    password: ''
+#    password: ""
     priv: "drupal.*:ALL,GRANT"
