@@ -14,6 +14,16 @@
     boa_web_root: "{{ apache_web_root }}/boa"
     db_su: drupal
     db_su_pw: drupal
+# hadoop version needed for the hadoop-vars.yml file
+# otherwise have the version written to a file or passed via paramaters
+# from the hadoop install scripts
+    hadoop_version: 1.2.1
+
+# this is provided for the first couple tasks
+# this currently imports the hadoop 1 hadoop-vars.yml file, ie. version 1.2.1
+# update accordingly for a different version
+  vars_files:
+    - ../hadoop1-playbooks/local_variable_files/hadoop-vars.yml
 
 # roles from:  https://galaxy.ansible.com/geerlingguy
   roles:
@@ -33,8 +43,38 @@
 
 #    - ./roles/geerlingguy.drupal
 
-# there are still a few items that need to be taken care of to prep for use.
   tasks:
+# this needs to be added for apache to provide download to user
+  - name: echo "export HADOOP_CONF_DIR={{ hadoop_conf_dir }}" >> /etc/apache2/envars
+    shell: echo "export HADOOP_CONF_DIR={{ hadoop_conf_dir }}" >> /etc/apache2/envars
+
+  - name: systemctl restart apache2
+    shell: systemctl restart apache2
+
+# add directories and symlinks in /home/hadoop
+  - name: create /home/hadoop/hadoop-current
+    file:
+      path: "{{ hadoop_user_home }}/hadoop-current"
+      state: directory
+      mode: 0755
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      recurse: yes
+
+# add a symlink to the bin in the current hadoop install
+  - name: ln -s {{ hadoop_install }}/bin {{ hadoop_user_home }}/hadoop-current/bin
+    file:
+      src: "{{ hadoop_install }}/bin"
+      dest: "{{ hadoop_user_home }}/hadoop-current/bin"
+      owner: "{{ hadoop_user_name }}"
+      group: "{{ hadoop_user_group }}"
+      state: link
+
+  - name: cd {{ hadoop_user_home }};
+    shell: drush dl drupal-7.x
+    args:
+      chdir: "{{ hadoop_user_home }}"
+
   - name: apt-get install drush
     apt:
       name: drush
