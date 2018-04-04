@@ -69,11 +69,7 @@
       owner: "{{ hadoop_user_name }}"
       group: "{{ hadoop_user_group }}"
       state: link
-
-  - name: cd {{ hadoop_user_home }};
-    shell: drush dl drupal-7.x
-    args:
-      chdir: "{{ hadoop_user_home }}"
+      force: yes
 
   - name: apt-get install drush
     apt:
@@ -81,9 +77,10 @@
       state: present
 
   - name: cd {{ apache_web_root }}; drush dl drupal-7.x
-    shell: drush dl drupal-7.x
-    args:
-      chdir: "{{ apache_web_root }}"
+    shell: cd {{ apache_web_root }}; drush dl drupal-7.x
+# chdir is not working
+#    args:
+#      chdir: "{{ apache_web_root }}"
 
   - name: mv {{ apache_web_root }}/drupal-7.x-dev {{ boa_web_root }}
     shell: mv {{ apache_web_root }}/drupal-7.x-dev {{ boa_web_root }}
@@ -122,20 +119,20 @@
       version: master
       force: yes
 
-  - name: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@localhost:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
-    args:
-      chdir: "{{ boa_web_root }}"
-    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@localhost:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
+  - name: cd {{ boa_web_root }}; echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@localhost:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
+    shell: cd {{ boa_web_root }}; echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}:{{ db_su_pw }}@localhost:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --db-su-pw={{ db_su_pw }} --account-name=boa --account-pass=rocks --site-name=boa
+#    args:
+#      chdir: "{{ boa_web_root }}"
 
 #  - name: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}@127.0.0.1:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --account-name=boa --account-pass=rocks --site-name=boa
+#    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}@127.0.0.1:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --account-name=boa --account-pass=rocks --site-name=boa
 #    args:
 #      chdir: "{{ boa_web_root }}"
-#    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}@127.0.0.1:3306/drupal install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --account-name=boa --account-pass=rocks --site-name=boa
 
 #  - name: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}@localhost:3306/drupal=useSSL=true install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --account-name=boa --account-pass=rocks --site-name=boa
+#    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}@localhost:3306/drupal?useSSL=true install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --account-name=boa --account-pass=rocks --site-name=boa
 #    args:
 #      chdir: "{{ boa_web_root }}"
-#    shell: echo "y" | drush site-install standard --db-url=mysql://{{ db_su }}@localhost:3306/drupal?useSSL=true install_configure_form.enable_update_status_emails=NULL --db-su={{ db_su }} --account-name=boa --account-pass=rocks --site-name=boa
 
   - name: echo "y" | drush en boa
     args:
