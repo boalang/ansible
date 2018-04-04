@@ -45,8 +45,8 @@
 
   tasks:
 # this needs to be added for apache to provide download to user
-  - name: echo "export HADOOP_CONF_DIR={{ hadoop_conf_dir }}" >> /etc/apache2/envars
-    shell: echo "export HADOOP_CONF_DIR={{ hadoop_conf_dir }}" >> /etc/apache2/envars
+  - name: echo "export HADOOP_CONF_DIR={{ hadoop_conf_dir }}" >> /etc/apache2/envvars
+    shell: echo "export HADOOP_CONF_DIR={{ hadoop_conf_dir }}" >> /etc/apache2/envvars
 
   - name: systemctl restart apache2
     shell: systemctl restart apache2
