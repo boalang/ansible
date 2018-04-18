@@ -60,6 +60,14 @@ func_update_system(){
 	echo ""
 	apt-get update
 
+	# CloudLab is throwing errors when doing the upgrade below as follows:
+	# "Err:1 http://security.ubuntu.com/ubuntu xenial-security/main amd64 python-crypto"
+	# ip address of security repo found
+	# it seems to disappear when update is run manually from the cli, so perhaps the script is moving onto 
+	# the upgrade before the repo list is refreshed.
+	# pause here for 5 seconds to ensure the update is done before moving onto the upgrade
+	sleep 5
+
 	echo ""
 	echo "apt-get upgrade -y"
 	echo ""
@@ -236,9 +244,9 @@ func_wait_for_slave_setup_scripts_to_finish(){
 	# We'll copy these scripts to /tmp on the master node.  If the file does not yet exist on the slave, then 
 	# nothing will be returned to /tmp on the master and we'll sleep for a few seconds and then try again.
 
-	# allow for a maximum of 10 iterations, before throwing an error and quitting
+	# allow for a maximum of 30 iterations, before throwing an error and quitting (roughly 15 minutes)
 	NUM_SLAVES_DONE=0
-	MAX_TRIES=10
+	MAX_TRIES=30
 	for (( cnt=0; cnt<$MAX_TRIES; cnt=cnt+1 )); do
 	
 		for SLAVE_NAME in `cat $SLAVE_FILE`; do
