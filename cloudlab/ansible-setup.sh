@@ -60,7 +60,7 @@ func_update_system(){
 	echo ""
 	apt-get update
 
-	# CloudLab is throwing errors when doing the upgrade below as follows:
+	# CloudLab is throwing errors when doing the upgrade in the ansible-setup.sh
 	# "Err:1 http://security.ubuntu.com/ubuntu xenial-security/main amd64 python-crypto"
 	# ip address of security repo found
 	# it seems to disappear when update is run manually from the cli, so perhaps the script is moving onto 

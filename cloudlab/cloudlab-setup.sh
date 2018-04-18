@@ -28,6 +28,8 @@ HADOOP_VERSION=$4
 
 echo "`date`" > /tmp/1-ansible-setup-started.txt
 
+apt-upgrade -y
+
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
 echo "`date`" > /tmp/1-ansible-setup-complete.txt
