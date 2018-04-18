@@ -38,9 +38,9 @@ echo "`date`" > /tmp/1-ansible-setup-started.txt
 # it seems to disappear when update is run manually from the cli, so perhaps the script is moving onto 
 # the upgrade before the repo list is refreshed.
 # pause here for 5 seconds to ensure the update is done before moving onto the upgrade
-apt-get update
-sleep 5
-apt-get upgrade -y
+#apt-get update
+#sleep 5
+#apt-get upgrade -y
 
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
