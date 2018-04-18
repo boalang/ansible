@@ -40,6 +40,7 @@ echo "`date`" > /tmp/1-ansible-setup-started.txt
 # pause here for 5 seconds to ensure the update is done before moving onto the upgrade
 apt-get update
 sleep 5
+apt-get upgrade -y
 
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
