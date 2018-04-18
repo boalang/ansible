@@ -226,7 +226,9 @@ func_install_ansible_software(){
 	# ip 92.183.92.23 not found which is the canonical security website
 	# equally odd, is that running it again from the cli does not generate an error, so I'll try 
 	# running the ansible install twice.  
+	# 
 	# the only other thing I could think of would be to pull the files directly from Ansible.
+	# or try to hold the package back with apt-get hold python-crypto
 	apt-get install ansible -y
 }
 ####################################################################################################################
