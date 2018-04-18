@@ -25,7 +25,7 @@ HADOOP_VERSION=$4
 
 #########################################################################################################
 # sleep for 1 minute before starting
-sleep 60
+#sleep 60
 # I think there may be error due to CL not being done provisioned before the script starts working
 
 #########################################################################################################
