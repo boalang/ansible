@@ -23,12 +23,23 @@ SLAVE_NAME_PREFIX=$2
 NUM_SLAVES=$3
 HADOOP_VERSION=$4
 
+#########################################################################################################
+# sleep for 1 minute before starting
+sleep 60
+# I think there may be error due to CL not being done provisioned before the script starts working
 
 #########################################################################################################
 
 echo "`date`" > /tmp/1-ansible-setup-started.txt
 
-apt-upgrade -y
+# CloudLab is throwing errors when doing the upgrade in the ansible-setup.sh
+# "Err:1 http://security.ubuntu.com/ubuntu xenial-security/main amd64 python-crypto"
+# ip address of security repo found
+# it seems to disappear when update is run manually from the cli, so perhaps the script is moving onto 
+# the upgrade before the repo list is refreshed.
+# pause here for 5 seconds to ensure the update is done before moving onto the upgrade
+apt-get update
+sleep 5
 
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
