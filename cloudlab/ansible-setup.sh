@@ -223,7 +223,7 @@ func_install_ansible_software(){
 	apt-get install ansible -y
 	# for some reason it fails on the first attempt every time
 	# Err:1 http://security.ubuntu.com/ubuntu xenial-security/main amd64 python-crypto package
-	# ip 92.183.92.23 not found which is the canonical security website
+	# ip 91.183.91.23 not found which is the canonical security website
 	# equally odd, is that running it again from the cli does not generate an error, so I'll try 
 	# running the ansible install twice.  
 	# 

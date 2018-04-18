@@ -24,9 +24,15 @@ NUM_SLAVES=$3
 HADOOP_VERSION=$4
 
 #########################################################################################################
-# for an exit here to try manually installing on CL
+# force the head node to stop here to try manually installing on CL
 
-exit(1)
+if [ -z "$SLAVE_NAME_PREFIX" ];then
+	# automatically hold these (i think part of the problem), but still stop the head for now
+	# bc i want to test it manually
+	apt-mark hold grub-common grub-pc grub-pc-bin grub2-common
+else
+	exit(1)
+fi
 
 #########################################################################################################
 
