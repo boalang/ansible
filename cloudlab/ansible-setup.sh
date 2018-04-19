@@ -222,6 +222,8 @@ func_install_ansible_software(){
 	# 20180419: consistent "ip not found" error relating to security repo via standard Ubuntu repos, so 
 	# manually adding Ansible's ppa and specifying current 2.0 version to circumvent missing ip errors
 
+	# http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-releases-via-apt-ubuntu
+
 	echo ""
 	echo "apt-get update"
 	apt-get update
