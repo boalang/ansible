@@ -246,7 +246,6 @@ func_install_ansible_software(){
 	echo "apt-get install -y ansible=2.0.0.2-2ubuntu1"
 	apt-get install -y ansible=2.0.0.2-2ubuntu1
 
-
 #	echo ""
 #	echo "apt-get install -y ansible"
 #	echo ""

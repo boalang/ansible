@@ -24,16 +24,16 @@ NUM_SLAVES=$3
 HADOOP_VERSION=$4
 
 #########################################################################################################
-# force nodes to stop here to try manually installing on CL
-exit(1)
+# force nodes to stop here to manually debug on CloudLab
+#exit(1)
 
 #########################################################################################################
 
-echo "`date`" > /tmp/1-ansible-setup-started.txt
+echo "`date`" > /tmp/1-ansible-setup-begin.txt
 
 $PATH_TO_CL_TMP/ansible-setup.sh  "$MASTER_NAME" "$SLAVE_NAME_PREFIX" "$NUM_SLAVES" "$HADOOP_VERSION" | tee -a /tmp/ansible-setup.log
 
-echo "`date`" > /tmp/1-ansible-setup-complete.txt
+echo "`date`" > /tmp/1-ansible-setup-end.txt
 
 #########################################################################################################
 
@@ -54,33 +54,31 @@ fi
 
 #########################################################################################################
 
-echo "`date`" > /tmp/2-hadoop-setup-started.txt
+echo "`date`" > /tmp/2-hadoop-setup-begin.txt
 
 # to be sure ansible owns everything in /home/ansible before starting script
 chown -R ansible.ansible /home/ansible
 
 su - ansible -c "$PATH_TO_CL_ANSIBLE/hadoop-setup.sh $HADOOP_VERSION $MASTER_NAME $SLAVE_NAME_PREFIX $PATH_TO_ANSIBLE_DIR $NUM_SLAVES"
 
-echo "`date`" > /tmp/2-hadoop-setup-complete.txt
+echo "`date`" > /tmp/2-hadoop-setup-end.txt
 
 ########################################################################################################
 
-echo "`date`" > /tmp/3-boa-compiler-setup-started.txt
+echo "`date`" > /tmp/3-boa-compiler-setup-begin.txt
 
 # setup boa items
 su - ansible -c "$PATH_TO_CL_ANSIBLE/boa-setup.sh $MASTER_NAME $PATH_TO_ANSIBLE_DIR"
 
-echo "`date`" > /tmp/3-boa-compiler-setup-complete.txt
+echo "`date`" > /tmp/3-boa-compiler-setup-end.txt
 
 #########################################################################################################
 
-echo "`date`" > /tmp/4-drupal-setup-started.txt
+echo "`date`" > /tmp/4-drupal-setup-begin.txt
 
 # ansible to install Drupal (LAMP)
 su - ansible -c "$PATH_TO_CL_ANSIBLE/drupal-setup.sh $MASTER_NAME $PATH_TO_CL_ANSIBLE $PATH_TO_ANSIBLE_DIR"
 
-echo "`date`" > /tmp/4-drupal-setup-complete.txt
+echo "`date`" > /tmp/4-drupal-setup-end.txt
 
 #########################################################################################################
-
-
