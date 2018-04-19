@@ -60,9 +60,12 @@ func_update_system(){
 	echo ""
 	apt-get update
 
-	# python-crypto consistently causing errors
+	# hold all grub
+	# whatever is being updated in apt-get upgrade is causing grub to be reinstalled and request manual 
+	# intervention to complete
+	# suspect the provided cloudlab image needs to be updated to include newer grub packages and avoid reinstall
 	echo ""
-	echo "apt-mark hold python-crypto"
+	echo "apt-mark hold grub*"
 	echo ""
 
 	echo ""
@@ -216,20 +219,39 @@ func_set_ansible_home_ownership(){
 func_install_ansible_software(){
 
 	# Install the Ansible software from the current Ubuntu repo, or add Ansible's repo, if desired.
+	# 20180419: consistent "ip not found" error relating to security repo via standard Ubuntu repos, so 
+	# manually adding Ansible's ppa and specifying current 2.0 version to circumvent missing ip errors
 
 	echo ""
-	echo "apt-get install -y ansible"
+	echo "apt-get update"
+	apt-get update
 	echo ""
-	apt-get install ansible -y
-	# for some reason it fails on the first attempt every time
-	# Err:1 http://security.ubuntu.com/ubuntu xenial-security/main amd64 python-crypto package
-	# ip 91.183.91.23 not found which is the canonical security website
-	# equally odd, is that running it again from the cli does not generate an error, so I'll try 
-	# running the ansible install twice.  
-	# 
-	# the only other thing I could think of would be to pull the files directly from Ansible.
-	# or try to hold the package back with apt-get hold python-crypto
-	apt-get install ansible -y
+
+	echo ""
+	echo "apt-get install -y software-properties-common"
+	apt-get install -y software-properties-common
+	echo ""
+
+	echo ""
+	echo "apt-add-repository -y ppa:ansible/ansible"
+	apt-add-repository -y ppa:ansible/ansible
+	echo ""
+
+	echo ""
+	echo "apt-get update"
+	apt-get update
+	echo ""
+
+	echo ""
+	echo "apt-get install -y ansible=2.0.0.2-2ubuntu1"
+	apt-get install -y ansible=2.0.0.2-2ubuntu1
+
+
+#	echo ""
+#	echo "apt-get install -y ansible"
+#	echo ""
+#	apt-get install -y ansible
+
 }
 ####################################################################################################################
 # End Functions for Master Setup
