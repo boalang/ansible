@@ -1,3 +1,6 @@
+[localhost]
+127.0.0.1
+
 [name_node]
 head ansible_port=22
 # port must match port variable defined in 

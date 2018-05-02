@@ -1,0 +1,103 @@
+--- 
+# construct the network layer for boa aws 
+# ie. vpc, igw, subnet, route table, nacl, security groups
+# only a single subnet will be needed, but should use two security groups
+# a sg for the head, and a sg for the slaves
+
+- hosts: localhost
+  remote_user: ec2-user
+  become_method: sudo
+  become: true
+  gather_facts: no
+  connection: local
+
+  vars_files:
+    - ./aws-related/aws-cred.yml
+    - ./aws-related/aws-vars.yml
+
+  tasks:
+  - name: Create VPC
+    ec2_vpc_net:
+      name: boa_vpc
+      cidr_block: 10.0.0.0/16
+      region: "{{ aws_region }}"
+      aws_access_key: "{{ aws_access_key_id }}"
+      aws_secret_key: "{{ aws_secret_access_key }}"
+      dns_hostnames: no
+      state: present
+      tenancy: default
+      multi_ok: no
+    register: vpc_info
+
+  - name: Get the vpc id
+    debug: 
+      msg: "{{ vpc_info.vpc.id }}"
+    register: vpc_id
+    
+  - name: write vpc id to file
+    shell: echo "vpc_id{{":"}} {{ vpc_id.msg }}" > ./aws-related/vpc-id.yml
+
+#  - debug: var=vpc_id
+
+  - name: Create subnet
+    ec2_vpc_subnet:
+      state: present
+      vpc_id: "{{ vpc_info.vpc.id }}"
+      cidr: 10.0.1.0/24
+      region: "{{ aws_region }}"
+      aws_access_key: "{{ aws_access_key_id }}"
+      aws_secret_key: "{{ aws_secret_access_key }}"
+      map_public: no      
+    ignore_errors: yes
+
+  - name: gather subnet facts
+    ec2_vpc_subnet_facts:
+      filters:
+        vpc-id: "{{ vpc_info.vpc.id }}"
+      region: "{{ aws_region }}"
+      aws_access_key: "{{ aws_access_key_id }}"
+      aws_secret_key: "{{ aws_secret_access_key }}"      
+    register: subnet_info
+
+  #- debug: var=subnet_info
+
+  - name: Get the subnet id
+    debug: 
+      msg: "{{ subnet_info.subnets[0].subnet_id }}"
+    register: subnet_id
+
+  #- debug: var=subnet_id
+
+  - name: write subnet id to file
+    shell: echo "subnet_id{{":"}} {{ subnet_id.msg }}" > ./aws-related/subnet-id.yml
+
+#  - debug: var=subnet_id
+
+#   - debug: 
+#       msg: "{{ subnet_id.subnets[0].subnet_id }}"
+#     register: subnet_id
+
+# #  - debug: var=subnet_id
+
+  - name: create igw
+    ec2_vpc_igw:
+      vpc_id: "{{ vpc_info.vpc.id }}"
+      region: "{{ aws_region }}"
+      aws_access_key: "{{ aws_access_key_id }}"
+      aws_secret_key: "{{ aws_secret_access_key }}"  
+      state: present
+    register: igw_info
+
+  - name: Get the igw id
+    debug: 
+      msg: "{{ igw_info.gateway_id }}"
+    register: igw_id
+
+  #- debug: var=igw_id
+
+  - name: write igw id to file
+    shell: echo "igw_id{{":"}} {{ igw_id.msg }}" > ./aws-related/igw-id.yml
+
+  #- debug: var=igw_id.gateway_id
+
+  # onto route table, two security groups, instances (w boot scripts)
