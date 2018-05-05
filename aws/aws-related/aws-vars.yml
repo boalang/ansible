@@ -1,2 +1,0 @@
-aws_region: us-east-1
-# us-east-2 not present in current boto settings

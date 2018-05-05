@@ -18,6 +18,10 @@ func_install_python(){
 	echo ""
 	apt-get install -y python
 
+	# echo ""
+	# echo "apt-get python3"
+	# echo ""
+	# apt-get install -y python3
 }
 
 func_install_boto3(){
@@ -27,10 +31,10 @@ func_install_boto3(){
 	echo ""
 	apt-get install -y python-boto
 
-	echo ""
-	echo "apt-get python-boto3"
-	echo ""
-	apt-get install -y python-boto3
+	# echo ""
+	# echo "apt-get python-boto3"
+	# echo ""
+	# apt-get install -y python-boto3
 	
 }
 

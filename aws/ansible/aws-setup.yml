@@ -12,8 +12,8 @@
   connection: local
 
   vars_files:
-    - ./aws-related/aws-cred.yml
-    - ./aws-related/aws-vars.yml
+    - ./../common-input/aws-cred.yml
+    - ./../common-input/aws-vars.yml
 
   tasks:
   - name: Create VPC
@@ -35,7 +35,7 @@
     register: vpc_id
     
   - name: write vpc id to file
-    shell: echo "vpc_id{{":"}} {{ vpc_id.msg }}" > ./aws-related/vpc-id.yml
+    shell: echo "vpc_id{{":"}} {{ vpc_id.msg }}" > ./output/vpc-id.yml
 
 #  - debug: var=vpc_id
 
@@ -69,7 +69,7 @@
   #- debug: var=subnet_id
 
   - name: write subnet id to file
-    shell: echo "subnet_id{{":"}} {{ subnet_id.msg }}" > ./aws-related/subnet-id.yml
+    shell: echo "subnet_id{{":"}} {{ subnet_id.msg }}" > ./output/subnet-id.yml
 
 #  - debug: var=subnet_id
 
@@ -96,7 +96,7 @@
   #- debug: var=igw_id
 
   - name: write igw id to file
-    shell: echo "igw_id{{":"}} {{ igw_id.msg }}" > ./aws-related/igw-id.yml
+    shell: echo "igw_id{{":"}} {{ igw_id.msg }}" > ./output/igw-id.yml
 
   #- debug: var=igw_id.gateway_id
 
