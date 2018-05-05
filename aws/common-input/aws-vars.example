@@ -1,4 +1,4 @@
 # do not leave a space between : and key values
 # also, grep | cut used in bash script, so don't repeat any key names in comments
-aws_region:us-east-1
+aws_region:some-region-here
 # us-east-2 not present in current boto settings
