@@ -1,0 +1,14 @@
+{
+    "Subnets": [
+        {
+            "AvailableIpAddressCount": 251,
+            "CidrBlock": "10.0.1.0/24",
+            "DefaultForAz": false,
+            "SubnetId": "subnet-6b9d6d45",
+            "State": "available",
+            "MapPublicIpOnLaunch": false,
+            "AvailabilityZone": "us-east-1b",
+            "VpcId": "vpc-3a722b41"
+        }
+    ]
+}

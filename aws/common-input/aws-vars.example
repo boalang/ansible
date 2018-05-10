@@ -2,3 +2,7 @@
 # also, grep | cut used in bash script, so don't repeat any key names in comments
 aws_region:some-region-here
 # us-east-2 not present in current boto settings 
+
+# the ip address range for the destination of packets, used for vpc route tables
+# override to narrower range if possible, but by default left open to the world
+aws_default_destination_cidr4:0.0.0.0/0
