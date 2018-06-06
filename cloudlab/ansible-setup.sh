@@ -286,7 +286,7 @@ func_wait_for_slave_setup_scripts_to_finish(){
 				NUM_SLAVES_DONE=$((NUM_SLAVES_DONE + 1))
 			else
 				echo ""	
-				echo "Attempting to retrieve $FILE_TO_TEST"
+				echo "`date`: Attempting to retrieve $FILE_TO_TEST" >> /tmp/slave-file-retrieve.log
 				sshpass -p "$ANSIBLE_PWD" scp -o StrictHostKeyChecking=no "$ANSIBLE_UN@$SLAVE_NAME:$FILE_TO_TEST" $FILE_TO_TEST
 			fi
 		done
@@ -298,7 +298,7 @@ func_wait_for_slave_setup_scripts_to_finish(){
 
 		if (($cnt == $MAX_TRIES-1));then
 			ERR_MSG="Timeout reached waiting for slave files to complete ansible setup scripts. Exit master setup script."
-			echo $ERR_MSG >> /tmp/error.log
+			echo $ERR_MSG >> /tmp/slave-file-retrieve.log
 			exit 1
 		fi
 
