@@ -11,7 +11,7 @@
 
 # Using a bastion host and nat gateway for additional security
 # Users must ssh into the bastion host, then ssh into head or other nodes.
-# This allows security to be relaxed for the head and slaves, and hardened for the bastion host as, all ssh goest though the bastion host.
+# This allows security to be relaxed for the head and slaves, and hardened for the bastion host as, all ssh goes though the bastion host.
 # Similar for the use of the nat gateway.  The slaves can remain within a private subnet, without public ip address, and use the nat gateway for internet access to download needed packages.
 
 # NOTE: do not change the following access key names, as aws-cli will look for these specific environment variable names when running the script below.  
@@ -64,6 +64,11 @@ func_wait_for_file_info(){
     do
         echo "func_wait_for_file_info(): waiting for $1 to exist and not be zero. sleep $SLEEP_VAL"
         sleep $SlEEP_VAL        
+
+        # for vpc we need to make sure the state is not pending
+        # grep and cut the file here and grab the "State": "pending" info
+        # need to stay and loop while still pending
+        #  what does it say when it is ready???  "State": "available",
 
         # unlikely to need, but just in case
         COUNT=$((COUNT + 1))

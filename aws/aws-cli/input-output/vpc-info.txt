@@ -1,11 +1,11 @@
 {
     "Vpc": {
-        "CidrBlock": "10.0.0.0/16",
-        "DhcpOptionsId": "dopt-d54925b2",
-        "IsDefault": false,
-        "InstanceTenancy": "default",
         "Tags": [],
+        "VpcId": "vpc-ece41b96",
+        "IsDefault": false,
+        "DhcpOptionsId": "dopt-d54925b2",
         "State": "pending",
-        "VpcId": "vpc-3a722b41"
+        "CidrBlock": "10.0.0.0/16",
+        "InstanceTenancy": "default"
     }
 }

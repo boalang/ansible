@@ -1,7 +1,7 @@
 {
     "InternetGateway": {
         "Attachments": [],
-        "InternetGatewayId": "igw-35dfb24d",
-        "Tags": []
+        "Tags": [],
+        "InternetGatewayId": "igw-151b316d"
     }
 }

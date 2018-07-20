@@ -2,13 +2,13 @@
     "Subnets": [
         {
             "AvailableIpAddressCount": 251,
-            "CidrBlock": "10.0.1.0/24",
-            "DefaultForAz": false,
-            "SubnetId": "subnet-6b9d6d45",
-            "State": "available",
+            "AvailabilityZone": "us-east-1d",
             "MapPublicIpOnLaunch": false,
-            "AvailabilityZone": "us-east-1b",
-            "VpcId": "vpc-3a722b41"
+            "State": "available",
+            "VpcId": "vpc-ece41b96",
+            "SubnetId": "subnet-99cb60c5",
+            "DefaultForAz": false,
+            "CidrBlock": "10.0.1.0/24"
         }
     ]
 }
