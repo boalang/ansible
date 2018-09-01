@@ -234,24 +234,24 @@ func_install_ansible_software(){
 	apt-get install -y software-properties-common
 	echo ""
 
-	echo ""
-	echo "apt-add-repository -y ppa:ansible/ansible"
-	apt-add-repository -y ppa:ansible/ansible
-	echo ""
+#	echo ""
+#	echo "apt-add-repository -y ppa:ansible/ansible"
+#	apt-add-repository -y ppa:ansible/ansible
+#	echo ""
 
 	echo ""
 	echo "apt-get update"
 	apt-get update
 	echo ""
 
-	echo ""
-	echo "apt-get install -y ansible=2.0.0.2-2ubuntu1"
-	apt-get install -y ansible=2.0.0.2-2ubuntu1
+#	echo ""
+#	echo "apt-get install -y ansible=2.0.0.2-2ubuntu1"
+#	apt-get install -y ansible=2.0.0.2-2ubuntu1
 
-#	echo ""
-#	echo "apt-get install -y ansible"
-#	echo ""
-#	apt-get install -y ansible
+	echo ""
+	echo "apt-get install -y ansible"
+	echo ""
+	apt-get install -y ansible
 
 }
 ####################################################################################################################
@@ -387,11 +387,11 @@ func_ssh-keyscan_ansible(){
 	# correctly, and it is as specified in the man page for getent
 	# possible alternative if getent fails to execute correctly
 	# cat /etc/hosts | grep '#' -v | grep '^1' | grep '^127' -v | cut -d' ' -f1
-	IPV4=getent hosts | cut -d' ' -f1
+	getent hosts | cut -d' ' -f1 > /tmp/ipv4.txt
 
 	echo ""
-	echo "running:  ssh-keyscan -4 $IPV4 >> /home/$ANSIBLE_UN/.ssh/known_hosts"
-	ssh-keyscan -4 -f "$IPV4" >> "/home/$ANSIBLE_UN/.ssh/known_hosts"
+	echo "running:  ssh-keyscan -4 /tmp/ipv4.txt >> /home/$ANSIBLE_UN/.ssh/known_hosts"
+	ssh-keyscan -4 -f /tmp/ipv4.txt >> "/home/$ANSIBLE_UN/.ssh/known_hosts"
 
 }
 ####################################################################################################################
